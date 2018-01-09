@@ -4,7 +4,7 @@ import WeakMap from 'es6-weak-map';
 import Map from 'es6-map';
 import mimic from 'mimic-fn';
 
-export const DEFAULT_STORAGE_COUNT = 1e5;
+export const DEFAULT_STORAGE_COUNT = 1e3;
 
 type NonPrimitive = Object | Function;
 type Primitive = boolean | string | number | Symbol | null | void;
