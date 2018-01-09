@@ -6,9 +6,10 @@ import mimic from 'mimic-fn';
 
 export const DEFAULT_STORAGE_COUNT = 1e5;
 
+type NonPrimitive = Object | Function;
 type Primitive = boolean | string | number | Symbol | null | void;
 
-declare function IsPrimitiveValue(value: Object | Function): false;
+declare function IsPrimitiveValue(value: NonPrimitive): false;
 // eslint-disable-next-line no-redeclare
 declare function IsPrimitiveValue(value: Primitive): true;
 
@@ -79,7 +80,7 @@ class CacheStorage<V> {
     throw new Error('Not implemented');
   }
 
-  extractPath(path: Array<MapKey | WeakKey>): mixed {
+  extractPath(path: Array<Primitive | NonPrimitive>): mixed {
     const { length } = path;
     if (length === 1) {
       return this.extract(path[0]);
@@ -95,7 +96,7 @@ class CacheStorage<V> {
     }
   }
 
-  setPath(path: Array<MapKey | WeakKey>, value: mixed, params: ContextParams): mixed {
+  setPath(path: Array<Primitive | NonPrimitive>, value: mixed, params: ContextParams): mixed {
     const { length } = path;
     if (length === 1) {
       return this.assoc(path[0], value);
@@ -123,11 +124,9 @@ class CacheStorage<V> {
   }
 }
 
-type MapKey = string | number | boolean | Symbol;
-
 class MapCacheStorage<V> extends CacheStorage<V>
-  implements StorageInterface<MapKey, V> {
-  map: Map<MapKey, V | Storage<V> | mixed>;
+  implements StorageInterface<Primitive, V> {
+  map: Map<Primitive, V | Storage<V> | mixed>;
 
   constructor(...args) {
     super(...args);
@@ -148,11 +147,9 @@ class MapCacheStorage<V> extends CacheStorage<V>
   }
 }
 
-type WeakKey = Object | Function;
-
 class WeakCacheStorage<V> extends CacheStorage<V>
-  implements StorageInterface<WeakKey, V> {
-  weakMap: WeakMap<WeakKey, V | Storage<V> | mixed>;
+  implements StorageInterface<NonPrimitive, V> {
+  weakMap: WeakMap<NonPrimitive, V | Storage<V> | mixed>;
 
   constructor(...args) {
     super(...args);
@@ -174,14 +171,14 @@ class WeakCacheStorage<V> extends CacheStorage<V>
 }
 
 class Storage<V> extends CacheStorage<V>
-  implements StorageInterface<MapKey | WeakKey, V> {
-  map: Map<MapKey, V | Storage<V>>;
-  weakMap: WeakMap<WeakKey, V | Storage<V>>;
-  assocPrimitive: Assoc<MapKey, V>;
-  assocWeak: Assoc<WeakKey, V>;
-  extractPrimitive: Extract<MapKey, V>;
-  extractWeak: Extract<WeakKey, V>;
-  dropPrimitive: Drop<MapKey>;
+  implements StorageInterface<Primitive | NonPrimitive, V> {
+  map: Map<Primitive, V | Storage<V>>;
+  weakMap: WeakMap<NonPrimitive, V | Storage<V>>;
+  assocPrimitive: Assoc<Primitive, V>;
+  assocWeak: Assoc<NonPrimitive, V>;
+  extractPrimitive: Extract<Primitive, V>;
+  extractWeak: Extract<NonPrimitive, V>;
+  dropPrimitive: Drop<Primitive>;
 
   constructor(...args) {
     super(...args);
@@ -237,10 +234,13 @@ export default function memoize<A, R>(
   const resultFunction = checkLast ? function cachedFunction(): R {
     const { length: argsLength } = arguments;
     let { length: i } = arguments;
-    if (i === lastArgs.length) {
-      while (i-- && arguments[i] === lastArgs[i]);
-      if (!(i + 1) && lastCache !== NO_VALUE) return lastCache;
-    }
+    if (i === lastArgs.length)
+      if (i === 1) {
+        if (arguments[0] === lastArgs[0]) return lastCache;
+      } else {
+        while (i-- && arguments[i] === lastArgs[i]);
+        if (i === -1 && lastCache !== NO_VALUE) return lastCache;
+      }
     let res = void 0;
     // Check arguments length to prevent calling function with various arguments count
     if (argsLength === length) {

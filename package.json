@@ -1,6 +1,6 @@
 {
   "name": "fun-memoize",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "author": "Oleg Nosov<olegnosov1@gmail.com>",
   "dependencies": {
     "es6-map": "^0.1.5",
@@ -37,6 +37,7 @@
   },
   "main": "index.js",
   "scripts": {
+    "prepublish": "yarn build",
     "build": "rm -rf dist && NODE_ENV=release babel -d ./dist ./src",
     "benchmark": "babel-node ./benchmark/index.js",
     "test": "jest ."

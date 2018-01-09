@@ -96,7 +96,7 @@ ___storageCount___ - maximum number of Storage objects for primitive types, each
 
 ___checkLast___ - firstly check last arguments passed to function and if they equal to current arguments, return last result
 
-All object's caches (Object | Function) are stored in [WeakMaps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap). When object wont be  referenced and will be collected by [GB](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management) all its cache subtree also wont be referenced from nowhere but object itself, and will be collected too (maybe later, maybe at the same moment, it depends on GB realisation).
+All object's caches (Object | Function) are stored in [WeakMaps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap). When object wont be referenced and will be collected by [GC](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management) all its cache subtree will be collected too (maybe later, maybe at the same moment, it depends on GC realization).
 
  When primitive arguments (boolean | string | number | Symbol | null | void) storage count will be reached, first sub-caching-node will be removed ([Queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) order, also known as [FIFO](https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics))). Let's look at example.
 
