@@ -1,6 +1,6 @@
 {
   "name": "fun-memoize",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "author": "Oleg Nosov<olegnosov1@gmail.com>",
   "dependencies": {
     "es6-map": "^0.1.5",

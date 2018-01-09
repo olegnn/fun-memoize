@@ -79,7 +79,7 @@ class CacheStorage<V> {
     throw new Error('Not implemented');
   }
 
-  extractPath(path: Array<string>): mixed {
+  extractPath(path: Array<MapKey | WeakKey>): mixed {
     const { length } = path;
     if (length === 1) {
       return this.extract(path[0]);
@@ -95,7 +95,7 @@ class CacheStorage<V> {
     }
   }
 
-  setPath(path: Array<string>, value: mixed, params: ContextParams): mixed {
+  setPath(path: Array<MapKey | WeakKey>, value: mixed, params: ContextParams): mixed {
     const { length } = path;
     if (length === 1) {
       return this.assoc(path[0], value);
@@ -152,7 +152,7 @@ type WeakKey = Object | Function;
 
 class WeakCacheStorage<V> extends CacheStorage<V>
   implements StorageInterface<WeakKey, V> {
-  weakMap: WeakMap<WeakKey | string, V | Storage<V> | mixed>;
+  weakMap: WeakMap<WeakKey, V | Storage<V> | mixed>;
 
   constructor(...args) {
     super(...args);
@@ -239,7 +239,7 @@ export default function memoize<A, R>(
     let { length: i } = arguments;
     if (i === lastArgs.length) {
       while (i-- && arguments[i] === lastArgs[i]);
-      if (!(i + 1)) return lastCache;
+      if (!(i + 1) && lastCache !== NO_VALUE) return lastCache;
     }
     let res = void 0;
     // Check arguments length to prevent calling function with various arguments count
@@ -260,6 +260,7 @@ export default function memoize<A, R>(
       res = func.apply(null, arguments);
     }
     lastArgs = arguments;
+    // eslint-disable-next-line no-return-assign
     return lastCache = res;
   }: function cachedFunction(): R {
     const { length: argsLength } = arguments;
@@ -308,13 +309,14 @@ export const createObjectSelector: CreateObjectSelector = (...funcs) => {
   const memoized = memoize(calculate, haveParams? params: void 0);
 
   let lastRes = void 0,
-    lastObj: Object = void 0;
+    lastObj: ?Object = void 0;
   return (obj: Object): mixed => {
     if (lastObj !== void 0 && obj === lastObj) return lastRes;
     let { length } = selectorFuncs;
     const args = Array(length);
     while (length--) args[length] = selectorFuncs[length](obj);
     lastObj = obj;
+    // eslint-disable-next-line no-return-assign
     return lastRes = memoized.apply(null, args);
   };
 };
