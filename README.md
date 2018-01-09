@@ -2,6 +2,10 @@
 
 __Have fun! 😏__
 
+[![npm](https://img.shields.io/npm/v/fun-memoize.svg)](https://www.npmjs.com/package/fun-memoize)
+[![npm](https://img.shields.io/npm/dm/fun-memoize.svg)](https://www.npmjs.com/package/fun-memoize)
+
+
 Memoization module based on [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) and [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) for modern JavaScript applications.
 
 Provide fast enough memoization with O(1) complexity to retrieve cache and only __strict__ (===) equality check (no custom) for functions with __fixed arguments length__.
