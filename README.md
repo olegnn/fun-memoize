@@ -2,7 +2,7 @@
 
 __Have fun! 😏__
 
-Memoization module for modern JavaScript applications based on [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) and [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap).
+Memoization module based on [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) and [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) for modern JavaScript applications.
 
 Provide fast enough memoization with O(1) complexity to retrieve cache (for environments with native Map support and maximum O(n) where polyfill will be used) and only __===__ equality check (no custom) for functions with __fixed arguments length__.
 
