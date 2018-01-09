@@ -282,9 +282,13 @@ export default function memoize<A, R>(
       return func.apply(null, arguments);
     }
   };
-  void mimic(
-    resultFunction, func,
-  );
+  try {
+    void mimic(
+      resultFunction, func,
+    );
+  } catch(e) {
+
+  }
   return resultFunction;
   /* eslint-enable prefer-rest-params */
 }
