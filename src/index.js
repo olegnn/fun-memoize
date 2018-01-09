@@ -311,7 +311,7 @@ export const createObjectSelector: CreateObjectSelector = (...funcs) => {
   let lastRes = void 0,
     lastObj: ?Object = void 0;
   return (obj: Object): mixed => {
-    if (lastObj !== void 0 && obj === lastObj) return lastRes;
+    if (obj === lastObj && lastObj !== void 0) return lastRes;
     let { length } = selectorFuncs;
     const args = Array(length);
     while (length--) args[length] = selectorFuncs[length](obj);
