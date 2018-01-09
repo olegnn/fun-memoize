@@ -136,7 +136,7 @@ To import compiled js file (es3 compatible) just use
 ```javascript
 import memoize from 'fun-memoize';
 ```
-To import es6-module use
+To import es6-module use (Required [Flow](https://github.com/facebook/flow))
 
 ```javascript
 import memoize from 'fun-memoize/es6';

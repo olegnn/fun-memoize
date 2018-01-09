@@ -1,5 +1,6 @@
 {
   "name": "fun-memoize",
+  "version": "0.0.1",
   "author": "Oleg Nosov<olegnosov1@gmail.com>",
   "dependencies": {
     "es6-map": "^0.1.5",
@@ -20,8 +21,6 @@
     "eslint": "^4.11.0",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-jsx-a11y": "^6.0.2",
-    "eslint-plugin-react": "^7.4.0",
     "fast-memoize": "^2.2.8",
     "flow-bin": "^0.61.0",
     "iMemoized": "^1.1.8",
