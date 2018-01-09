@@ -1,10 +1,10 @@
 // @flow
 /* eslint-disable prefer-spread */
 import WeakMap from 'es6-weak-map';
-import Map from 'es6-map';
 import mimic from 'mimic-fn';
 
 export const DEFAULT_STORAGE_COUNT = 1e3;
+const MAP_IMPLEMENTED = typeof Map === 'function' && typeof Map.prototype.entries === 'function';
 
 type NonPrimitive = Object | Function;
 type Primitive = boolean | string | number | Symbol | null | void;
@@ -34,7 +34,7 @@ interface StorageInterface<K, V> {
 const NO_VALUE = {};
 
 type RootInfo = {|
-  root: Storage<*> | MapCacheStorage<*> | WeakCacheStorage<*> | CacheStorage<*>,
+  root: Storage<*> | PrimitiveCacheStorage<*> | WeakCacheStorage<*> | CacheStorage<*>,
   key: mixed
 |};
 
@@ -63,7 +63,6 @@ class CacheStorage<V> {
     throw new Error('Not implemented');
   }
 
-
   /**
    * @virtual
    *
@@ -91,7 +90,7 @@ class CacheStorage<V> {
       do {
         res = res.extract(path[i++]);
         log = i < length;
-      } while (log && res && res !== NO_VALUE);
+      } while (log && res !== NO_VALUE);
       return log ? NO_VALUE : res;
     }
   }
@@ -124,13 +123,15 @@ class CacheStorage<V> {
   }
 }
 
-class MapCacheStorage<V> extends CacheStorage<V>
+class PrimitiveCacheStorage<V> extends CacheStorage<V>
   implements StorageInterface<Primitive, V> {
-  map: Map<Primitive, V | Storage<V> | mixed>;
+  map: ?Map<Primitive, V | Storage<V> | mixed>;
+  cache: ?{ [key: string]: V | Storage<V> | mixed };
 
   constructor(...args) {
     super(...args);
-    this.map = new Map();
+    if (MAP_IMPLEMENTED) this.map = new Map();
+    else this.cache = Object.create(null);
   }
 
   extract(keyValue) {
@@ -146,6 +147,29 @@ class MapCacheStorage<V> extends CacheStorage<V>
     return value;
   }
 }
+
+void function replaceMapByObjectForPrimitiveCacheIfMapDoesntImplemented() {
+  const generateKey = (keyValue: mixed): string => `${String(keyValue)}@@${typeof keyValue}`;
+
+  function extractFromObject(keyValue) {
+    const key = generateKey(keyValue);
+    return key in this.cache ? this.cache[key]: NO_VALUE;
+  }
+
+  function dropFromObject(keyValue) {
+    return delete this.cache[generateKey(keyValue)];
+  }
+
+  function assocInObject(keyValue, value) {
+    return this.cache[generateKey(keyValue)] = value;
+  }
+
+  if (!MAP_IMPLEMENTED) {
+    PrimitiveCacheStorage.prototype.extract = extractFromObject;
+    PrimitiveCacheStorage.prototype.drop = dropFromObject;
+    PrimitiveCacheStorage.prototype.assoc = assocInObject;
+  }
+}();
 
 class WeakCacheStorage<V> extends CacheStorage<V>
   implements StorageInterface<NonPrimitive, V> {
@@ -172,7 +196,8 @@ class WeakCacheStorage<V> extends CacheStorage<V>
 
 class Storage<V> extends CacheStorage<V>
   implements StorageInterface<Primitive | NonPrimitive, V> {
-  map: Map<Primitive, V | Storage<V>>;
+  map: ?Map<Primitive, V | Storage<V>>;
+  cache: ?{ [key: string]: V | Storage<V> | mixed };
   weakMap: WeakMap<NonPrimitive, V | Storage<V>>;
   assocPrimitive: Assoc<Primitive, V>;
   assocWeak: Assoc<NonPrimitive, V>;
@@ -182,13 +207,14 @@ class Storage<V> extends CacheStorage<V>
 
   constructor(...args) {
     super(...args);
-    this.map = new Map();
+    if (MAP_IMPLEMENTED) this.map = new Map();
+    else this.cache = Object.create(null);
     this.weakMap = new WeakMap();
-    this.extractPrimitive = MapCacheStorage.prototype.extract.bind(this);
-    this.extractWeak = WeakCacheStorage.prototype.extract.bind(this);
-    this.assocPrimitive = MapCacheStorage.prototype.assoc.bind(this);
-    this.assocWeak = WeakCacheStorage.prototype.assoc.bind(this);
-    this.dropPrimitive = MapCacheStorage.prototype.drop.bind(this);
+    this.extractPrimitive = PrimitiveCacheStorage.prototype.extract;
+    this.extractWeak = WeakCacheStorage.prototype.extract;
+    this.assocPrimitive = PrimitiveCacheStorage.prototype.assoc;
+    this.assocWeak = WeakCacheStorage.prototype.assoc;
+    this.dropPrimitive = PrimitiveCacheStorage.prototype.drop;
   }
 
   extract(keyValue) {
@@ -260,7 +286,6 @@ export default function memoize<A, R>(
       res = func.apply(null, arguments);
     }
     lastArgs = arguments;
-    // eslint-disable-next-line no-return-assign
     return lastCache = res;
   }: function cachedFunction(): R {
     const { length: argsLength } = arguments;
@@ -286,9 +311,7 @@ export default function memoize<A, R>(
     void mimic(
       resultFunction, func,
     );
-  } catch(e) {
-
-  }
+  } catch (e) { void null; }
   return resultFunction;
   /* eslint-enable prefer-rest-params */
 }
@@ -320,7 +343,6 @@ export const createObjectSelector: CreateObjectSelector = (...funcs) => {
     const args = Array(length);
     while (length--) args[length] = selectorFuncs[length](obj);
     lastObj = obj;
-    // eslint-disable-next-line no-return-assign
     return lastRes = memoized.apply(null, args);
   };
 };

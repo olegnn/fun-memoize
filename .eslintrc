@@ -55,7 +55,8 @@
     "no-void": [0],
     "no-shadow": [0],
     "no-use-before-define": [1],
-
+    "wrap-iife": [0],
+    "no-return-assign": [0],
     "react/prop-types": [1],
     "react/jsx-curly-spacing": [2, "never"],
     "react/jsx-equals-spacing": [2, "never"],
