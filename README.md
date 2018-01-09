@@ -1,10 +1,12 @@
-## Memoize func
+# Fun memoize
 
-Memoization module for JavaScript applications based on [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) and [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap).
+__Have fun! 😏__
 
-Provide fast enough memoization with O(1) complexity to retrieve cache (for environments with native map support and maximum O(n) where polyfill will be used) only __===__ equality check (no custom) for functions with __fixed arguments length__.
+Memoization module for modern JavaScript applications based on [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) and [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap).
 
-### Installation
+Provide fast enough memoization with O(1) complexity to retrieve cache (for environments with native Map support and maximum O(n) where polyfill will be used) and only __===__ equality check (no custom) for functions with __fixed arguments length__.
+
+## Installation
 
 ```shell
   npm i --save fun-memoize
@@ -14,7 +16,7 @@ Provide fast enough memoization with O(1) complexity to retrieve cache (for envi
   yarn add fun-memoize
 ```
 
-### Examples
+## Examples
 
 ```javascript
   import memoize from 'fun-memoize';
@@ -94,9 +96,9 @@ ___storageCount___ - maximum number of Storage objects for primitive types, each
 
 ___checkLast___ - firstly check last arguments passed to function and if they equal to current arguments, return last result
 
-All object's caches (Object | Function) are stored in [WeakMaps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap). When object wont be  referenced and will be collected by (GB)[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management] all it cache subtree also wont be referenced nowhere but object itself, and will be collected too (maybe later, maybe at the same moment, it depends on GB realisation).
+All object's caches (Object | Function) are stored in [WeakMaps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap). When object wont be  referenced and will be collected by [GB](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management) all its cache subtree also wont be referenced from nowhere but object itself, and will be collected too (maybe later, maybe at the same moment, it depends on GB realisation).
 
- When primitive arguments (boolean | string | number | Symbol | null | void) storage count will be reached, first sub-caching-node will be removed ([Queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) order, also known as (FIFO)[https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)]). Let's look at example.
+ When primitive arguments (boolean | string | number | Symbol | null | void) storage count will be reached, first sub-caching-node will be removed ([Queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) order, also known as [FIFO](https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics))). Let's look at example.
 
 ```javascript
   import memoize from 'fun-memoize';
@@ -118,7 +120,7 @@ All object's caches (Object | Function) are stored in [WeakMaps](https://develop
   //  Added third node as root->3->5=>15
 
   const res5 = memoizedF(2, 8);
-  // We don't have no more nodes for cache
+  // We have no more nodes for cache
   // So cache with arg 1 will be dropped
   // root->1 doesn't exist anymore :C
 
@@ -141,3 +143,6 @@ To import es6-module use (Required [Flow](https://github.com/facebook/flow))
 ```javascript
 import memoize from 'fun-memoize/es6';
 ```
+
+## Benchmarks
+![Results](https://github.com/olegnn/fun-memoize/blob/master/benchmark/results.png)

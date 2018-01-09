@@ -1,5 +1,5 @@
 // @flow
-
+/* eslint-disable prefer-spread */
 import WeakMap from 'es6-weak-map';
 import Map from 'es6-map';
 import mimic from 'mimic-fn';
@@ -247,17 +247,17 @@ export default function memoize<A, R>(
       const extractedCache = storage.extractPath(arguments);
       res = extractedCache !== NO_VALUE
         ? extractedCache
-        : storage.setPath(arguments, func(...arguments), params);
+        : storage.setPath(arguments, func.apply(null, arguments), params);
       // If we have more arguments that we need, just slice it
     } else if (argsLength > length) {
       const slicedArgs = slice.call(arguments, 0, length);
       const extractedCache = storage.extractPath(slicedArgs);
       res = extractedCache !== NO_VALUE
         ? extractedCache
-        : storage.setPath(slicedArgs, func(...arguments), params);
+        : storage.setPath(slicedArgs, func.apply(null, arguments), params);
       // If we have less, don't use cache
     } else {
-      res = func(...arguments);
+      res = func.apply(null, arguments);
     }
     lastArgs = arguments;
     return lastCache = res;
@@ -268,17 +268,17 @@ export default function memoize<A, R>(
       const extractedCache = storage.extractPath(arguments);
       return extractedCache !== NO_VALUE
         ? extractedCache
-        : storage.setPath(arguments, func(...arguments), params);
+        : storage.setPath(arguments, func.apply(null, arguments), params);
       // If we have more arguments that we need, just slice it
     } else if (argsLength > length) {
       const slicedArgs = slice.call(arguments, 0, length);
       const extractedCache = storage.extractPath(slicedArgs);
       return extractedCache !== NO_VALUE
         ? extractedCache
-        : storage.setPath(slicedArgs, func(...arguments), params);
+        : storage.setPath(slicedArgs, func.apply(null, arguments), params);
       // If we have less, don't use cache
     } else {
-      return func(...arguments);
+      return func.apply(null, arguments);
     }
   };
   void mimic(
@@ -315,6 +315,6 @@ export const createObjectSelector: CreateObjectSelector = (...funcs) => {
     const args = Array(length);
     while (length--) args[length] = selectorFuncs[length](obj);
     lastObj = obj;
-    return lastRes = memoized(...args);
+    return lastRes = memoized.apply(null, args);
   };
 };

@@ -1,12 +1,18 @@
 {
   "name": "fun-memoize",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Oleg Nosov<olegnosov1@gmail.com>",
   "dependencies": {
     "es6-map": "^0.1.5",
     "es6-weak-map": "^2.0.2",
     "mimic-fn": "^1.1.0"
   },
+  "keywords": [
+    "memoization",
+    "fast",
+    "performance",
+    "immutable"
+  ],
   "license": "MIT",
   "devDependencies": {
     "babel-eslint": "^8.0.2",
