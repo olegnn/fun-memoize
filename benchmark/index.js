@@ -179,6 +179,7 @@ const runNextSuite = () => {
     .on('cycle', event => console.log(`${event.target}`))
     .on('complete', function() {
       console.log(`Fastest is ${this.filter('fastest').map('name')}`);
+      console.log('+'.repeat(1e2));
       runNextSuite();
     })
     .run({ async: true });

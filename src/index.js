@@ -4,8 +4,10 @@ import WeakMap from 'es6-weak-map';
 import mimic from 'mimic-fn';
 
 export const DEFAULT_STORAGE_COUNT = 1e3;
+const NO_VALUE = {};
 const MAP_IMPLEMENTED = typeof Map === 'function' && typeof Map.prototype.entries === 'function';
 
+type NoValueType = typeof NO_VALUE;
 type NonPrimitive = Object | Function;
 type Primitive = boolean | string | number | Symbol | null | void;
 
@@ -30,8 +32,6 @@ interface StorageInterface<K, V> {
   assoc: Assoc<K, V>;
   drop: Drop<K>;
 }
-
-const NO_VALUE = {};
 
 type RootInfo = {|
   root: Storage<*> | PrimitiveCacheStorage<*> | WeakCacheStorage<*> | CacheStorage<*>,
@@ -123,15 +123,19 @@ class CacheStorage<V> {
   }
 }
 
+function createPrimitiveStorage() {
+  if (MAP_IMPLEMENTED) this.map = new Map();
+  else this.cache = Object.create(null);
+}
+
 class PrimitiveCacheStorage<V> extends CacheStorage<V>
   implements StorageInterface<Primitive, V> {
-  map: ?Map<Primitive, V | Storage<V> | mixed>;
+  map: Map<Primitive, V | Storage<V>>;
   cache: ?{ [key: string]: V | Storage<V> | mixed };
 
   constructor(...args) {
     super(...args);
-    if (MAP_IMPLEMENTED) this.map = new Map();
-    else this.cache = Object.create(null);
+    createPrimitiveStorage.call(this);
   }
 
   extract(keyValue) {
@@ -148,7 +152,7 @@ class PrimitiveCacheStorage<V> extends CacheStorage<V>
   }
 }
 
-void function replaceMapByObjectForPrimitiveCacheIfMapDoesntImplemented() {
+void function replaceMapByObjectForPrimitiveCacheIfMapIsntImplemented() {
   const generateKey = (keyValue: mixed): string => `${String(keyValue)}@@${typeof keyValue}`;
 
   function extractFromObject(keyValue) {
@@ -173,7 +177,7 @@ void function replaceMapByObjectForPrimitiveCacheIfMapDoesntImplemented() {
 
 class WeakCacheStorage<V> extends CacheStorage<V>
   implements StorageInterface<NonPrimitive, V> {
-  weakMap: WeakMap<NonPrimitive, V | Storage<V> | mixed>;
+  weakMap: WeakMap<NonPrimitive, V | Storage<V>>;
 
   constructor(...args) {
     super(...args);
@@ -207,8 +211,7 @@ class Storage<V> extends CacheStorage<V>
 
   constructor(...args) {
     super(...args);
-    if (MAP_IMPLEMENTED) this.map = new Map();
-    else this.cache = Object.create(null);
+    createPrimitiveStorage.call(this);
     this.weakMap = new WeakMap();
     this.extractPrimitive = PrimitiveCacheStorage.prototype.extract;
     this.extractWeak = WeakCacheStorage.prototype.extract;
@@ -253,7 +256,7 @@ export default function memoize<A, R>(
   };
   const { length } = func;
 
-  let lastCache: R = NO_VALUE,
+  let lastCache: R | NoValueType = NO_VALUE,
     lastArgs: A[] = [];
 
   /* eslint-disable prefer-rest-params */
@@ -262,7 +265,7 @@ export default function memoize<A, R>(
     let { length: i } = arguments;
     if (i === lastArgs.length)
       if (i === 1) {
-        if (arguments[0] === lastArgs[0]) return lastCache;
+        if (arguments[0] === lastArgs[0] && lastCache !== NO_VALUE) return lastCache;
       } else {
         while (i-- && arguments[i] === lastArgs[i]);
         if (i === -1 && lastCache !== NO_VALUE) return lastCache;
@@ -311,8 +314,9 @@ export default function memoize<A, R>(
     void mimic(
       resultFunction, func,
     );
-  } catch (e) { void null; }
-  return resultFunction;
+  } finally {
+    return resultFunction;
+  }
   /* eslint-enable prefer-rest-params */
 }
 

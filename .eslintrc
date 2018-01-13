@@ -1,8 +1,5 @@
 {
   "parser": "babel-eslint",
-  "env": {
-    "node": true
-  },
   "rules": {
     "indent": [2, 2, {"SwitchCase": 1}],
     "func-names": [0],
@@ -53,6 +50,7 @@
     "no-unsafe-negation": [0],
     "no-undef": [1],
     "no-void": [0],
+    "no-unsafe-finally": [0],
     "no-shadow": [0],
     "no-use-before-define": [1],
     "wrap-iife": [0],
