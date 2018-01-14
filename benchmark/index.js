@@ -2,6 +2,7 @@
 
 // TODO: add more libraries
 import Benchmark from 'benchmark';
+import memoizeMoize from 'moize';
 import { createSelector } from 'reselect';
 import fastMemoize from 'fast-memoize';
 import memoizeLodash from 'lodash.memoize';
@@ -17,7 +18,7 @@ const strC = strA + strB;
 
 const stringsFunc = (a: string, b: string, c: string): number => {
   let res = 0;
-  for (let i = 0; i < a.length + b.length + c.length / 10; i++)
+  for (let i = 0; i < (a.length + b.length + c.length) / 10; i++)
     res += 5;
   return res;
 };
@@ -44,21 +45,25 @@ const memoizedStringsFunMemoize = memoize(stringsFunc);
 const memoizedStringsI = imemoized.memoize(stringsFunc);
 const memoizedStringsFast = fastMemoize(stringsFunc);
 const memoizedStringsLodash = memoizeLodash(stringsFunc);
+const memoizedStringsMoize = memoizeMoize(stringsFunc);
 
 const memoizedFibFunMemoize = memoize(fibonacci);
 const memoizedFibI = imemoized.memoize(fibonacci);
 const memoizedFibFast = fastMemoize(fibonacci);
 const memoizedFibLodash = memoizeLodash(fibonacci);
+const memoizedFibMoize = memoizeMoize(fibonacci);
 
 const memoizedNumbersFunMemoize = memoize(numberFunc);
 const memoizedNumbersI = imemoized.memoize(numberFunc);
 const memoizedFNumbers = fastMemoize(numberFunc);
 const memoizedNumbersLodash = memoizeLodash(numberFunc);
+const memoizedNumbersMoize = memoizeMoize(numberFunc);
 
 const memoizedMixedFunMemoize = memoize(mixedFunc);
 const memoizedMixedI = imemoized.memoize(mixedFunc);
 const memoizedMixedFast = fastMemoize(mixedFunc);
 const memoizedMixedLodash = memoizeLodash(mixedFunc);
+const memoizedMixedMoize = memoizeMoize(mixedFunc);
 
 const selectA = obj => obj.a;
 
@@ -99,15 +104,23 @@ const stateGen1 = stateGen();
 
 const stateGen2 = stateGen();
 
+const stateGen3 = stateGen();
+
 suites[0]
   .add(
     'fun-memoize#strings', () => memoizedStringsFunMemoize(strA, strB, strC),
-  ).add(
+  )
+  .add(
     'fast-memoize#strings', () => memoizedStringsFast(strA, strB, strC),
-  ).add(
+  )
+  .add(
     'iMemoized#strings', () => memoizedStringsI(strA, strB, strC),
-  ).add(
+  )
+  .add(
     'lodash.memoize#strings', () => memoizedStringsLodash(strA, strB, strC),
+  )
+  .add(
+    'moize#strings', () => memoizedStringsMoize(strA, strB, strC),
   );
 suites[1]
   .add(
@@ -118,6 +131,9 @@ suites[1]
   )
   .add(
     'iMemoized#numbers', () => memoizedNumbersI(5, 100, 2),
+  )
+  .add(
+    'moize#numbers', () => memoizedNumbersMoize(5, 100, 2),
   )
   .add(
     'fast-memoize#numbers', () => memoizedFNumbers(5, 100, 2),
@@ -133,6 +149,9 @@ suites[2]
     'iMemoized#mixed', () => memoizedMixedI(strA, 0.0025, o),
   )
   .add(
+    'moize#mixed', () => memoizedMixedMoize(strA, 0.0025, o),
+  )
+  .add(
     'fast-memoize#mixed', () => memoizedMixedFast(strA, 0.0025, o),
   );
 suites[3]
@@ -144,6 +163,9 @@ suites[3]
   )
   .add(
     'iMemoized#fib', () => memoizedFibI(15),
+  )
+  .add(
+    'moize#fib', () => memoizedFibMoize(15),
   )
   .add(
     'fast-memoize#fib', () => memoizedFibFast(15),
@@ -158,7 +180,7 @@ suites[4]
       memoizedStateSelectorReselect(stateGen2.next().value),
   )
   .add(
-    're-reselect#selectors: different states', () => memoizedStateSelectorReReselect(strA, strB, strC),
+    're-reselect#selectors: different states', () => memoizedStateSelectorReReselect(stateGen3.next().value),
   );
 suites[5]
   .add(

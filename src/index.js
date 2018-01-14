@@ -261,7 +261,6 @@ export default function memoize<A, R>(
 
   /* eslint-disable prefer-rest-params */
   const resultFunction = checkLast ? function cachedFunction(): R {
-    const { length: argsLength } = arguments;
     let { length: i } = arguments;
     if (i === lastArgs.length)
       if (i === 1) {
@@ -270,6 +269,7 @@ export default function memoize<A, R>(
         while (i-- && arguments[i] === lastArgs[i]);
         if (i === -1 && lastCache !== NO_VALUE) return lastCache;
       }
+    const { length: argsLength } = arguments;
     let res = void 0;
     // Check arguments length to prevent calling function with various arguments count
     if (argsLength === length) {
