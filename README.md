@@ -102,7 +102,7 @@ ___checkLast___ - firstly check last arguments passed to function and if they eq
 
 __createObjectSelector__ - (...selectorFuncs | selectorFuncs[], calculateFunc, ?options: { storageCount: number(default - __1000__), checkLast: boolean(default - __true__) }) - check [reselect](https://github.com/reactjs/reselect#createselectorinputselectors--inputselectors-resultfunc)
 
-All object's caches (Object | Function) are stored in [WeakMaps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap). When object wont be referenced and will be collected by [GC](https://developer.mozilla.org/etin-US/docs/Web/JavaScript/Memory_Management), its cache subtree will be collected too [except primitive value storages, which might be referenced, they will be removed later when primitive arguments cache nodes count will rise up to specified storage count].
+All object's caches (Object | Function) are stored in [WeakMaps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap). When object wont be referenced and will be collected by [GC](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management), its cache subtree will be collected too [except primitive value storages, which might be referenced, they will be removed later when primitive arguments cache nodes count will rise up to specified storage count].
 
  When primitive arguments (boolean | string | number | Symbol | null | void) storage count will be reached, first sub-caching-node will be removed ([Queue](https://en.wikipedia.org/wiki/Queue_(abstract_data_type)) order, also known as [FIFO](https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics))). Let's look at example.
 
