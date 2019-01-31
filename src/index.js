@@ -1,5 +1,5 @@
 // @flow
-/* eslint-disable prefer-spread */
+// eslint-disable prefer-spread
 import WeakMap from 'es6-weak-map';
 import mimic from 'mimic-fn';
 
@@ -159,11 +159,12 @@ void (function replaceMapByObjectForPrimitiveCacheIfMapIsntImplemented() {
     return (this.cache[generateKey(keyValue)] = value);
   }
 
-  if (!MAP_IMPLEMENTED) {
-    PrimitiveCacheStorage.prototype.extract = extractFromObject;
-    PrimitiveCacheStorage.prototype.drop = dropFromObject;
-    PrimitiveCacheStorage.prototype.assoc = assocInObject;
-  }
+  if (!MAP_IMPLEMENTED)
+    Object.assign(PrimitiveCacheStorage.prototype, {
+      extract: extractFromObject,
+      drop: dropFromObject,
+      assoc: assocInObject,
+    });
 })();
 
 class WeakCacheStorage<V> extends CacheStorage<V> implements StorageInterface<NonPrimitive, V> {
@@ -250,7 +251,7 @@ export default function memoize<A, R>(
 
   const recomputate = function() {
     ++resultFunction.recomputations;
-    return this.apply(null, arguments);
+    return this(...arguments);
   };
 
   /* eslint-disable prefer-rest-params */
@@ -265,11 +266,11 @@ export default function memoize<A, R>(
           if (i === -1 && lastCache !== NO_VALUE) return lastCache;
         }
       const argsLength = arguments.length;
-      let res = void 0;
+      let result;
       // Check arguments length to prevent calling function with various arguments count
       if (argsLength === length) {
         const extractedCache = storage.extractPath(arguments);
-        res =
+        result =
             extractedCache !== NO_VALUE
               ? extractedCache
               : storage.setPath(arguments, recomputate.apply(func, arguments), params);
@@ -277,36 +278,46 @@ export default function memoize<A, R>(
       } else if (argsLength > length) {
         const slicedArgs = slice.call(arguments, 0, length);
         const extractedCache = storage.extractPath(slicedArgs);
-        res =
+        result =
             extractedCache !== NO_VALUE
               ? extractedCache
               : storage.setPath(slicedArgs, recomputate.apply(func, arguments), params);
         // If we have less, don't use cache
       } else {
-        res = recomputate.apply(func, arguments);
+        result = recomputate.apply(func, arguments);
       }
+
+      if (result instanceof CacheStorage) result = recomputate.apply(func, arguments);
+
       lastArgs = arguments;
-      return (lastCache = res);
+      return (lastCache = result);
     }
     : function cachedFunction(): R {
       const argsLength = arguments.length;
+      let result;
       // Check arguments length to prevent calling function with various arguments count
       if (argsLength === length) {
         const extractedCache = storage.extractPath(arguments);
-        return extractedCache !== NO_VALUE
-          ? extractedCache
-          : storage.setPath(arguments, recomputate.apply(func, arguments), params);
+        result =
+            extractedCache !== NO_VALUE
+              ? extractedCache
+              : storage.setPath(arguments, recomputate.apply(func, arguments), params);
         // If we have more arguments that we need, just slice it
       } else if (argsLength > length) {
         const slicedArgs = slice.call(arguments, 0, length);
         const extractedCache = storage.extractPath(slicedArgs);
-        return extractedCache !== NO_VALUE
-          ? extractedCache
-          : storage.setPath(slicedArgs, recomputate.apply(func, arguments), params);
+        result =
+            extractedCache !== NO_VALUE
+              ? extractedCache
+              : storage.setPath(slicedArgs, recomputate.apply(func, arguments), params);
         // If we have less, don't use cache
       } else {
         return recomputate.apply(func, arguments);
       }
+
+      if (result instanceof CacheStorage) result = recomputate.apply(func, arguments);
+
+      return result;
     };
 
   try {
@@ -321,12 +332,15 @@ export default function memoize<A, R>(
 declare function CreateObjectSelector(selectorFuncs: Function[], calculate: Function): Function;
 
 // eslint-disable-next-line no-redeclare
-declare function CreateObjectSelector(...args: (Function | Object)[]): Function;
+declare function CreateObjectSelector(
+  ...args: (Function | Object)[]
+): {| ...Function, recomputations: number, dependencies: Function[], resultFunction: Function |};
 
 export const createObjectSelector: CreateObjectSelector = (...args) => {
   const paramsOrFunc = args.slice(-1)[0];
   let selectorFuncs = args.slice(0, -1);
   if (Array.isArray(selectorFuncs[0])) [selectorFuncs] = selectorFuncs;
+
   if (!args.length) {
     throw new Error('Must have at least one argument');
   } else if (args.length === 1) {
@@ -344,32 +358,21 @@ export const createObjectSelector: CreateObjectSelector = (...args) => {
 
   let lastRes = void 0,
     lastObj: ?Object = void 0;
+
   const selector = (obj: Object): mixed => {
     if (obj === lastObj && lastObj !== void 0) return lastRes;
     let { length } = selectorFuncs;
     const args = Array(length);
     while (length--) args[length] = selectorFuncs[length](obj, args.slice(length));
     lastObj = obj;
-    return (lastRes = memoized.apply(null, args));
+    return (lastRes = memoized(...args));
   };
 
-  Object.defineProperty(selector, 'recomputations', {
-    get() {
-      return memoized.recomputations;
-    },
-  });
+  selector.recomputations = () => memoized.recomputations;
 
-  Object.defineProperty(selector, 'dependencies', {
-    get() {
-      return selectorFuncs;
-    },
-  });
+  selector.dependencies = selectorFuncs;
 
-  Object.defineProperty(selector, 'resultFunction', {
-    get() {
-      return calculate;
-    },
-  });
+  selector.resultFunction = calculate;
 
   return selector;
 };

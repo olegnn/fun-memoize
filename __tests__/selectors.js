@@ -15,11 +15,11 @@ describe('selectors:', () => {
 
     expect(selector(firstState)).toEqual(1);
     expect(selector(firstState)).toEqual(1);
-    expect(selector.recomputations).toEqual(1);
+    expect(selector.recomputations()).toEqual(1);
     expect(selector(firstStateNewPointer)).toEqual(1);
-    expect(selector.recomputations).toEqual(1);
+    expect(selector.recomputations()).toEqual(1);
     expect(selector(secondState)).toEqual(2);
-    expect(selector.recomputations).toEqual(2);
+    expect(selector.recomputations()).toEqual(2);
   });
   test("don't pass extra parameters to inputSelector when only called with the state", () => {
     const selector = createObjectSelector((...params) => 1, a => a);
@@ -30,11 +30,11 @@ describe('selectors:', () => {
     const state1 = { a: 1, b: 2 };
     expect(selector(state1)).toEqual(3);
     expect(selector(state1)).toEqual(3);
-    expect(selector.recomputations).toEqual(1);
+    expect(selector.recomputations()).toEqual(1);
     const state2 = { a: 3, b: 2 };
     expect(selector(state2)).toEqual(5);
     expect(selector(state2)).toEqual(5);
-    expect(selector.recomputations).toEqual(2);
+    expect(selector.recomputations()).toEqual(2);
   });
   it('basic selector invalid input selector', () => {
     expect(() => createObjectSelector(state => state.a, 'not a function', (a, b) => a + b)).toThrowError();
@@ -51,7 +51,7 @@ describe('selectors:', () => {
     const totalTime = new Date() - start;
 
     expect(selector(state1)).toEqual(3);
-    expect(selector.recomputations).toEqual(1);
+    expect(selector.recomputations()).toEqual(1);
     /* expe).toEqual(ctow(
       totalTime,
       1000,
@@ -69,7 +69,7 @@ describe('selectors:', () => {
     const totalTime = new Date() - start;
 
     expect(selector(states[0])).toEqual(3);
-    expect(selector.recomputations).toEqual(1);
+    expect(selector.recomputations()).toEqual(1);
     /* expe).toEqual(ctow(
       totalTime,
       1000,
@@ -81,18 +81,18 @@ describe('selectors:', () => {
     const state1 = { sub: { a: 1 } };
     expect(selector(state1)).toEqual({ a: 1 });
     expect(selector(state1)).toEqual({ a: 1 });
-    expect(selector.recomputations).toEqual(1);
+    expect(selector.recomputations()).toEqual(1);
     const state2 = { sub: { a: 2 } };
     expect(selector(state2)).toEqual({ a: 2 });
-    expect(selector.recomputations).toEqual(2);
+    expect(selector.recomputations()).toEqual(2);
   });
   it('first argument can be an array', () => {
     const selector = createObjectSelector([state => state.a, state => state.b], (a, b) => a + b);
     expect(selector({ a: 1, b: 2 })).toEqual(3);
     expect(selector({ a: 1, b: 2 })).toEqual(3);
-    expect(selector.recomputations).toEqual(1);
+    expect(selector.recomputations()).toEqual(1);
     expect(selector({ a: 3, b: 2 })).toEqual(5);
-    expect(selector.recomputations).toEqual(2);
+    expect(selector.recomputations()).toEqual(2);
   });
   it('recomputes result after exception', () => {
     let called = 0;
@@ -129,10 +129,10 @@ describe('selectors:', () => {
     const state1 = { sub: { value: 1 } };
     expect(selector2(state1)).toEqual(1);
     expect(selector2(state1)).toEqual(1);
-    expect(selector2.recomputations).toEqual(1);
+    expect(selector2.recomputations()).toEqual(1);
     const state2 = { sub: { value: 2 } };
     expect(selector2(state2)).toEqual(2);
-    expect(selector2.recomputations).toEqual(2);
+    expect(selector2.recomputations()).toEqual(2);
   });
 
   it('exported memoize', () => {
