@@ -7,7 +7,7 @@
 
 Memoization module based on [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) and [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) for modern JavaScript applications.
 
-Provides fast enough memoization with O(log(n)) complexity to retrieve cache and only **strict** [===] equality check (no custom) for functions with **fixed arguments length**.
+Provides fast memoization using **Object.is** equality check for functions with **fixed arguments length**.
 
 ## Installation
 
@@ -135,12 +135,23 @@ To import compiled js file (es3 compatible) just use
 import memoize from 'fun-memoize';
 ```
 
-To import es6-module use (Required [Flow](https://github.com/facebook/flow))
+## Development
 
-```javascript
-import memoize from 'fun-memoize/es6';
+Build
+
+```
+yarn build
 ```
 
-## Benchmarks
+Lint
 
-![Results](https://github.com/olegnn/fun-memoize/blob/master/benchmark/results.png)
+```
+yarn lint
+```
+
+Benchmark
+
+```
+yarn benchmark
+```
+

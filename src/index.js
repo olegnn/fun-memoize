@@ -1,12 +1,19 @@
 // @flow
 // eslint-disable prefer-spread
-import WeakMap from "es6-weak-map";
-import mimic from "mimic-fn";
+import WeakMap from 'es6-weak-map';
+import mimic from 'mimic-fn';
 
 export const DEFAULT_STORAGE_COUNT = 1e3;
 const NO_VALUE = {};
 const MAP_IMPLEMENTED =
-  typeof Map === "function" && typeof Map.prototype.entries === "function";
+  typeof Map === 'function' && typeof Map.prototype.entries === 'function';
+const is =
+  Object.is ||
+  ((v1, v2) =>
+    v1 === 0 && v2 === 0
+      ? 1 / v1 === 1 / v2
+      : // eslint-disable-next-line no-self-compare
+      (v2 !== v2 && v1 !== v1) || v1 === v2);
 
 type NoValueType = typeof NO_VALUE;
 type NonPrimitive = Object | Function;
@@ -16,9 +23,9 @@ declare function IsPrimitiveValue(value: NonPrimitive): false;
 // eslint-disable-next-line no-redeclare
 declare function IsPrimitiveValue(value: Primitive): true;
 
-const isPrimitiveValue: IsPrimitiveValue = value => {
+const isPrimitiveValue: IsPrimitiveValue = (value) => {
   const type = typeof value;
-  return value == null || (type !== "object" && type !== "function");
+  return value == null || (type !== 'object' && type !== 'function');
 };
 
 type Assoc<K, V> = (keyValue: K, value: V | Storage<*>) => V | Storage<*>;
@@ -26,7 +33,6 @@ type Extract<K, V> = (keyValue: K) => V | Storage<*> | NoValueType;
 type Drop<K> = (keyValue: K) => boolean;
 
 interface StorageInterface<K, V> {
-  //constructor(params: ContextParams, rootInfo: RootInfo<*>): StorageInterface<K, V>;
   +extract: Extract<K, V>;
   +assoc: Assoc<K, V>;
   +drop: Drop<K>;
@@ -34,7 +40,7 @@ interface StorageInterface<K, V> {
 
 type RootInfo<V> = {|
   root: CacheStorage<*>,
-  key: mixed
+  key: mixed,
 |};
 
 type ContextParams = {| ...Params, storages: Array<RootInfo<*>> |};
@@ -42,7 +48,7 @@ type ContextParams = {| ...Params, storages: Array<RootInfo<*>> |};
 class CacheStorage<V> implements StorageInterface<*, V> {
   constructor(
     { storageCount = DEFAULT_STORAGE_COUNT, storages = [] }: ContextParams,
-    rootInfo: ?RootInfo<*>
+    rootInfo: ?RootInfo<*>,
   ) {
     if (rootInfo) {
       if (storages.length >= storageCount) {
@@ -59,7 +65,7 @@ class CacheStorage<V> implements StorageInterface<*, V> {
    *
    */
   drop(...args) {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   /**
@@ -67,7 +73,7 @@ class CacheStorage<V> implements StorageInterface<*, V> {
    *
    */
   extract(...args): V | NoValueType | Storage<*> {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   /**
@@ -75,11 +81,11 @@ class CacheStorage<V> implements StorageInterface<*, V> {
    *
    */
   assoc(...args): V {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   extractPath(
-    path: Array<Primitive | NonPrimitive>
+    path: Array<Primitive | NonPrimitive>,
   ): V | NoValueType | Storage<*> | void {
     const { length } = path;
     if (length === 1) {
@@ -101,7 +107,7 @@ class CacheStorage<V> implements StorageInterface<*, V> {
   setPath(
     path: Array<Primitive | NonPrimitive>,
     value: V,
-    params: ContextParams
+    params: ContextParams,
   ): V {
     const { length } = path;
     if (length === 1) {
@@ -131,7 +137,7 @@ class CacheStorage<V> implements StorageInterface<*, V> {
 
 const PrimitiveCacheStorage = MAP_IMPLEMENTED
   ? class PrimitiveCacheStorage<V> extends CacheStorage<V>
-      implements StorageInterface<Primitive, V> {
+    implements StorageInterface<Primitive, V> {
       // Cannot instantiate `PrimitiveCacheStorage` because  statics of `Map` [1] is not a polymorphic type.
       // flow-disable-line
       map: Map<Primitive, V | Storage<*>>;
@@ -157,9 +163,9 @@ const PrimitiveCacheStorage = MAP_IMPLEMENTED
         // flow-disable-line
         return value;
       }
-    }
+  }
   : class PrimitiveCacheStorage<V> extends CacheStorage<V>
-      implements StorageInterface<Primitive, V> {
+    implements StorageInterface<Primitive, V> {
       cache: { [key: string]: V | Storage<*>, __proto__: null };
 
       constructor(params: ContextParams, rootInfo: ?RootInfo<*>) {
@@ -185,7 +191,7 @@ const PrimitiveCacheStorage = MAP_IMPLEMENTED
         // flow-disable-line
         return (this.cache[this.generateKey(keyValue)] = value);
       }
-    };
+  };
 
 class WeakCacheStorage<V> extends CacheStorage<V>
   implements StorageInterface<NonPrimitive, V> {
@@ -248,20 +254,21 @@ class Storage<V> extends CacheStorage<V>
 
 export type Params = {|
   storageCount: number,
-  checkLast: boolean
+  checkLast: boolean,
 |};
 
 const { slice } = Array.prototype;
 
+/* eslint-disable prefer-rest-params */
 export default function memoize<R>(
   func: (...args: *[]) => R,
-  { storageCount, checkLast = true }: Params = {}
+  { storageCount, checkLast = true }: Params = {},
 ): (...args: *[]) => R {
   const storages: Array<RootInfo<*>> = [];
   const params: ContextParams = {
     storageCount: storageCount || DEFAULT_STORAGE_COUNT,
     checkLast,
-    storages
+    storages,
   };
   const storage: Storage<R> = new Storage(params);
   const { length } = func;
@@ -269,104 +276,103 @@ export default function memoize<R>(
   let lastCache: R | NoValueType = NO_VALUE,
     lastArgs: *[] = [];
 
-  const recomputate = function() {
+  const recomputate = function () {
     ++resultFunction.recomputations;
     return this.apply(this, arguments);
   };
 
-  /* eslint-disable prefer-rest-params */
   const resultFunction = checkLast
     ? function cachedFunction(): R {
-        let i = arguments.length;
-        if (i === lastArgs.length)
-          if (i === 1) {
-            if (arguments[0] === lastArgs[0] && lastCache !== NO_VALUE)
-              // Cannot return `lastCache` because  `NoValueType` [1] is incompatible with  `R`
-              // flow-disable-line
-              return lastCache;
-          } else {
-            while (i-- && arguments[i] === lastArgs[i]);
-            if (i === -1 && lastCache !== NO_VALUE)
-              // Cannot return `lastCache` because  `NoValueType` [1] is incompatible with  `R`
-              // flow-disable-line
-              return lastCache;
-          }
-        const argsLength = arguments.length;
-        let result;
-        // Check arguments length to prevent calling function with various arguments count
-        if (argsLength === length) {
-          const extractedCache = storage.extractPath(arguments);
-          result =
-            extractedCache !== NO_VALUE
-              ? extractedCache
-              : storage.setPath(
-                  arguments,
-                  recomputate.apply(func, arguments),
-                  params
-                );
-          // If we have more arguments that we need, just slice it
-        } else if (argsLength > length) {
-          const slicedArgs = slice.call(arguments, 0, length);
-          const extractedCache = storage.extractPath(slicedArgs);
-          result =
-            extractedCache !== NO_VALUE
-              ? extractedCache
-              : storage.setPath(
-                  slicedArgs,
-                  recomputate.apply(func, arguments),
-                  params
-                );
-          // If we have less, don't use cache
+      let i = arguments.length;
+      if (i === lastArgs.length)
+        if (i === 1) {
+          if (is(arguments[0], lastArgs[0]) && lastCache !== NO_VALUE)
+          // Cannot return `lastCache` because  `NoValueType` [1] is incompatible with  `R`
+          // flow-disable-line
+            return lastCache;
         } else {
-          result = recomputate.apply(func, arguments);
+          while (i-- && is(arguments[i], lastArgs[i]));
+          if (i === -1 && lastCache !== NO_VALUE)
+          // Cannot return `lastCache` because  `NoValueType` [1] is incompatible with  `R`
+          // flow-disable-line
+            return lastCache;
         }
-
-        if (result instanceof CacheStorage)
-          result = recomputate.apply(func, arguments);
-
-        lastArgs = arguments;
-        // Cannot return `lastCache = result` because  `NoValueType` [1] is incompatible with  `R`
-        // flow-disable-line
-        return (lastCache = result);
+      const argsLength = arguments.length;
+      let result;
+      // Check arguments length to prevent calling function with various arguments count
+      if (argsLength === length) {
+        const extractedCache = storage.extractPath(arguments);
+        result =
+            extractedCache !== NO_VALUE
+              ? extractedCache
+              : storage.setPath(
+                arguments,
+                recomputate.apply(func, arguments),
+                params,
+              );
+        // If we have more arguments that we need, just slice it
+      } else if (argsLength > length) {
+        const slicedArgs = slice.call(arguments, 0, length);
+        const extractedCache = storage.extractPath(slicedArgs);
+        result =
+            extractedCache !== NO_VALUE
+              ? extractedCache
+              : storage.setPath(
+                slicedArgs,
+                recomputate.apply(func, arguments),
+                params,
+              );
+        // If we have less, don't use cache
+      } else {
+        result = recomputate.apply(func, arguments);
       }
+
+      if (result instanceof CacheStorage)
+        result = recomputate.apply(func, arguments);
+
+      lastArgs = arguments;
+      // Cannot return `lastCache = result` because  `NoValueType` [1] is incompatible with  `R`
+      // flow-disable-line
+      return (lastCache = result);
+    }
     : function cachedFunction(): R {
-        const argsLength = arguments.length;
-        let result;
-        // Check arguments length to prevent calling function with various arguments count
-        if (argsLength === length) {
-          const extractedCache = storage.extractPath(arguments);
-          result =
+      const argsLength = arguments.length;
+      let result;
+      // Check arguments length to prevent calling function with various arguments count
+      if (argsLength === length) {
+        const extractedCache = storage.extractPath(arguments);
+        result =
             extractedCache !== NO_VALUE
               ? extractedCache
               : storage.setPath(
-                  arguments,
-                  recomputate.apply(func, arguments),
-                  params
-                );
-          // If we have more arguments that we need, just slice it
-        } else if (argsLength > length) {
-          const slicedArgs = slice.call(arguments, 0, length);
-          const extractedCache = storage.extractPath(slicedArgs);
-          result =
+                arguments,
+                recomputate.apply(func, arguments),
+                params,
+              );
+        // If we have more arguments that we need, just slice it
+      } else if (argsLength > length) {
+        const slicedArgs = slice.call(arguments, 0, length);
+        const extractedCache = storage.extractPath(slicedArgs);
+        result =
             extractedCache !== NO_VALUE
               ? extractedCache
               : storage.setPath(
-                  slicedArgs,
-                  recomputate.apply(func, arguments),
-                  params
-                );
-          // If we have less, don't use cache
-        } else {
-          return recomputate.apply(func, arguments);
-        }
+                slicedArgs,
+                recomputate.apply(func, arguments),
+                params,
+              );
+        // If we have less, don't use cache
+      } else {
+        return recomputate.apply(func, arguments);
+      }
 
-        if (result instanceof CacheStorage)
-          result = recomputate.apply(func, arguments);
+      if (result instanceof CacheStorage)
+        result = recomputate.apply(func, arguments);
 
-        // Cannot return `lastCache = result` because  `NoValueType` [1] is incompatible with  `R`
-        // flow-disable-line
-        return result;
-      };
+      // Cannot return `lastCache = result` because  `NoValueType` [1] is incompatible with  `R`
+      // flow-disable-line
+      return result;
+    };
 
   try {
     void mimic(resultFunction, func);
@@ -388,7 +394,7 @@ declare function CreateObjectSelector(
   ...Function,
   recomputations: number,
   dependencies: Function[],
-  resultFunction: Function
+  resultFunction: Function,
 |};
 
 export const createObjectSelector: CreateObjectSelector = (...args) => {
@@ -397,20 +403,20 @@ export const createObjectSelector: CreateObjectSelector = (...args) => {
   if (Array.isArray(selectorFuncs[0])) [selectorFuncs] = selectorFuncs;
 
   if (!args.length) {
-    throw new Error("Must have at least one argument");
+    throw new Error('Must have at least one argument');
   } else if (args.length === 1) {
-    if (typeof paramsOrFunc === "object")
-      throw new Error("Structured selectors arent currently supported");
+    if (typeof paramsOrFunc === 'object')
+      throw new Error('Structured selectors arent currently supported');
   } else {
-    selectorFuncs.forEach(param => {
-      if (typeof param !== "function")
+    selectorFuncs.forEach((param) => {
+      if (typeof param !== 'function')
         throw new Error(
-          `Invalid type of param passed to memoization function: ${param} with type: ${typeof param}`
+          `Invalid type of param passed to memoization function: ${param} with type: ${typeof param}`,
         );
     });
   }
 
-  const haveParams = typeof paramsOrFunc === "object";
+  const haveParams = typeof paramsOrFunc === 'object';
   const calculate = haveParams ? args.slice(-2)[0] : paramsOrFunc;
   const memoized = memoize(calculate, haveParams ? paramsOrFunc : void 0);
 
@@ -424,7 +430,7 @@ export const createObjectSelector: CreateObjectSelector = (...args) => {
     while (length--)
       args[length] = selectorFuncs[length](obj, args.slice(length));
     lastObj = obj;
-    return (lastRes = memoized.apply(null, args));
+    return (lastRes = memoized(...args));
   };
 
   selector.recomputations = () => memoized.recomputations;
