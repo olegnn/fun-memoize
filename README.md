@@ -51,22 +51,22 @@ const myResAgainAgain = memoizedFunc(50, 60, 70);
 Also you can replace [reselect](https://github.com/reactjs/reselect), which stores only latest result of function execution
 
 ```javascript
-import { createObjectSelector } from 'fun-memoize';
+import { createMemoizedSelector } from 'fun-memoize';
 
 const shopItemsSelector = state => state.shop.items;
 const taxPercentSelector = state => state.shop.taxPercent;
 
-const subtotalSelector = createObjectSelector(shopItemsSelector, items =>
+const subtotalSelector = createMemoizedSelector(shopItemsSelector, items =>
   items.reduce((acc, item) => acc + item.value, 0),
 );
 
-const taxSelector = createObjectSelector(
+const taxSelector = createMemoizedSelector(
   subtotalSelector,
   taxPercentSelector,
   (subtotal, taxPercent) => subtotal * (taxPercent / 100),
 );
 
-export const totalSelector = createObjectSelector(subtotalSelector, taxSelector, (subtotal, tax) => ({
+export const totalSelector = createMemoizedSelector(subtotalSelector, taxSelector, (subtotal, tax) => ({
   total: subtotal + tax,
 }));
 
@@ -90,7 +90,7 @@ console.log(totalSelector(exampleState)); // { total: 2.322 }
 
 **_checkLast_** - firstly check last arguments passed to function and if they equal to current arguments, return last result
 
-**createObjectSelector** - (...selectorFuncs | selectorFuncs[], calculateFunc, ?options: { storageCount: number(default - **1000**), checkLast: boolean(default - **true**) }) - check [reselect](https://github.com/reactjs/reselect#createselectorinputselectors--inputselectors-resultfunc)
+**createMemoizedSelector** - (...selectorFuncs | selectorFuncs[], calculateFunc, ?options: { storageCount: number(default - **1000**), checkLast: boolean(default - **true**) }) - check [reselect](https://github.com/reactjs/reselect#createMemoizedSelectorinputselectors--inputselectors-resultfunc)
 
 All object's caches (Object | Function) are stored in [WeakMaps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap). When object wont be referenced and will be collected by [GC](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management), its cache subtree will be collected too [except primitive value storages, which might be referenced, they will be removed later when primitive arguments cache nodes count will rise up to specified storage count].
 
@@ -143,10 +143,10 @@ Build
 yarn build
 ```
 
-Lint
+Format code using prettier
 
 ```
-yarn lint
+yarn fmt
 ```
 
 Benchmark

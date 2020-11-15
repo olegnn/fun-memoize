@@ -1,14 +1,12 @@
-// @flow
-
 // TODO: add more libraries
-import Benchmark from "benchmark";
-import memoizeMoize from "moize";
-import { createSelector } from "reselect";
-import fastMemoize from "fast-memoize";
-import memoizeLodash from "lodash.memoize";
-import imemoized from "iMemoized";
-import createCachedSelector from "re-reselect";
-import memoize, { createObjectSelector } from "../src";
+const Benchmark = require("benchmark");
+const memoizeMoize = require("moize");
+const { createSelector } = require("reselect");
+const fastMemoize = require("fast-memoize");
+const memoizeLodash = require("lodash.memoize");
+const imemoized = require("iMemoized");
+const { default: createCachedSelector } = require("re-reselect");
+const { default: memoize, createMemoizedSelector } = require("../dist");
 
 const suites = Array.from({ length: 6 }, () => new Benchmark.Suite());
 
@@ -16,20 +14,20 @@ const strA = "hello world!".repeat(1e5);
 const strB = "c";
 const strC = strA + strB;
 
-const stringsFunc = (a: string, b: string, c: string): number => {
+const stringsFunc = (a, b, c) => {
   let res = 0;
   for (let i = 0; i < (a.length + b.length + c.length) / 10; i++) res += 5;
   return res;
 };
 
-const numberFunc = (a: number, b: number, c: number): number => {
+const numberFunc = (a, b, c) => {
   let res = 0;
   for (let i = 0; i < 1e5; i++) res += 5;
 
   return res;
 };
 
-const mixedFunc = (a: string, b: number, c: Object): number => {
+const mixedFunc = (a, b, c) => {
   let res = 0;
   for (let i = 0; i < a.length * b + Object.keys(c).length; i++) res += 5;
 
@@ -80,7 +78,7 @@ const stateSelectorReReselect = createCachedSelector(
   selectC,
   numberFunc
 )((a, b, c) => String(a + b + c));
-const stateSelectorFunMemoize = createObjectSelector(
+const stateSelectorFunMemoize = createMemoizedSelector(
   selectA,
   selectB,
   selectC,
@@ -111,7 +109,7 @@ const stateGen2 = stateGen();
 
 const stateGen3 = stateGen();
 
-const assertEq = <T>(param1: ?T, param2: ?T) => {
+const assertEq = (param1, param2) => {
   if (param1 !== param2) {
     throw new Error(
       `Assertion failed: ${String(param1)} !== ${String(param2)}`
@@ -211,7 +209,7 @@ suites[5]
   );
 
 const runNextSuite = () => {
-  const suite = suites.pop();
+  const suite = suites.shift();
   suite &&
     suite
       .on("cycle", (event) => console.log(`${event.target}`))

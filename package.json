@@ -1,6 +1,6 @@
 {
   "name": "fun-memoize",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Oleg Nosov<olegnosov1@gmail.com>",
   "dependencies": {
     "es6-weak-map": "^2.0.2",
@@ -23,19 +23,14 @@
     "@babel/node": "^7.10.5",
     "@babel/preset-env": "^7.11.0",
     "@babel/preset-flow": "^7.10.4",
-    "babel-eslint": "^8.0.2",
     "benchmark": "^2.1.4",
-    "eslint": "^4.15.0",
-    "eslint-config-airbnb": "^16.1.0",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.5.1",
     "fast-memoize": "^2.2.8",
     "flow-bin": "^0.75.0",
     "iMemoized": "^1.1.8",
     "jest-cli": "^26.2.2",
     "lodash.memoize": "^4.1.2",
     "moize": "^4.0.4",
+    "prettier": "^2.1.2",
     "re-reselect": "^4.0.0",
     "reselect": "^3.0.1"
   },
@@ -43,8 +38,8 @@
   "scripts": {
     "prepublish": "yarn build",
     "build": "rm -rf dist && NODE_ENV=release babel -d ./dist ./src",
-    "benchmark": "babel-node ./benchmark/index.js",
+    "benchmark": "yarn build && node ./benchmark/index.js",
     "test": "jest .",
-    "lint": "eslint src/**/*.js"
+    "fmt": "prettier src/**/*.js --write"
   }
 }

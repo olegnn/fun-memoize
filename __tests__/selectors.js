@@ -1,14 +1,14 @@
-import { createObjectSelector, default as memoize } from '../src';
+import { createMemoizedSelector, default as memoize } from '../src';
 
 // Construct 1E6 states for perf test outside of the perf test so as to not change the execute time of the test function
-const numOfStates = 1000000;
+const numOfStates = 1e6;
 const states = [];
 
 for (let i = 0; i < numOfStates; i++) states.push({ a: 1, b: 2 });
 
 describe('selectors:', () => {
   it('basic selector', () => {
-    const selector = createObjectSelector(state => state.a, a => a);
+    const selector = createMemoizedSelector(state => state.a, a => a);
     const firstState = { a: 1 };
     const firstStateNewPointer = { a: 1 };
     const secondState = { a: 2 };
@@ -22,11 +22,11 @@ describe('selectors:', () => {
     expect(selector.recomputations()).toEqual(2);
   });
   test("don't pass extra parameters to inputSelector when only called with the state", () => {
-    const selector = createObjectSelector((...params) => 1, a => a);
+    const selector = createMemoizedSelector((...params) => 1, a => a);
     expect(selector({})).toEqual(1);
   });
   it('basic selector multiple keys', () => {
-    const selector = createObjectSelector(state => state.a, state => state.b, (a, b) => a + b);
+    const selector = createMemoizedSelector(state => state.a, state => state.b, (a, b) => a + b);
     const state1 = { a: 1, b: 2 };
     expect(selector(state1)).toEqual(3);
     expect(selector(state1)).toEqual(3);
@@ -37,12 +37,12 @@ describe('selectors:', () => {
     expect(selector.recomputations()).toEqual(2);
   });
   it('basic selector invalid input selector', () => {
-    expect(() => createObjectSelector(state => state.a, 'not a function', (a, b) => a + b)).toThrowError();
+    expect(() => createMemoizedSelector(state => state.a, 'not a function', (a, b) => a + b)).toThrowError();
   });
   it('basic selector cache hit performance', () => {
     if (process.env.COVERAGE) return; // don't run performance tests for coverage
 
-    const selector = createObjectSelector(state => state.a, state => state.b, (a, b) => a + b);
+    const selector = createMemoizedSelector(state => state.a, state => state.b, (a, b) => a + b);
     const state1 = { a: 1, b: 2 };
 
     const start = new Date();
@@ -56,7 +56,7 @@ describe('selectors:', () => {
   it('basic selector cache hit performance for state changes but shallowly equal selector args', () => {
     if (process.env.COVERAGE) return; // don't run performance tests for coverage
 
-    const selector = createObjectSelector(state => state.a, state => state.b, (a, b) => a + b);
+    const selector = createMemoizedSelector(state => state.a, state => state.b, (a, b) => a + b);
 
     const start = new Date();
     for (let i = 0; i < numOfStates; i++) selector(states[i]);
@@ -67,7 +67,7 @@ describe('selectors:', () => {
     expect(selector.recomputations()).toEqual(1);
   });
   it('memoized composite arguments', () => {
-    const selector = createObjectSelector(state => state.sub, sub => sub);
+    const selector = createMemoizedSelector(state => state.sub, sub => sub);
     const state1 = { sub: { a: 1 } };
     expect(selector(state1)).toEqual({ a: 1 });
     expect(selector(state1)).toEqual({ a: 1 });
@@ -77,7 +77,7 @@ describe('selectors:', () => {
     expect(selector.recomputations()).toEqual(2);
   });
   it('first argument can be an array', () => {
-    const selector = createObjectSelector([state => state.a, state => state.b], (a, b) => a + b);
+    const selector = createMemoizedSelector([state => state.a, state => state.b], (a, b) => a + b);
     expect(selector({ a: 1, b: 2 })).toEqual(3);
     expect(selector({ a: 1, b: 2 })).toEqual(3);
     expect(selector.recomputations()).toEqual(1);
@@ -86,7 +86,7 @@ describe('selectors:', () => {
   });
   it('recomputes result after exception', () => {
     let called = 0;
-    const selector = createObjectSelector(
+    const selector = createMemoizedSelector(
       state => state.a,
       () => {
         called++;
@@ -99,7 +99,7 @@ describe('selectors:', () => {
   });
   it('memoizes previous result before exception', () => {
     let called = 0;
-    const selector = createObjectSelector(
+    const selector = createMemoizedSelector(
       state => state.a,
       a => {
         called++;
@@ -114,8 +114,8 @@ describe('selectors:', () => {
     expect(called).toEqual(1);
   });
   it('chained selector', () => {
-    const selector1 = createObjectSelector(state => state.sub, sub => sub);
-    const selector2 = createObjectSelector(selector1, sub => sub.value);
+    const selector1 = createMemoizedSelector(state => state.sub, sub => sub);
+    const selector2 = createMemoizedSelector(selector1, sub => sub.value);
     const state1 = { sub: { value: 1 } };
     expect(selector2(state1)).toEqual(1);
     expect(selector2(state1)).toEqual(1);
@@ -178,7 +178,7 @@ describe('selectors:', () => {
   });
   it('export last function as resultFunc', () => {
     const lastFunction = () => {};
-    const selector = createObjectSelector(state => state.a, lastFunction);
+    const selector = createMemoizedSelector(state => state.a, lastFunction);
     expect(selector.resultFunction).toEqual(lastFunction);
   });
   it('export dependencies as dependencies', () => {
@@ -189,7 +189,19 @@ describe('selectors:', () => {
       state.a;
     };
 
-    const selector = createObjectSelector(dependency1, dependency2, () => {});
+    const selector = createMemoizedSelector(dependency1, dependency2, () => {});
     expect(selector.dependencies).toEqual([dependency1, dependency2]);
   });
+  it('tests call with many args', () => {
+    const selector = createMemoizedSelector(
+      (a) => a,
+      (_, b) => b,
+      (_, __, c) => c,
+      (_, b) => b,
+      (a, b, c, b1) => a + b + c + b1
+    )
+
+    for (let i = 10; --i; ) expect(selector(5, 6, 7)).toBe(24)
+    expect(selector.recomputations()).toBe(1);
+  })
 });
