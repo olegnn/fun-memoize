@@ -390,13 +390,13 @@ export default function memoize<R>(
   }
 }
 
-declare function createMemoizedSelector(
+declare function CreateMemoizedSelector(
   selectorFuncs: Function[],
   calculate: Function
 ): Function;
 
 // eslint-disable-next-line no-redeclare
-declare function createMemoizedSelector(
+declare function CreateMemoizedSelector(
   ...args: (Function | Object)[]
 ): {|
   ...Function,
@@ -405,7 +405,7 @@ declare function createMemoizedSelector(
   resultFunction: Function,
 |};
 
-export const createMemoizedSelector: createMemoizedSelector = (...params) => {
+export const createMemoizedSelector: CreateMemoizedSelector = (...params) => {
   const paramsOrFunc = params.slice(-1)[0];
   let selectorFuncs = params.slice(0, -1);
   if (Array.isArray(selectorFuncs[0])) [selectorFuncs] = selectorFuncs;
