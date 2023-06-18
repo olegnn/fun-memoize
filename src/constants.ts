@@ -1,3 +1,1 @@
-export const DEFAULT_MAX_STORAGE_COUNT = 1e3;
-
 export const DEFAULT_MAX_ENTRIES_COUNT = 1e4;

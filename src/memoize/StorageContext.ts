@@ -39,7 +39,7 @@ export interface Params<K, V>
    */
   totalStoragesLimit?: number;
   /**
-   * Total limit for the leaves (cache entries).
+   * Total limit for the leaves (cache entries). Default is 10000.
    */
   totalLeavesLimit?: number;
   /**

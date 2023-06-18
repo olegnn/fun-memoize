@@ -1,7 +1,6 @@
 # Fun memoize
 
 [![npm](https://img.shields.io/npm/v/fun-memoize.svg)](https://www.npmjs.com/package/fun-memoize)
-[![npm](https://img.shields.io/npm/dm/fun-memoize.svg)](https://www.npmjs.com/package/fun-memoize)
 
 **Have fun! 😏**
 
@@ -22,7 +21,7 @@ Provides fast memoization using **Same-value-zero** equality check for **non-var
 ## Examples
 
 ```javascript
-import memoize from 'fun-memoize';
+import memoize from "fun-memoize";
 
 const func = (a, b, c) => {
   // Some expensive calculations...
@@ -50,29 +49,36 @@ const myResAgainAgain = memoizedFunc(50, 60, 70);
 Also, you can replace [reselect](https://github.com/reactjs/reselect), which stores only last result of the function execution
 
 ```javascript
-import { createMemoizedSelector } from 'fun-memoize';
+import { createMemoizedSelector } from "fun-memoize";
 
-const shopItemsSelector = state => state.shop.items;
-const taxPercentSelector = state => state.shop.taxPercent;
+const shopItemsSelector = (state) => state.shop.items;
+const taxPercentSelector = (state) => state.shop.taxPercent;
 
-const subtotalSelector = createMemoizedSelector(shopItemsSelector, items =>
-  items.reduce((acc, item) => acc + item.value, 0),
+const subtotalSelector = createMemoizedSelector(shopItemsSelector, (items) =>
+  items.reduce((acc, item) => acc + item.value, 0)
 );
 
 const taxSelector = createMemoizedSelector(
   subtotalSelector,
   taxPercentSelector,
-  (subtotal, taxPercent) => subtotal * (taxPercent / 100),
+  (subtotal, taxPercent) => subtotal * (taxPercent / 100)
 );
 
-export const totalSelector = createMemoizedSelector(subtotalSelector, taxSelector, (subtotal, tax) => ({
-  total: subtotal + tax,
-}));
+export const totalSelector = createMemoizedSelector(
+  subtotalSelector,
+  taxSelector,
+  (subtotal, tax) => ({
+    total: subtotal + tax,
+  })
+);
 
 let exampleState = {
   shop: {
     taxPercent: 8,
-    items: [{ name: 'apple', value: 1.2 }, { name: 'orange', value: 0.95 }],
+    items: [
+      { name: "apple", value: 1.2 },
+      { name: "orange", value: 0.95 },
+    ],
   },
 };
 
@@ -83,16 +89,14 @@ console.log(totalSelector(exampleState)); // { total: 2.322 }
 
 ## API
 
-
 ```typescript
-
 /**
  * Config for the leaf and storage cache strategies.
  */
 type StrategyConfig<K, V> = {
-    leafStrategyClass: CacheStrategyClass<K | LeafStorage<K, V>>;
-    storageStrategyClass: CacheStrategyClass<NestedStorage<K, V>>;
-}
+  leafStrategyClass: CacheStrategyClass<K | LeafStorage<K, V>>;
+  storageStrategyClass: CacheStrategyClass<NestedStorage<K, V>>;
+};
 
 /**
  * Params for the storage context.
@@ -106,7 +110,7 @@ interface Params<K, V>
    */
   totalStoragesLimit?: number;
   /**
-   * Total limit for the leaves (cache entries).
+   * Total limit for the leaves (cache entries). Default is 10000.
    */
   totalLeavesLimit?: number;
   /**
@@ -135,18 +139,29 @@ interface ParamsWithLength<K, V> extends Params<K, V> {
  * Memoizes provided function returning wrapped version of the provided function.
  * Returned function will return the calculated value if it's present in the cache for the arguments according to `Same-value-zero` algorithm.
  * If no value is found, the underlying function will be called with provided arguments.
- * @param func 
- * @param params 
+ * @param func
+ * @param params
  */
-declare function memoize<K, V>(func: (...args: K[]) => V, { length, checkLast, ...params }?: ParamsWithLength<K, V>): typeof func;
-
+declare function memoize<K, V>(
+  func: (...args: K[]) => V,
+  { length, checkLast, ...params }?: ParamsWithLength<K, V>
+): typeof func;
 ```
 
-
-## Configuration
+## Example custom configuration
 
 ```javascript
-import memoize from 'fun-memoize';
+import { memoize, LRU, LFU } from "fun-memoize";
+
+const memo = memoize(fn, {
+  length: 5,
+  checkLast: false,
+  totalLeavesLimit: 1e5,
+  totalStoragesLimit: 500,
+  totalLeafStoragesLimit: 1000,
+  leavesPerStorageLimit: 1000,
+  strategy: { leafStrategyClass: LRU, storageStrategyClass: LFU },
+});
 ```
 
 ## Development
@@ -168,4 +183,3 @@ Benchmark
 ```
 yarn benchmark
 ```
-

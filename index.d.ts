@@ -901,7 +901,7 @@ interface Params<K, V>
    */
   totalStoragesLimit?: number;
   /**
-   * Total limit for the leaves (cache entries).
+   * Total limit for the leaves (cache entries). Default is 10000.
    */
   totalLeavesLimit?: number;
   /**
@@ -1136,4 +1136,14 @@ declare class FIFO<V> extends CacheStrategy<V> {
   remove(): V | AbsentValue;
 }
 
-export { FIFO, LFU, LRU, createMemoizedSelector, memoize as default, memoize };
+declare const DEFAULT_MAX_ENTRIES_COUNT = 10000;
+
+export {
+  DEFAULT_MAX_ENTRIES_COUNT,
+  FIFO,
+  LFU,
+  LRU,
+  createMemoizedSelector,
+  memoize as default,
+  memoize,
+};
