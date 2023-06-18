@@ -4,3 +4,4 @@ dist
 benchmark/.DS_Store
 .vscode
 build
+coverage

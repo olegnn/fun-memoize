@@ -49,5 +49,9 @@
     "benchmark": "node ./benchmark/index.js",
     "test": "jest .",
     "fmt": "prettier src/**/*.js --write"
+  },
+  "jest": {
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true
   }
 }
