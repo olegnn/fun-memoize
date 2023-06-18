@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Basic function memoize tests different limits 1`] = `"\`totalLeavesLimit\` is invalid: -1"`;
+
+exports[`Basic function memoize tests different limits 2`] = `"\`totalLeavesLimit\` is invalid: -Infinity"`;
+
+exports[`Basic function memoize tests different limits 3`] = `"\`totalLeavesLimit\` is invalid: 0"`;
+
+exports[`Basic function memoize tests different limits 4`] = `"\`totalLeavesLimit\` is invalid: 123456789123456780"`;
+
+exports[`Basic function memoize tests different limits 5`] = `"\`totalLeavesLimit\` is invalid: 1.231231"`;
+
+exports[`Basic function memoize tests different limits 6`] = `"\`totalLeavesLimit\` is invalid: NaN"`;
+
+exports[`Basic function memoize tests different limits 7`] = `"\`totalStoragesLimit\` is invalid: -1"`;
+
+exports[`Basic function memoize tests different limits 8`] = `"\`totalStoragesLimit\` is invalid: -Infinity"`;
+
+exports[`Basic function memoize tests different limits 9`] = `"\`totalStoragesLimit\` is invalid: 0"`;
+
+exports[`Basic function memoize tests different limits 10`] = `"\`totalStoragesLimit\` is invalid: 123456789123456780"`;
+
+exports[`Basic function memoize tests different limits 11`] = `"\`totalStoragesLimit\` is invalid: 1.231231"`;
+
+exports[`Basic function memoize tests different limits 12`] = `"\`totalStoragesLimit\` is invalid: NaN"`;
+
+exports[`Basic function memoize tests different limits 13`] = `"\`leavesPerStorageLimit\` is invalid: -1"`;
+
+exports[`Basic function memoize tests different limits 14`] = `"\`leavesPerStorageLimit\` is invalid: -Infinity"`;
+
+exports[`Basic function memoize tests different limits 15`] = `"\`leavesPerStorageLimit\` is invalid: 0"`;
+
+exports[`Basic function memoize tests different limits 16`] = `"\`leavesPerStorageLimit\` is invalid: 123456789123456780"`;
+
+exports[`Basic function memoize tests different limits 17`] = `"\`leavesPerStorageLimit\` is invalid: 1.231231"`;
+
+exports[`Basic function memoize tests different limits 18`] = `"\`leavesPerStorageLimit\` is invalid: NaN"`;
+
+exports[`Basic function memoize tests different limits 19`] = `"\`totalLeafStoragesLimit\` is invalid: -1"`;
+
+exports[`Basic function memoize tests different limits 20`] = `"\`totalLeafStoragesLimit\` is invalid: -Infinity"`;
+
+exports[`Basic function memoize tests different limits 21`] = `"\`totalLeafStoragesLimit\` is invalid: 0"`;
+
+exports[`Basic function memoize tests different limits 22`] = `"\`totalLeafStoragesLimit\` is invalid: 123456789123456780"`;
+
+exports[`Basic function memoize tests different limits 23`] = `"\`totalLeafStoragesLimit\` is invalid: 1.231231"`;
+
+exports[`Basic function memoize tests different limits 24`] = `"\`totalLeafStoragesLimit\` is invalid: NaN"`;

@@ -5,9 +5,9 @@
 
 **Have fun! 😏**
 
-Memoization module based on [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) and [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) for modern JavaScript applications.
+Configurable memoization module with fully controllable cache based on [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) and [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) for modern JavaScript applications.
 
-Provides fast memoization using **Object.is** equality check for functions with **fixed arguments length**.
+Provides fast memoization using **Same-value-zero** equality check for **non-variadic** functions [with **fixed arguments length**].
 
 ## Installation
 
@@ -40,15 +40,14 @@ const myRes = memoizedFunc(50, 60, 70);
 // And then
 
 const myResAgain = memoizedFunc(50, 60, 70);
-// Will complete extremely faster
+// Will complete almost instantly
 
 const mySecondRes = memoizedFunc(20, 30, 40);
-
 const myResAgainAgain = memoizedFunc(50, 60, 70);
-// Almost instantly
+// Almost instantly again
 ```
 
-Also you can replace [reselect](https://github.com/reactjs/reselect), which stores only latest result of function execution
+Also, you can replace [reselect](https://github.com/reactjs/reselect), which stores only last result of the function execution
 
 ```javascript
 import { createMemoizedSelector } from 'fun-memoize';
@@ -84,52 +83,67 @@ console.log(totalSelector(exampleState)); // { total: 2.322 }
 
 ## API
 
-**memoize** AKA "export default" - (func: Function, ?options: { storageCount: number(default - **1000**), checkLast: boolean(default - **true**) })
 
-**_storageCount_** - maximum number of Storage objects for primitive types, each of which represents cache tree node
+```typescript
 
-**_checkLast_** - firstly check last arguments passed to function and if they equal to current arguments, return last result
+/**
+ * Config for the leaf and storage cache strategies.
+ */
+type StrategyConfig<K, V> = {
+    leafStrategyClass: CacheStrategyClass<K | LeafStorage<K, V>>;
+    storageStrategyClass: CacheStrategyClass<NestedStorage<K, V>>;
+}
 
-**createMemoizedSelector** - (...selectorFuncs | selectorFuncs[], calculateFunc, ?options: { storageCount: number(default - **1000**), checkLast: boolean(default - **true**) }) - check [reselect](https://github.com/reactjs/reselect#createMemoizedSelectorinputselectors--inputselectors-resultfunc)
+/**
+ * Params for the storage context.
+ */
+interface Params<K, V>
+  extends UnifiedStorageParams<K, V>,
+    LeafStorageParams<K, V>,
+    StorageParams<K, V> {
+  /**
+   * Total limit for the storages (cache nodes).
+   */
+  totalStoragesLimit?: number;
+  /**
+   * Total limit for the leaves (cache entries).
+   */
+  totalLeavesLimit?: number;
+  /**
+   * Limit of the leaves per a single leaf storage.
+   */
+  leavesPerStorageLimit?: number;
+  /**
+   * Limit of the leaf storages.
+   */
+  totalLeafStoragesLimit?: number;
+  /**
+   * Either strategy class or different strategy classes for leaves and storage nodes.
+   */
+  strategy?: StrategyConfig<K, V> | CacheStrategyClass<unknown>;
+}
 
-All object's caches (Object | Function) are stored in [WeakMaps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap). When object wont be referenced and will be collected by [GC](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management), its cache subtree will be collected too [except primitive value storages, which might be referenced, they will be removed later when primitive arguments cache nodes count will rise up to specified storage count].
+/** Params interface extended with optional length and checkLast flag */
+interface ParamsWithLength<K, V> extends Params<K, V> {
+  /** Overrides function length */
+  length?: number;
+  /** Check last arguments or not (default to `true`) */
+  checkLast?: boolean;
+}
 
-When primitive arguments (boolean | string | number | Symbol | null | void) storage count will be reached, first sub-caching-node will be removed ([Queue](<https://en.wikipedia.org/wiki/Queue_(abstract_data_type)>) order, also known as [FIFO](<https://en.wikipedia.org/wiki/FIFO_(computing_and_electronics)>)). Let's look at example.
+/**
+ * Memoizes provided function returning wrapped version of the provided function.
+ * Returned function will return the calculated value if it's present in the cache for the arguments according to `Same-value-zero` algorithm.
+ * If no value is found, the underlying function will be called with provided arguments.
+ * @param func 
+ * @param params 
+ */
+declare function memoize<K, V>(func: (...args: K[]) => V, { length, checkLast, ...params }?: ParamsWithLength<K, V>): typeof func;
 
-```javascript
-import memoize from 'fun-memoize';
-const f = (a, b) => a * b;
-
-// We set storageCount to 3
-const memoizedF = memoize(f, { storageCount: 3 });
-
-const res1 = memoizedF(1, 1);
-// Added first node as root->1->1=>1
-
-const res2 = memoizedF(2, 1);
-//  Added second node as root->2->1=>2
-
-const res3 = memoizedF(1, 3);
-//  Added new value to first node root->1->3=>3
-
-const res4 = memoizedF(3, 5);
-//  Added third node as root->3->5=>15
-
-const res5 = memoizedF(2, 8);
-// We have no more nodes for cache
-// So cache with arg 1 will be dropped
-// root->1 doesn't exist anymore :C
-
-const memRes = memoizedF(2, 2); // - Memoized
-const notMemRes = memoizedF(1, 1); // - Recalculated and now memoized
-const notMemRes2 = memoizedF(1, 3); // - Recalculated and now memoized
 ```
 
-It's a cheap operation and you dont need to worry about cache management cost.
 
-## Import
-
-To import compiled js file (es3 compatible) just use
+## Configuration
 
 ```javascript
 import memoize from 'fun-memoize';

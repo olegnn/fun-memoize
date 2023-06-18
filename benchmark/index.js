@@ -1,28 +1,78 @@
-// TODO: add more libraries
 const Benchmark = require("benchmark");
 const memoizeMoize = require("moize");
 const { createSelector } = require("reselect");
 const fastMemoize = require("fast-memoize");
-const memoizeLodash = require("lodash.memoize");
-const imemoized = require("iMemoized");
+const lruMemoize = require("lru-memoize");
 const { default: createCachedSelector } = require("re-reselect");
-const { default: memoize, createMemoizedSelector } = require("../dist");
+const { default: memoize, createMemoizedSelector } = require("../build");
 
-const suites = Array.from({ length: 6 }, () => new Benchmark.Suite());
+function cycle(iter) {
+  return {
+    [Symbol.iterator]() {
+      let lastIter = iter[Symbol.iterator]();
 
-const strA = "hello world!".repeat(1e5);
-const strB = "c";
+      return {
+        next() {
+          for (let i = 0; i++ < 2; ) {
+            const item = lastIter.next();
+
+            if (item.done) {
+              lastIter = iter[Symbol.iterator]();
+            } else {
+              return item;
+            }
+          }
+
+          return { value: undefined, done: true };
+        },
+      };
+    },
+  };
+}
+
+function zip(leftIterable, rightIterable) {
+  return {
+    [Symbol.iterator]() {
+      let leftIter = leftIterable[Symbol.iterator]();
+      let rightIter = rightIterable[Symbol.iterator]();
+
+      return {
+        next() {
+          for (;;) {
+            const left = leftIter.next();
+            const right = rightIter.next();
+
+            if (left.done || right.done) {
+              return { value: undefined, done: true };
+            } else {
+              return {
+                value: { left: left.value, right: right.value },
+                done: false,
+              };
+            }
+          }
+        },
+      };
+    },
+    size() {
+      return Math.min(leftIterable.size(), rightIterable.size());
+    },
+  };
+}
+
+const strA = "hello world!".repeat(2);
+const strB = "c".repeat(10);
 const strC = strA + strB;
 
 const stringsFunc = (a, b, c) => {
   let res = 0;
-  for (let i = 0; i < (a.length + b.length + c.length) / 10; i++) res += 5;
+  for (let i = 0; i < (a.length + b.length + c.length) * 1000; i++) res += 5;
   return res;
 };
 
 const numberFunc = (a, b, c) => {
   let res = 0;
-  for (let i = 0; i < 1e5; i++) res += 5;
+  for (let i = 0; i < 1e4; i++) res += 5;
 
   return res;
 };
@@ -34,31 +84,9 @@ const mixedFunc = (a, b, c) => {
   return res;
 };
 
-const fibonacci = (n) => (n < 2 ? n : fibonacci(n - 1) + fibonacci(n - 2));
-
-const memoizedStringsFunMemoize = memoize(stringsFunc);
-const memoizedStringsI = imemoized.memoize(stringsFunc);
-const memoizedStringsFast = fastMemoize(stringsFunc);
-const memoizedStringsLodash = memoizeLodash(stringsFunc);
-const memoizedStringsMoize = memoizeMoize(stringsFunc);
-
-const memoizedFibFunMemoize = memoize(fibonacci);
-const memoizedFibI = imemoized.memoize(fibonacci);
-const memoizedFibFast = fastMemoize(fibonacci);
-const memoizedFibLodash = memoizeLodash(fibonacci);
-const memoizedFibMoize = memoizeMoize(fibonacci);
-
-const memoizedNumbersFunMemoize = memoize(numberFunc);
-const memoizedNumbersI = imemoized.memoize(numberFunc);
-const memoizedFNumbers = fastMemoize(numberFunc);
-const memoizedNumbersLodash = memoizeLodash(numberFunc);
-const memoizedNumbersMoize = memoizeMoize(numberFunc);
-
-const memoizedMixedFunMemoize = memoize(mixedFunc);
-const memoizedMixedI = imemoized.memoize(mixedFunc);
-const memoizedMixedFast = fastMemoize(mixedFunc);
-const memoizedMixedLodash = memoizeLodash(mixedFunc);
-const memoizedMixedMoize = memoizeMoize(mixedFunc);
+function fibonacci(f, n) {
+  n < 2 ? n : f(f, n - 1) + f(f, n - 2);
+}
 
 const selectA = (obj) => obj.a;
 
@@ -66,48 +94,24 @@ const selectB = (obj) => obj.b;
 
 const selectC = (obj) => obj.c;
 
-const stateSelectorReselect = createSelector(
-  selectA,
-  selectB,
-  selectC,
-  numberFunc
-);
-const stateSelectorReReselect = createCachedSelector(
-  selectA,
-  selectB,
-  selectC,
-  numberFunc
-)((a, b, c) => String(a + b + c));
-const stateSelectorFunMemoize = createMemoizedSelector(
-  selectA,
-  selectB,
-  selectC,
-  numberFunc
-);
-const selectorFuncs = [selectA, selectB, selectC];
-
 const states = Array.from({ length: 1e2 }, () => ({
   a: Math.random() * 10,
   b: Math.random() * 70,
   c: Math.random() * 10,
 }));
 
-const o = { a: 15 };
+const obj1 = {};
 
-function* stateGen() {
-  for (let i = 0, m = 1; 1; ) {
-    const next = 3;
-    if (i + m * next > states.length || i + m * next < 0) m = -m;
-    i += m * next;
-    yield states[i];
-  }
+const o = { a: 15 };
+for (let i = 0; i < 999; i++) {
+  o[i] = i;
 }
 
-const stateGen1 = stateGen();
-
-const stateGen2 = stateGen();
-
-const stateGen3 = stateGen();
+const strPermutations = Array.from({ length: 30 }, () => [
+  strA,
+  strB.repeat(Math.random() * 5e2),
+  strC.repeat(Math.random() * 100),
+]);
 
 const assertEq = (param1, param2) => {
   if (param1 !== param2) {
@@ -117,96 +121,112 @@ const assertEq = (param1, param2) => {
   }
 };
 
-const computedStates = new WeakMap(
-  states.map((obj) => [obj, stateSelectorReselect(obj)])
-);
+const buildSuite = (fn, data, name, callWithF = false) => {
+  const fns = [
+    memoize,
+    lruMemoize.default(),
+    fastMemoize,
+    memoizeMoize,
+  ].map((memo) => memo(fn));
 
-const computedStringsFuncResult = stringsFunc(strA, strB, strC);
+  const results = data.map((args) => ({
+    data: args,
+    res: callWithF ? fn.apply(null, [fn, ...args]) : fn.apply(null, args),
+  }));
 
-const computedNumbersFuncResult = numberFunc(5, 100, 2);
+  const buildFn = (suite, fn, name) => {
+    const states = cycle(results)[Symbol.iterator]();
 
-const computedMixedFuncResult = mixedFunc(strA, 0.0025, o);
+    return suite.add(name, () => {
+      const { data, res } = states.next().value;
 
-suites[0]
-  .add("fun-memoize#strings", () =>
-    assertEq(
-      memoizedStringsFunMemoize(strA, strB, strC),
-      computedStringsFuncResult
-    )
-  )
-  .add("fast-memoize#strings", () =>
-    assertEq(memoizedStringsFast(strA, strB, strC), computedStringsFuncResult)
-  )
-  .add("iMemoized#strings", () =>
-    assertEq(memoizedStringsI(strA, strB, strC), computedStringsFuncResult)
-  )
-  .add("lodash.memoize#strings", () =>
-    assertEq(memoizedStringsLodash(strA, strB, strC), computedStringsFuncResult)
-  )
-  .add("moize#strings", () =>
-    assertEq(memoizedStringsMoize(strA, strB, strC), computedStringsFuncResult)
+      if (callWithF) {
+        assertEq(fn.apply(null, [fn, ...data], res));
+      } else {
+        assertEq(fn.apply(null, data), res);
+      }
+    });
+  };
+
+  return [
+    ...zip(fns, ["fun-memoize", "lru-memoize", "fast-memoize", "moize"]),
+  ].reduce(
+    (suite, { left: fn, right: base }) => buildFn(suite, fn, `${base}#${name}`),
+    new Benchmark.Suite()
   );
-suites[1]
-  .add("fun-memoize#numbers", () =>
-    assertEq(memoizedNumbersFunMemoize(5, 100, 2), computedNumbersFuncResult)
-  )
-  .add("lodash.memoize#numbers", () =>
-    assertEq(memoizedNumbersLodash(5, 100, 2), computedNumbersFuncResult)
-  )
-  .add("iMemoized#numbers", () =>
-    assertEq(memoizedNumbersI(5, 100, 2), computedNumbersFuncResult)
-  )
-  .add("moize#numbers", () =>
-    assertEq(memoizedNumbersMoize(5, 100, 2), computedNumbersFuncResult)
-  )
-  .add("fast-memoize#numbers", () =>
-    assertEq(memoizedFNumbers(5, 100, 2), computedNumbersFuncResult)
-  );
-suites[2]
-  .add("fun-memoize#mixed", () =>
-    assertEq(memoizedMixedFunMemoize(strA, 0.0025, o), computedMixedFuncResult)
-  )
-  .add("lodash.memoize#mixed", () =>
-    assertEq(memoizedMixedLodash(strA, 0.0025, o), computedMixedFuncResult)
-  )
-  .add("iMemoized#mixed", () =>
-    assertEq(memoizedMixedI(strA, 0.0025, o), computedMixedFuncResult)
-  )
-  .add("moize#mixed", () =>
-    assertEq(memoizedMixedMoize(strA, 0.0025, o), computedMixedFuncResult)
-  )
-  .add("fast-memoize#mixed", () =>
-    assertEq(memoizedMixedFast(strA, 0.0025, o), computedMixedFuncResult)
-  );
-suites[3]
-  .add("fun-memoize#fib", () => assertEq(memoizedFibFunMemoize(15), 610))
-  .add("lodash.memoize#fib", () => assertEq(memoizedFibLodash(15), 610))
-  .add("iMemoized#fib", () => assertEq(memoizedFibI(15), 610))
-  .add("moize#fib", () => assertEq(memoizedFibMoize(15), 610))
-  .add("fast-memoize#fib", () => assertEq(memoizedFibFast(15), 610));
-suites[4]
-  .add("fun-memoize#selectors: different states", () => {
-    const val = stateGen1.next().value;
-    assertEq(stateSelectorFunMemoize(val), computedStates.get(val));
-  })
-  .add("reselect#selectors: different states", () => {
-    const val = stateGen2.next().value;
-    assertEq(stateSelectorReselect(val), computedStates.get(val));
-  })
-  .add("re-reselect#selectors: different states", () => {
-    const val = stateGen3.next().value;
-    assertEq(stateSelectorReReselect(val), computedStates.get(val));
+};
+
+const buildSelectorSuite = (input, data, name) => {
+  const fns = [
+    createSelector,
+    createCachedSelector,
+    createMemoizedSelector,
+  ].map((createSelector) => {
+    const selector = createSelector(...input);
+    if (createCachedSelector === createSelector) {
+      return selector((a, b, c) => String(a + '_' + b + '_' + c))
+    } else {
+      return selector;
+    }
   });
-suites[5]
-  .add("fun-memoize#selectors: same state", () =>
-    assertEq(stateSelectorFunMemoize(states[0]), computedStates.get(states[0]))
-  )
-  .add("reselect#selectors: same state", () =>
-    assertEq(stateSelectorReselect(states[0]), computedStates.get(states[0]))
-  )
-  .add("re-reselect#selectors: same state", () =>
-    assertEq(stateSelectorReReselect(states[0]), computedStates.get(states[0]))
+
+  const results = data.map((args) => ({
+    data: args,
+    res: createSelector(...input)(args),
+  }));
+
+  const buildFn = (suite, fn, name) => {
+    const states = cycle(results)[Symbol.iterator]();
+
+    return suite.add(name, () => {
+      const { data, res } = states.next().value;
+
+      assertEq(fn(data), res);
+    });
+  };
+
+  return [...zip(fns, ["reselect", "re-reselect", "fun-memoize"])].reduce(
+    (suite, { left: fn, right: base }) => buildFn(suite, fn, `${base}#${name}`),
+    new Benchmark.Suite()
   );
+};
+
+const suites = [
+  buildSuite(stringsFunc, strPermutations, "strings"),
+  buildSuite(
+    numberFunc,
+    Array.from({ length: 30 }, () => [1, 2, Math.random(), Math.random()]),
+    "numbers"
+  ),
+  buildSuite(
+    mixedFunc,
+    Array.from({ length: 20 }, () => [
+      obj1,
+      strA,
+      Math.random(),
+      o,
+      strA.slice(0, Math.random() * strA.length),
+      8,
+    ]),
+    "mixed"
+  ),
+  buildSuite(
+    fibonacci,
+    Array.from({ length: 30 }, (_, i) => [i]),
+    "fib",
+    true
+  ),
+  buildSelectorSuite(
+    [selectA, selectB, selectC, numberFunc],
+    states,
+    "selectors - different states"
+  ),
+  buildSelectorSuite(
+    [selectA, selectB, selectC, numberFunc],
+    [states[0]],
+    "selectors - same state"
+  ),
+];
 
 const runNextSuite = () => {
   const suite = suites.shift();
