@@ -33,4 +33,36 @@ describe("MultiKeyQueue", () => {
       expect(item).toEqual(key);
     }
   });
+
+  it("front workflow", () => {
+    let queue = new MultiKeyQueue();
+    queue.pushFront(new Single(1));
+    queue.pushFront(new Single(2));
+    queue.pushFront(new Single(3));
+
+    const keys = [3, 2, 1];
+    expect([...queue.keysBack()]).toEqual([...queue.keysFront()].reverse());
+    for (const key of keys) {
+      const peeked = queue.peekKeyFront();
+      const item = queue.takeKeyFront();
+      expect(item).toBe(key);
+      expect(item).toBe(peeked);
+    }
+  });
+
+  it("back workflow", () => {
+    let queue = new MultiKeyQueue();
+    queue.pushBack(new Single(1));
+    queue.pushBack(new Single(2));
+    queue.pushBack(new Single(3));
+
+    const keys = [3, 2, 1];
+    expect([...queue.keysFront()]).toEqual([...queue.keysBack()].reverse());
+    for (const key of keys) {
+      const peeked = queue.peekKeyBack();
+      const item = queue.takeKeyBack();
+      expect(item).toBe(key);
+      expect(item).toBe(peeked);
+    }
+  });
 });

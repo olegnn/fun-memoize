@@ -1,4 +1,6 @@
 module.exports = {
-    testPathIgnorePatterns: ['/node_modules/', 'helpers.js'],
-    modulePathIgnorePatterns: ['/node_modules/', 'helpers.js']
-}
+  coverageDirectory: "./coverage/",
+  collectCoverage: true,
+  testPathIgnorePatterns: ["/node_modules/", "helpers.js"],
+  modulePathIgnorePatterns: ["/node_modules/", "helpers.js"],
+};
