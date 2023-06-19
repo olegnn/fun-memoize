@@ -909,7 +909,7 @@ interface Params<K, V>
    */
   leavesPerStorageLimit?: number;
   /**
-   * Limit of the leaf storages.
+   * Total limit of the leaf storages.
    */
   totalLeafStoragesLimit?: number;
   /**

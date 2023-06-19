@@ -13,8 +13,9 @@
     "performance",
     "immutable"
   ],
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./index.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/olegnn/fun-memoize.git"
