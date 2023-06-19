@@ -4,3 +4,7 @@ package-lock.json
 yarn.lock
 __tests__
 .eslintrc
+build
+codecov.yml
+coverage
+.github

@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`selectors: Zero cap 1`] = `"Capacity can't be equal to zero"`;
