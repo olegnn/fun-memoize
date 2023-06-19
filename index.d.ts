@@ -1005,6 +1005,7 @@ declare class LRU<V> extends CacheStrategy<V> {
   remove(): V | AbsentValue;
 }
 
+/** Describes a cache entry containing ordered values and its level. */
 declare class LevelEntry<
   V,
   E,
@@ -1136,6 +1137,7 @@ declare class FIFO<V> extends CacheStrategy<V> {
   remove(): V | AbsentValue;
 }
 
+/** Default limit for the cache entries (leaf values) */
 declare const DEFAULT_MAX_ENTRIES_COUNT = 10000;
 
 export {

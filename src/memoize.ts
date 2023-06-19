@@ -18,8 +18,8 @@ const { slice } = Array.prototype;
  * Memoizes provided function returning wrapped version of the provided function.
  * Returned function will return the calculated value if it's present in the cache for the arguments according to `Same-value-zero` algorithm.
  * If no value is found, the underlying function will be called with provided arguments.
- * @param func 
- * @param params 
+ * @param func
+ * @param params
  */
 export default function memoize<K, V>(
   func: (...args: K[]) => V,

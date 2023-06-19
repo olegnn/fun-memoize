@@ -25,7 +25,10 @@ export class Result<V> {
     return new Result(removed);
   }
 
-  static removedAdded<V>(removed: SizedIterable<V>, added: SizedIterable<V>): Result<V> {
+  static removedAdded<V>(
+    removed: SizedIterable<V>,
+    added: SizedIterable<V>
+  ): Result<V> {
     return new Result(removed, added);
   }
 
@@ -54,7 +57,7 @@ export class Result<V> {
 
   /**
    * Executes given function for each added item.
-   * @param fn 
+   * @param fn
    *
    */
   forEachAdded(fn: (added: V) => void): this {

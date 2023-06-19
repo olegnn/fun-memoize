@@ -4,7 +4,7 @@
 
 **Have fun! 😏**
 
-Configurable memoization module with fully controllable cache based on [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) and [WeakMap](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) for modern JavaScript applications.
+Configurable memoization module with fully controllable cache for modern JavaScript applications.
 
 Provides fast memoization using **Same-value-zero** equality check for **non-variadic** functions [with **fixed arguments length**].
 
@@ -97,6 +97,40 @@ type StrategyConfig<K, V> = {
   leafStrategyClass: CacheStrategyClass<K | LeafStorage<K, V>>;
   storageStrategyClass: CacheStrategyClass<NestedStorage<K, V>>;
 };
+
+/**
+ * Storage callbacks.
+ */
+interface StorageParams<K, V> {
+  /**
+   * Callback to be called on the storage creation.
+   * @param storage
+   */
+  onCreateStorage?: (storage: Storage<K, V>) => void;
+  /**
+   * Callback to be called on the storage removal.
+   * @param storage
+   */
+  onRemoveStorage?: (storage: Storage<K, V>) => void;
+}
+
+/**
+ * Leaf storage callbacks.
+ */
+interface LeafStorageParams<K, V> extends StorageParams<K, V> {
+  /** Callback to be called on the leaf creation */
+  onCreateLeaf?: (leafStorage: K) => void;
+  /** Callback to be called on the leaf removal */
+  onRemoveLeaf?: (leafStorage: K) => void;
+}
+
+/** Parameters for the `UnifiedStorage` */
+interface UnifiedStorageParams<K, V> extends StorageParams<K, V> {
+  /** Denotes if the object storage must be used for values with primitive keys */
+  useObjectStorage: boolean;
+  /** Denotes if the weak storage must be used for values with non-primitive keys */
+  useWeakStorage: boolean;
+}
 
 /**
  * Params for the storage context.
