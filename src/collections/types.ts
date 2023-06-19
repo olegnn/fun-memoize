@@ -1,5 +1,5 @@
-import { AbsentValue } from '../value'
-import { SizedIterable } from '../iterators'
+import { AbsentValue } from "../value";
+import { SizedIterable } from "../iterators";
 
 /**
  * Describes a container having a length.
@@ -67,7 +67,6 @@ export abstract class HasCapacity extends HasLength {
     return this.capacity() < this.len() + 1;
   }
 }
-
 
 /**
  * @abstract
@@ -212,16 +211,20 @@ export abstract class IndexedCollectionWithOrderedKeys<
   abstract keysBack(): Iterable<Key>;
 }
 
-
 /**
  * @abstract
  * An indexed ordered collection of items. In addition to methods inherited from `OrderedCollection`, this type
  * of collection introduces keys used to access items.
- * 
+ *
  * **Item `->` Key** relation may be either one-to-one or one-to-many
  * while **Key `->` Item** relation always holds one-to-one.
  */
-export abstract class OrderedIndexedCollection<K, V, E = V, Absent = AbsentValue>
+export abstract class OrderedIndexedCollection<
+    K,
+    V,
+    E = V,
+    Absent = AbsentValue
+  >
   extends IndexedCollectionWithOrderedKeys<K, E, Absent>
   implements OrderedCollection<V, E> {
   /**

@@ -164,7 +164,7 @@ const buildSelectorSuite = (input, data, name) => {
   ].map((createSelector) => {
     const selector = createSelector(...input);
     if (createCachedSelector === createSelector) {
-      return selector((a, b, c) => String(a + '_' + b + '_' + c))
+      return selector((a, b, c) => String(a + "_" + b + "_" + c));
     } else {
       return selector;
     }

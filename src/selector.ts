@@ -1,5 +1,4 @@
-
-import memoize from './memoize'
+import memoize from "./memoize";
 
 /**
  * Creates memoized selector.
@@ -43,4 +42,4 @@ const createMemoizedSelector = (...params: any[]) => {
   return selector;
 };
 
-export default createMemoizedSelector
+export default createMemoizedSelector;

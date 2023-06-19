@@ -1,10 +1,15 @@
 import { CacheStrategy } from "../base/CacheStrategy";
-import { MultiKeyQueue, Single, OrderedIndexedCollection } from "../collections";
+import {
+  MultiKeyQueue,
+  Single,
+  OrderedIndexedCollection,
+} from "../collections";
 import { AbsentValue, NO_VALUE } from "../value";
 import { Result } from "./types";
 import { once, withSize, SizedIterable } from "../iterators";
 import { ListNode } from "../collections/LinkedList";
 
+/** Describes a cache entry containing ordered values and its level. */
 class LevelEntry<
   V,
   E,
@@ -112,11 +117,7 @@ class LevelEntry<
   }
 }
 
-type Entry<V> = LevelEntry<
-  V,
-  ListNode<Single<V>>,
-  MultiKeyQueue<V, Single<V>>
->;
+type Entry<V> = LevelEntry<V, ListNode<Single<V>>, MultiKeyQueue<V, Single<V>>>;
 
 /**
  * `L`east `F`requently `U`used cache schema.

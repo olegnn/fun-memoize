@@ -1,5 +1,3 @@
-
-
 import type { ChildPath, StorageParams } from "../base/Storage";
 import type { AbsentValue } from "../value";
 
@@ -32,7 +30,7 @@ export class MapStorage<K, V> extends Storage<K, V> {
    *
    */
   has(key: K): boolean {
-    return this.map.has(key)
+    return this.map.has(key);
   }
 
   /**
@@ -40,7 +38,7 @@ export class MapStorage<K, V> extends Storage<K, V> {
    * @param key
    *
    */
-  get(key: K): V | AbsentValue  {
+  get(key: K): V | AbsentValue {
     if (this.map.has(key)) {
       return this.map.get(key)!;
     } else {
@@ -82,7 +80,10 @@ export class MapStorage<K, V> extends Storage<K, V> {
    * Returns an iterator over the entries.
    *
    */
-  entries(): SizedIterable<{ key: K; value: V; }> {
-    return map(([key, value]) => ({ key, value }), withSize(this.map.entries(), this.len()))
+  entries(): SizedIterable<{ key: K; value: V }> {
+    return map(
+      ([key, value]) => ({ key, value }),
+      withSize(this.map.entries(), this.len())
+    );
   }
 }

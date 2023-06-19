@@ -82,8 +82,8 @@ class Last<K, V> {
 
   /**
    * Associates storage with the provided index.
-   * @param idx 
-   * @param storage 
+   * @param idx
+   * @param storage
    */
   setStorage(idx: number, storage: LinkedValue<NestedStorage<K, V>>) {
     this.storages[idx] = storage;
@@ -125,10 +125,7 @@ class Last<K, V> {
    * @param path
    * @param value
    */
-  update(
-    path: K[],
-    value: V
-  ) {
+  update(path: K[], value: V) {
     this.path = path;
     this.value = value;
   }
@@ -177,7 +174,7 @@ export class Root<K, V> {
   /**
    * Retrieves cached value if already calculated, otherwise calls the supplied function with provided arguments and
    * saves the result.
-   * @param path 
+   * @param path
    * @param calculate
    */
   getOrInsertWith(path: K[], calculate: (args: K[]) => V): V {
@@ -216,10 +213,10 @@ export class Root<K, V> {
       isLastWeak = node.weak;
 
     do {
-      this.last.setStorage(idx, new LinkedValue(
-        res as NestedStorage<K, V>,
-        isLastWeak
-      ));
+      this.last.setStorage(
+        idx,
+        new LinkedValue(res as NestedStorage<K, V>, isLastWeak)
+      );
 
       isLastWeak = (res as Storage<K, V>).isWeak(path[idx]);
       res = (res as Storage<K, V>).get(path[idx]);
@@ -251,7 +248,7 @@ export class Root<K, V> {
             ? this.ctx.createStorage(rootPath)
             : this.ctx.createLeafStorage(append(rootPath, this.leafPath));
 
-        cache.set(current, next as unknown as V);
+        cache.set(current, (next as unknown) as V);
       }
 
       cache = next as NestedStorage<K, V>;

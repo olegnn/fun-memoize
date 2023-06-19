@@ -7,8 +7,8 @@ export interface SizedIterable<V> extends Iterable<V> {
 
 /**
  * Chains two iterables.
- * @param firstIterable 
- * @param secondIterable 
+ * @param firstIterable
+ * @param secondIterable
  * @returns {SizedIterable<V>}
  */
 export function chain<V>(
@@ -47,8 +47,8 @@ export function chain<V>(
 
 /**
  * Creates an iterable that emits one item and then iterates over supplied iterable.
- * @param value 
- * @param iterable 
+ * @param value
+ * @param iterable
  * @returns {SizedIterable<V>}
  */
 export function prepend<V>(
@@ -86,8 +86,8 @@ export function prepend<V>(
 
 /**
  * Creates an iterable that then iterates over supplied iterable and then emits one item.
- * @param value 
- * @param iterable 
+ * @param value
+ * @param iterable
  * @returns {SizedIterable<V>}
  */
 export function append<V>(
@@ -128,8 +128,8 @@ export function append<V>(
 
 /**
  * Zips two iterables together.
- * @param leftIterable 
- * @param rightIterable 
+ * @param leftIterable
+ * @param rightIterable
  * @returns {SizedIterable<{ left: L; right: R }>}
  */
 export function zip<L, R>(
@@ -167,8 +167,8 @@ export function zip<L, R>(
 
 /**
  * Maps supplied iterable using given function.
- * @param fn 
- * @param iterable 
+ * @param fn
+ * @param iterable
  * @returns {SizedIterable<R>}
  */
 export function map<V, R>(
@@ -195,8 +195,8 @@ export function map<V, R>(
 
 /**
  * Flattens iterable mapped with supplied function.
- * @param iterable 
- * @param map 
+ * @param iterable
+ * @param map
  * @returns {Iterable<R>}
  */
 export function flatMap<V, R>(
@@ -237,7 +237,6 @@ export function flatMap<V, R>(
   };
 }
 
-
 /**
  * Creates an iterable which emits no items.
  * @returns {SizedIterable<V>}
@@ -248,7 +247,7 @@ export function empty<V>(): SizedIterable<V> {
 
 /**
  * Creates an iterable which emits one item.
- * @param value 
+ * @param value
  * @returns {SizedIterable<V>}
  */
 export function once<V>(value: V): SizedIterable<V> {
@@ -276,7 +275,7 @@ export function once<V>(value: V): SizedIterable<V> {
 
 /**
  * Creates an iterable that endlessly repeats supplied iterable.
- * @param iter 
+ * @param iter
  * @returns {SizedIterable<V>}
  */
 export function cycle<V>(iter: Iterable<V>): Iterable<V> {
@@ -286,7 +285,7 @@ export function cycle<V>(iter: Iterable<V>): Iterable<V> {
 
       return {
         next() {
-          for (let i = 0; i++ < 2;) {
+          for (let i = 0; i++ < 2; ) {
             const item = lastIter.next();
 
             if (item.done) {
@@ -306,8 +305,8 @@ export function cycle<V>(iter: Iterable<V>): Iterable<V> {
 /**
  * Adds supplied size to the given iterable.
  * @param iterable
- * @param size 
- * @returns 
+ * @param size
+ * @returns
  */
 export function withSize<V>(
   iterable: Iterable<V>,
@@ -326,7 +325,7 @@ export function withSize<V>(
 /**
  * Creates an iterable which emits two items.
  * @param first
- * @param second 
+ * @param second
  * @returns {SizedIterable<V>}
  */
 export function double<V>(first: V, second: V): SizedIterable<V> {

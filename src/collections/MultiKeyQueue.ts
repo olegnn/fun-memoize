@@ -10,7 +10,7 @@ import { EMPTY_ITER, flatMap, SizedIterable } from "../iterators";
 export class MultiKeyQueue<
   K,
   V extends OrderedIndexedCollection<K, K, E>,
-  E = K,
+  E = K
 > extends OrderedIndexedCollection<K, V, ListNode<V>> {
   list: LinkedList<V>;
   map: Map<K, ListNode<V>>;

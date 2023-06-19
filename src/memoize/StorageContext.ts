@@ -176,7 +176,8 @@ export class StorageContext<K, V> {
       pickNoopIfNoLimit(storageStrategyClass, totalStoragesLimit)
     );
     leafStrategyClass =
-      totalLeavesLimit === totalLeafStoragesLimit && totalLeavesLimit === leavesPerStorageLimit
+      totalLeavesLimit === totalLeafStoragesLimit &&
+      totalLeavesLimit === leavesPerStorageLimit
         ? pickNoopIfNoLimit(leafStrategyClass, totalLeavesLimit)
         : leafStrategyClass;
 
