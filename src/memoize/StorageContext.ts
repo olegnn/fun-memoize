@@ -201,7 +201,7 @@ export class StorageContext<K, V> {
   }
 
   /**
-   * Instatiates new storage with supplied parents
+   * Instantiates new storage with supplied parents
    * @param root
    */
   createStorage(
@@ -211,7 +211,7 @@ export class StorageContext<K, V> {
   }
 
   /**
-   * Instatiates new leaf storage with supplied parents
+   * Instantiates new leaf storage with supplied parents
    * @param root
    */
   createLeafStorage(

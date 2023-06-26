@@ -1,6 +1,6 @@
 import { equals, AbsentValue, NO_VALUE } from "../value";
 import { ChildPath, Storage } from "../base/Storage";
-import { append, double } from "../iterators";
+import { append, double, once } from "../iterators";
 import { EMPTY_ARRAY } from "../utils";
 import { LeafStorage } from "./LeafStorage";
 import { StorageContext, NestedStorage } from "./StorageContext";
@@ -102,7 +102,7 @@ class Last<K, V> {
    * Otherwise returns an index of the greatest common node for provided and stored paths.
    * @param path
    */
-  getLast(path: K[]): ResultOrPointer<V, number> {
+  get(path: K[]): ResultOrPointer<V, number> {
     const length = this.path.length;
     if (length === path.length) {
       let idx = -1;
@@ -181,7 +181,7 @@ export class Root<K, V> {
     const length = this.length;
     if (path.length !== length) throw new Error("Invalid path length");
 
-    let { result, ptr } = this.last.getLast(path);
+    let { result, ptr } = this.last.get(path);
     if (result !== NO_VALUE) {
       this.readCache();
 
@@ -242,7 +242,9 @@ export class Root<K, V> {
       const isWeak = cache.isWeak(current);
 
       if (next === NO_VALUE) {
-        const rootPath = double(this.rootPath, new ChildPath(cache, current));
+        const rootPath = isWeak
+          ? once(this.rootPath)
+          : double(this.rootPath, new ChildPath(cache, current));
         next =
           idx < length - 2
             ? this.ctx.createStorage(rootPath)
