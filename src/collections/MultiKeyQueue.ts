@@ -149,12 +149,7 @@ export class MultiKeyQueue<
    *
    */
   get(key: K): ListNode<V> | AbsentValue {
-    const value = this.map.get(key);
-    if (value == null) {
-      return NO_VALUE;
-    } else {
-      return value;
-    }
+    return this.map.get(key);
   }
 
   /**
