@@ -5,60 +5,7 @@ const fastMemoize = require("fast-memoize");
 const lruMemoize = require("lru-memoize");
 const { default: createCachedSelector } = require("re-reselect");
 const { default: memoize, createMemoizedSelector } = require("../build");
-
-function cycle(iter) {
-  return {
-    [Symbol.iterator]() {
-      let lastIter = iter[Symbol.iterator]();
-
-      return {
-        next() {
-          for (let i = 0; i++ < 2; ) {
-            const item = lastIter.next();
-
-            if (item.done) {
-              lastIter = iter[Symbol.iterator]();
-            } else {
-              return item;
-            }
-          }
-
-          return { value: undefined, done: true };
-        },
-      };
-    },
-  };
-}
-
-function zip(leftIterable, rightIterable) {
-  return {
-    [Symbol.iterator]() {
-      let leftIter = leftIterable[Symbol.iterator]();
-      let rightIter = rightIterable[Symbol.iterator]();
-
-      return {
-        next() {
-          for (;;) {
-            const left = leftIter.next();
-            const right = rightIter.next();
-
-            if (left.done || right.done) {
-              return { value: undefined, done: true };
-            } else {
-              return {
-                value: { left: left.value, right: right.value },
-                done: false,
-              };
-            }
-          }
-        },
-      };
-    },
-    size() {
-      return Math.min(leftIterable.size(), rightIterable.size());
-    },
-  };
-}
+const { cycle, zip } = require("../build/iterators");
 
 const strA = "hello world!".repeat(2);
 const strB = "c".repeat(10);

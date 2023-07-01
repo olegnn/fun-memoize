@@ -1,7 +1,7 @@
 import { LinkedList, ListNode } from "./LinkedList";
 import { OrderedIndexedCollection } from "./types";
 import { AbsentValue, NO_VALUE } from "../value";
-import { EMPTY_ITER, flatMap, SizedIterable } from "../iterators";
+import { EMPTY_ITER, flatMap } from "../iterators";
 import { SafeMapStorage } from "../storage";
 import { Storage, StorageClass } from "../base";
 
@@ -335,7 +335,7 @@ export class MultiKeyQueue<
    * Returns an iterator over values.
    *
    */
-  valuesFront(): SizedIterable<V> {
+  valuesFront(): Iterable<V> {
     return this.list.valuesFront();
   }
 
@@ -343,7 +343,7 @@ export class MultiKeyQueue<
    * Returns an iterator over values.
    *
    */
-  valuesBack(): SizedIterable<V> {
+  valuesBack(): Iterable<V> {
     return this.list.valuesBack();
   }
 

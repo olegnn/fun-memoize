@@ -1,5 +1,5 @@
 import { AbsentValue } from "../value";
-import { SizedIterable } from "../iterators";
+
 import { HasCapacity, HasLength } from "../utils";
 
 /**
@@ -71,12 +71,12 @@ export abstract class OrderedCollection<
   /**
    * Returns an iterator over collection values starting from the end.
    */
-  abstract valuesBack(): SizedIterable<V>;
+  abstract valuesBack(): Iterable<V>;
 
   /**
    * Returns an iterator over collection values starting from the beginning.
    */
-  abstract valuesFront(): SizedIterable<V>;
+  abstract valuesFront(): Iterable<V>;
 }
 
 /**
@@ -231,12 +231,12 @@ export abstract class OrderedIndexedCollection<
   /**
    * Returns an iterator over collection values starting from the end.
    */
-  abstract valuesBack(): SizedIterable<V>;
+  abstract valuesBack(): Iterable<V>;
 
   /**
    * Returns an iterator over collection values starting from the beginning.
    */
-  abstract valuesFront(): SizedIterable<V>;
+  abstract valuesFront(): Iterable<V>;
 }
 
 export { HasCapacity, HasLength };

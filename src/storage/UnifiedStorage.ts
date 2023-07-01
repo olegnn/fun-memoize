@@ -9,7 +9,7 @@ import { WeakStorage } from "./WeakStorage";
 import { ObjectStorage } from "./ObjectStorage";
 import { MapStorage } from "./MapStorage";
 import type { AbsentValue, NonPrimitive, Primitive } from "../value";
-import { chain, SizedIterable } from "../iterators";
+import { chain } from "../iterators";
 import { mapImplemented } from "../utils";
 
 /** Parameters for the `UnifiedStorage` */
@@ -126,10 +126,10 @@ export class UnifiedStorage<
    * Returns an iterator over the entries.
    *
    */
-  entries(): SizedIterable<{ key: K; value: V }> {
+  entries(): Iterable<{ key: K; value: V }> {
     return chain(
-      this.primitiveStorage.entries() as SizedIterable<{ key: K; value: V }>,
-      this.nonPrimitiveStorage.entries() as SizedIterable<{ key: K; value: V }>
+      this.primitiveStorage.entries() as Iterable<{ key: K; value: V }>,
+      this.nonPrimitiveStorage.entries() as Iterable<{ key: K; value: V }>
     );
   }
 }

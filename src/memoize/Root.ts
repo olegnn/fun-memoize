@@ -111,7 +111,10 @@ class Last<K, V> {
       }
 
       if (idx === length - 1) {
-        return ResultOrPointer.fromResult(this.value) as any;
+        return ResultOrPointer.fromResult(this.value) as ResultOrPointer<
+          V,
+          number
+        >;
       }
 
       return ResultOrPointer.fromPointer(idx === -1 ? 0 : idx);

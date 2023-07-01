@@ -35,7 +35,7 @@ const createMemoizedSelector = (...params: any[]) => {
     return memoized.apply(null, args);
   }
 
-  selector.recomputations = () => (memoized as any).recomputations;
+  selector.recomputations = () => memoized.recomputations;
   selector.dependencies = selectorFuncs;
   selector.resultFunction = calculate;
 

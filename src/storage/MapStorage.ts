@@ -3,7 +3,7 @@ import type { AbsentValue } from "../value";
 
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
-import { map, withSize, SizedIterable } from "../iterators";
+import { map, withSize } from "../iterators";
 
 /**
  * Key-value storage based on a `Map`.
@@ -80,7 +80,7 @@ export class MapStorage<K, V> extends Storage<K, V> {
    * Returns an iterator over the entries.
    *
    */
-  entries(): SizedIterable<{ key: K; value: V }> {
+  entries(): Iterable<{ key: K; value: V }> {
     return map(
       ([key, value]) => ({ key, value }),
       withSize(this.map.entries(), this.len())

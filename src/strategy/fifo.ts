@@ -11,11 +11,8 @@ import { Result } from "./types";
 export class FIFO<V> extends CacheStrategy<V> {
   queue: MultiKeyQueue<V, Single<V>>;
 
-  constructor(
-    capacity: number,
-    roots: Iterable<CacheStrategy<FIFO<V>>> = EMPTY_ITER as any
-  ) {
-    super(capacity, roots);
+  constructor(capacity: number) {
+    super(capacity);
     this.queue = new MultiKeyQueue();
   }
 
@@ -93,14 +90,6 @@ export class FIFO<V> extends CacheStrategy<V> {
    *
    */
   take(): V | AbsentValue {
-    const node = this.queue.takeKeyFront();
-
-    if (node !== NO_VALUE) {
-      if (this.isEmpty()) {
-        this.destroy();
-      }
-    }
-
-    return node;
+    return this.queue.takeKeyFront();
   }
 }

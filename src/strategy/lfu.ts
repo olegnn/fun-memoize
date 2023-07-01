@@ -6,122 +6,8 @@ import {
 } from "../collections";
 import { AbsentValue, NO_VALUE } from "../value";
 import { Result } from "./types";
-import { once, withSize, SizedIterable } from "../iterators";
+import { once, withSize } from "../iterators";
 import { ListNode } from "../collections/LinkedList";
-
-/** Describes a cache entry containing ordered values and its level. */
-class LevelEntry<
-  V,
-  E,
-  S extends OrderedIndexedCollection<V, Single<V>, E>
-> extends OrderedIndexedCollection<V, V, E> {
-  level: number;
-  entry: S;
-
-  constructor(level: number, entry: S) {
-    super();
-    this.level = level;
-    this.entry = entry;
-  }
-
-  pushFront(value: V): E {
-    return this.entry.pushFront(new Single(value));
-  }
-
-  pushBack(value: V): E {
-    return this.entry.pushBack(new Single(value));
-  }
-
-  takeFront() {
-    return this.entry.takeFront();
-  }
-
-  takeBack() {
-    return this.entry.takeBack();
-  }
-
-  peekFront() {
-    return this.entry.peekFront();
-  }
-
-  peekBack() {
-    return this.entry.peekBack();
-  }
-
-  takeKeyFront() {
-    return this.entry.takeKeyFront();
-  }
-
-  takeKeyBack() {
-    return this.entry.takeKeyBack();
-  }
-
-  get(key: V) {
-    return this.entry.get(key);
-  }
-
-  dropKey(key: V) {
-    return this.entry.dropKey(key);
-  }
-
-  has(value: V) {
-    return this.entry.has(value);
-  }
-
-  addKeyFront(key: V, item: E) {
-    return this.entry.addKeyFront(key, item);
-  }
-
-  addKeyBack(key: V, item: E) {
-    return this.entry.addKeyBack(key, item);
-  }
-
-  peekKeyFront() {
-    return this.entry.peekKeyFront();
-  }
-
-  peekKeyBack() {
-    return this.entry.peekKeyBack();
-  }
-
-  moveBack(element: E) {
-    return this.entry.moveBack(element);
-  }
-
-  moveFront(element: E) {
-    return this.entry.moveFront(element);
-  }
-
-  remove(element: E): boolean {
-    return this.entry.remove(element);
-  }
-
-  valuesFront(): SizedIterable<V> {
-    return withSize(this.entry.keysFront(), this.len());
-  }
-
-  valuesBack(): SizedIterable<V> {
-    return withSize(this.entry.keysBack(), this.len());
-  }
-
-  keysFront(): Iterable<V> {
-    return this.entry.keysFront();
-  }
-
-  keysBack(): Iterable<V> {
-    return this.entry.keysBack();
-  }
-
-  len(): number {
-    return this.entry.len();
-  }
-
-  drop(value: V) {
-    return this.entry.drop(value);
-  }
-}
-
-type Entry<V> = LevelEntry<V, ListNode<Single<V>>, MultiKeyQueue<V, Single<V>>>;
 
 /**
  * `L`east `F`requently `U`used cache schema.
@@ -129,8 +15,8 @@ type Entry<V> = LevelEntry<V, ListNode<Single<V>>, MultiKeyQueue<V, Single<V>>>;
 export class LFU<V> extends CacheStrategy<V> {
   queue: MultiKeyQueue<V, Entry<V>, ListNode<Single<V>>>;
 
-  constructor(capacity: number, root?: CacheStrategy<LFU<V>>) {
-    super(capacity, root as any);
+  constructor(capacity: number) {
+    super(capacity);
     this.queue = new MultiKeyQueue();
   }
 
@@ -248,3 +134,117 @@ export class LFU<V> extends CacheStrategy<V> {
     return new LevelEntry(level, new MultiKeyQueue(once(new Single(value))));
   }
 }
+
+/** Describes a cache entry containing ordered values and its level. */
+class LevelEntry<
+  V,
+  E,
+  S extends OrderedIndexedCollection<V, Single<V>, E>
+> extends OrderedIndexedCollection<V, V, E> {
+  level: number;
+  entry: S;
+
+  constructor(level: number, entry: S) {
+    super();
+    this.level = level;
+    this.entry = entry;
+  }
+
+  pushFront(value: V): E {
+    return this.entry.pushFront(new Single(value));
+  }
+
+  pushBack(value: V): E {
+    return this.entry.pushBack(new Single(value));
+  }
+
+  takeFront() {
+    return this.entry.takeFront();
+  }
+
+  takeBack() {
+    return this.entry.takeBack();
+  }
+
+  peekFront() {
+    return this.entry.peekFront();
+  }
+
+  peekBack() {
+    return this.entry.peekBack();
+  }
+
+  takeKeyFront() {
+    return this.entry.takeKeyFront();
+  }
+
+  takeKeyBack() {
+    return this.entry.takeKeyBack();
+  }
+
+  get(key: V) {
+    return this.entry.get(key);
+  }
+
+  dropKey(key: V) {
+    return this.entry.dropKey(key);
+  }
+
+  has(value: V) {
+    return this.entry.has(value);
+  }
+
+  addKeyFront(key: V, item: E) {
+    return this.entry.addKeyFront(key, item);
+  }
+
+  addKeyBack(key: V, item: E) {
+    return this.entry.addKeyBack(key, item);
+  }
+
+  peekKeyFront() {
+    return this.entry.peekKeyFront();
+  }
+
+  peekKeyBack() {
+    return this.entry.peekKeyBack();
+  }
+
+  moveBack(element: E) {
+    return this.entry.moveBack(element);
+  }
+
+  moveFront(element: E) {
+    return this.entry.moveFront(element);
+  }
+
+  remove(element: E): boolean {
+    return this.entry.remove(element);
+  }
+
+  valuesFront(): Iterable<V> {
+    return withSize(this.entry.keysFront(), this.len());
+  }
+
+  valuesBack(): Iterable<V> {
+    return withSize(this.entry.keysBack(), this.len());
+  }
+
+  keysFront(): Iterable<V> {
+    return this.entry.keysFront();
+  }
+
+  keysBack(): Iterable<V> {
+    return this.entry.keysBack();
+  }
+
+  len(): number {
+    return this.entry.len();
+  }
+
+  drop(value: V) {
+    return this.entry.drop(value);
+  }
+}
+
+type Entry<V> = LevelEntry<V, ListNode<Single<V>>, MultiKeyQueue<V, Single<V>>>;

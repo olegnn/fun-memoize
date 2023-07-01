@@ -1,35 +1,20 @@
 /**
- * An iterable with a fixed size.
- */
-interface SizedIterable<V> extends Iterable<V> {
-  size(): number;
-}
-
-/**
  * Contains removed/added entities.
  */
 declare class Result<V> {
-  removed: SizedIterable<V>;
-  added: SizedIterable<V>;
+  removed: Iterable<V>;
+  added: Iterable<V>;
   static EMPTY_RESULT: Result<unknown>;
   private constructor();
-  static added<V>(added: SizedIterable<V>): Result<V>;
-  static removed<V>(removed: SizedIterable<V>): Result<V>;
-  static removedAdded<V>(
-    removed: SizedIterable<V>,
-    added: SizedIterable<V>
-  ): Result<V>;
+  static added<V>(added: Iterable<V>): Result<V>;
+  static removed<V>(removed: Iterable<V>): Result<V>;
+  static removedAdded<V>(removed: Iterable<V>, added: Iterable<V>): Result<V>;
   static empty<V>(): Result<V>;
   /**
    * Appends remove/added items from the supplied result to the current result.
    * @param result
    */
   chain(result: Result<V>): Result<V>;
-  /**
-   * Returns difference between added and removed item counts.
-   *
-   */
-  counter(): number;
   /**
    * Executes given function for each added item.
    * @param fn
@@ -89,11 +74,16 @@ declare abstract class HasCapacity extends HasLength {
  */
 interface Destroyable {
   /**
-   * Destroys given entity (unlinks all references to it).
+   * Drops all references to the supplied entity.
    */
   destroy(): void;
+}
+/**
+ * Clearable entity.
+ */
+interface Clearable {
   /**
-   * Clears unerlying storage of the entity.
+   * Removes all entities from the underlying storage.
    */
   clear(): void;
 }
@@ -128,10 +118,9 @@ type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
  */
 declare abstract class CacheStrategy<V>
   extends HasCapacity
-  implements Destroyable, Parent<V>
+  implements Clearable, Parent<V>
 {
-  _parents: Iterable<Parent<CacheStrategy<V>>>;
-  constructor(capacity: number, roots?: Iterable<Parent<CacheStrategy<V>>>);
+  constructor(capacity: number);
   /**
    * Records read access of the supplied item.
    * @param value
@@ -145,13 +134,7 @@ declare abstract class CacheStrategy<V>
    */
   write(value: V): Result<V>;
   /**
-   * Calls a `destroy` implementation that will unlink given storage from all entities
-   * referencing it.
-   *
-   */
-  destroy(): void;
-  /**
-   * Removes all items from the storage.
+   * Removes all items from the strategy.
    *
    */
   clear(): void;
@@ -220,7 +203,7 @@ interface StorageParams<K, V> {
  */
 declare abstract class Storage<K, V>
   extends HasLength
-  implements Destroyable, Parent<K>
+  implements Destroyable, Clearable, Parent<K>
 {
   /**
    * Paths from parents to the given storage.
@@ -280,7 +263,7 @@ declare abstract class Storage<K, V>
    * Returns an iterator over the entries.
    *
    */
-  abstract entries(): SizedIterable<{
+  abstract entries(): Iterable<{
     key: K;
     value: V;
   }>;
@@ -338,7 +321,6 @@ declare class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
    *
    */
   take(): K | AbsentValue;
-  2: any;
   /**
    * Calls a `destroy` implementations that will unlink given storage from all entities
    * referencing it for both storage and cache strategy.
@@ -354,7 +336,7 @@ declare class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
    * Returns an iterator over the entries.
    *
    */
-  entries(): SizedIterable<{
+  entries(): Iterable<{
     key: K;
     value: V;
   }>;
@@ -432,14 +414,16 @@ interface ParamsWithLength<K, V> extends Params<K, V> {
 declare function memoize<K, V>(
   func: (...args: K[]) => V,
   { length, checkLast, ...params }?: ParamsWithLength<K, V>
-): typeof func;
+): typeof func & {
+  recomputations: number;
+};
 
 /**
  * Creates memoized selector.
  */
 declare const createMemoizedSelector: (...params: any[]) => {
   (): any;
-  recomputations(): any;
+  recomputations(): number;
   dependencies: any[];
   resultFunction: any;
 };
@@ -504,11 +488,11 @@ declare abstract class OrderedCollection<
   /**
    * Returns an iterator over collection values starting from the end.
    */
-  abstract valuesBack(): SizedIterable<V>;
+  abstract valuesBack(): Iterable<V>;
   /**
    * Returns an iterator over collection values starting from the beginning.
    */
-  abstract valuesFront(): SizedIterable<V>;
+  abstract valuesFront(): Iterable<V>;
 }
 /**
  * @abstract
@@ -641,11 +625,11 @@ declare abstract class OrderedIndexedCollection<
   /**
    * Returns an iterator over collection values starting from the end.
    */
-  abstract valuesBack(): SizedIterable<V>;
+  abstract valuesBack(): Iterable<V>;
   /**
    * Returns an iterator over collection values starting from the beginning.
    */
-  abstract valuesFront(): SizedIterable<V>;
+  abstract valuesFront(): Iterable<V>;
 }
 
 /**
@@ -766,11 +750,11 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   /**
    * Returns an iterator over collection values starting from the end.
    */
-  valuesBack(): SizedIterable<T>;
+  valuesBack(): Iterable<T>;
   /**
    * Returns an iterator over collection values starting from the beginning.
    */
-  valuesFront(): SizedIterable<T>;
+  valuesFront(): Iterable<T>;
 }
 
 /**
@@ -916,12 +900,12 @@ declare class MultiKeyQueue<
    * Returns an iterator over values.
    *
    */
-  valuesFront(): SizedIterable<V>;
+  valuesFront(): Iterable<V>;
   /**
    * Returns an iterator over values.
    *
    */
-  valuesBack(): SizedIterable<V>;
+  valuesBack(): Iterable<V>;
   /**
    * Returns an iterator over keys starting from the beginning.
    *
@@ -987,8 +971,8 @@ declare class Single<V> extends OrderedIndexedCollection<V, V, V> {
   moveFront(element: V): boolean;
   moveBack(element: V): boolean;
   remove(element: V): boolean;
-  valuesFront(): SizedIterable<V>;
-  valuesBack(): SizedIterable<V>;
+  valuesFront(): Iterable<V>;
+  valuesBack(): Iterable<V>;
   len(): number;
 }
 
@@ -997,7 +981,7 @@ declare class Single<V> extends OrderedIndexedCollection<V, V, V> {
  */
 declare class LRU<V> extends CacheStrategy<V> {
   queue: MultiKeyQueue<V, Single<V>>;
-  constructor(capacity: number, roots?: Iterable<CacheStrategy<LRU<V>>>);
+  constructor(capacity: number);
   /**
    * Returns amount of keys (references) stored in a map.
    *
@@ -1041,47 +1025,12 @@ declare class LRU<V> extends CacheStrategy<V> {
   take(): V | AbsentValue;
 }
 
-/** Describes a cache entry containing ordered values and its level. */
-declare class LevelEntry<
-  V,
-  E,
-  S extends OrderedIndexedCollection<V, Single<V>, E>
-> extends OrderedIndexedCollection<V, V, E> {
-  level: number;
-  entry: S;
-  constructor(level: number, entry: S);
-  pushFront(value: V): E;
-  pushBack(value: V): E;
-  takeFront(): {} | Single<V>;
-  takeBack(): {} | Single<V>;
-  peekFront(): {} | Single<V>;
-  peekBack(): {} | Single<V>;
-  takeKeyFront(): {} | V;
-  takeKeyBack(): {} | V;
-  get(key: V): {} | E;
-  dropKey(key: V): {} | E;
-  has(value: V): boolean;
-  addKeyFront(key: V, item: E): E;
-  addKeyBack(key: V, item: E): E;
-  peekKeyFront(): {} | V;
-  peekKeyBack(): {} | V;
-  moveBack(element: E): boolean;
-  moveFront(element: E): boolean;
-  remove(element: E): boolean;
-  valuesFront(): SizedIterable<V>;
-  valuesBack(): SizedIterable<V>;
-  keysFront(): Iterable<V>;
-  keysBack(): Iterable<V>;
-  len(): number;
-  drop(value: V): {} | E;
-}
-type Entry<V> = LevelEntry<V, ListNode<Single<V>>, MultiKeyQueue<V, Single<V>>>;
 /**
  * `L`east `F`requently `U`used cache schema.
  */
 declare class LFU<V> extends CacheStrategy<V> {
   queue: MultiKeyQueue<V, Entry<V>, ListNode<Single<V>>>;
-  constructor(capacity: number, root?: CacheStrategy<LFU<V>>);
+  constructor(capacity: number);
   /**
    * Returns amount of keys (references) stored in a map.
    *
@@ -1126,13 +1075,48 @@ declare class LFU<V> extends CacheStrategy<V> {
   peek(): V | AbsentValue;
   private buildLevelEntry;
 }
+/** Describes a cache entry containing ordered values and its level. */
+declare class LevelEntry<
+  V,
+  E,
+  S extends OrderedIndexedCollection<V, Single<V>, E>
+> extends OrderedIndexedCollection<V, V, E> {
+  level: number;
+  entry: S;
+  constructor(level: number, entry: S);
+  pushFront(value: V): E;
+  pushBack(value: V): E;
+  takeFront(): {} | Single<V>;
+  takeBack(): {} | Single<V>;
+  peekFront(): {} | Single<V>;
+  peekBack(): {} | Single<V>;
+  takeKeyFront(): {} | V;
+  takeKeyBack(): {} | V;
+  get(key: V): {} | E;
+  dropKey(key: V): {} | E;
+  has(value: V): boolean;
+  addKeyFront(key: V, item: E): E;
+  addKeyBack(key: V, item: E): E;
+  peekKeyFront(): {} | V;
+  peekKeyBack(): {} | V;
+  moveBack(element: E): boolean;
+  moveFront(element: E): boolean;
+  remove(element: E): boolean;
+  valuesFront(): Iterable<V>;
+  valuesBack(): Iterable<V>;
+  keysFront(): Iterable<V>;
+  keysBack(): Iterable<V>;
+  len(): number;
+  drop(value: V): {} | E;
+}
+type Entry<V> = LevelEntry<V, ListNode<Single<V>>, MultiKeyQueue<V, Single<V>>>;
 
 /**
  * `F`irst in - `F`irst out cache strategy.
  */
 declare class FIFO<V> extends CacheStrategy<V> {
   queue: MultiKeyQueue<V, Single<V>>;
-  constructor(capacity: number, roots?: Iterable<CacheStrategy<FIFO<V>>>);
+  constructor(capacity: number);
   /**
    * Returns amount of stored items.
    *

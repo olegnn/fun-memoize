@@ -7,11 +7,8 @@ import { AbsentValue, NO_VALUE } from "../value";
  * Placeholder strategy which is used when no limit specified.
  */
 export class Noop<V> extends CacheStrategy<V> {
-  constructor(
-    capacity: number,
-    roots: Iterable<CacheStrategy<CacheStrategy<V>>> = EMPTY_ITER
-  ) {
-    super(capacity, roots);
+  constructor(capacity: number) {
+    super(capacity);
   }
 
   /**

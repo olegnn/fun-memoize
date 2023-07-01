@@ -28,7 +28,7 @@ export type NestedStorage<K, V> =
  */
 type NestedStorageClass<K, V> = new (
   params: StorageParams<K, V>,
-  root: Iterable<ChildPath<any>>
+  parents: Iterable<ChildPath<K>>
 ) => NestedStorage<K, V>;
 
 /**

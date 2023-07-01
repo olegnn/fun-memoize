@@ -91,11 +91,17 @@ export abstract class HasCapacity extends HasLength {
  */
 export interface Destroyable {
   /**
-   * Destroys given entity (unlinks all references to it).
+   * Drops all references to the supplied entity.
    */
   destroy(): void;
+}
+
+/**
+ * Clearable entity.
+ */
+export interface Clearable {
   /**
-   * Clears unerlying storage of the entity.
+   * Removes all entities from the underlying storage.
    */
   clear(): void;
 }
