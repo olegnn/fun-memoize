@@ -2,14 +2,10 @@ benchmark
 node_modules
 package-lock.json
 yarn.lock
-__tests__
-.eslintrc
 build
-codecov.yml
 coverage
 .github
 src
 jest.config.js
 rollup.config.mjs
 .vscode
-tsconfig.json

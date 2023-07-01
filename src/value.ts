@@ -9,8 +9,15 @@ export const equals = <V>(v1: V, v2: V): boolean =>
 export type AbsentValue = typeof NO_VALUE;
 /** Type of the non-primitive value - either object or function */
 export type NonPrimitive = Object | Function;
-/** Type of the primitive value - boolean, string, number, null or void */
-export type Primitive = boolean | string | number | Symbol | null | void;
+/** Type of the primitive value - boolean, string, number, null, void, Symbol or BigInt */
+export type Primitive =
+  | boolean
+  | string
+  | number
+  | Symbol
+  | null
+  | void
+  | BigInt;
 
 /**
  * Checks whether a value is primitive or not. Returns `true` if provided value is an object or a function.

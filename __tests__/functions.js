@@ -1,5 +1,6 @@
 const mimic = require("mimic-fn");
-const { default: memoize } = require("../dist");
+const { default: memoize } = require("../build");
+const { LRU, LFU, FIFO } = require("../build/strategy");
 
 const { describe, test, expect } = global;
 
@@ -72,31 +73,58 @@ describe("Basic function memoize tests", () => {
       );
   });
 
-  for (const [useWeakStorage, useObjectStorage] of [
-    [false, false],
-    [true, true],
-    [false, true],
-    [true, false],
-  ])
-    test(`Memoize 5ary function${
-      ((useWeakStorage || useObjectStorage) && " with") || ""
-    }${(useWeakStorage && " weak storage") || ""}${
-      (useWeakStorage && useObjectStorage && ",") || ""
-    }${(useObjectStorage && " object storage") || ""}}`, () => {
-      const f = (a, b, c, d, e) =>
-        Math.max(...[a, b, c, d, e].map((v) => (v && v.length) || 0));
-      const func = createFunctionForTests(f);
+  const config = {
+    /**
+     * Total limit for the storages (cache nodes).
+     */
+    totalStoragesLimit: 20,
+    /**
+     * Total limit for the leaves (cache entries). Default is 10000.
+     */
+    totalLeavesLimit: 4,
+    /**
+     * Limit of the leaves per a single leaf storage.
+     */
+    leavesPerStorageLimit: 2,
+    /**
+     * Total limit of the leaf storages.
+     */
+    totalLeafStoragesLimit: 4,
+  };
 
-      const memoized = memoize(func, { useWeakStorage, useObjectStorage });
-      const testArgs = [
-        [1, 2, "hello world", 18, 22],
-        [6, "evil", "hello", "typeof", 0],
-        [[], { length: 2e2 }, [], {}, null],
-        [() => {}, { length: 1 }, [1111], {}, null],
-      ];
-      for (let i = 1e2; i--; )
-        expect(testArgs.map((arr) => memoized(...arr))).toEqual(
-          testArgs.map((arr) => f(...arr))
-        );
-    });
+  for (const leafStrategyClass of [LRU, LFU, FIFO])
+    for (const storageStrategyClass of [LRU, LFU, FIFO])
+      for (const useWeakStorage of [false, true])
+        for (const useObjectStorage of [false, true]) {
+          const name = `Memoize 5ary function${
+            ((useWeakStorage || useObjectStorage) && " with") || ""
+          }${(useWeakStorage && " weak storage") || ""}${
+            (useWeakStorage && useObjectStorage && ",") || ""
+          }${(useObjectStorage && " object storage") || ""}} using ${
+            leafStrategyClass.name
+          }/${storageStrategyClass.name}`;
+
+          test(name, () => {
+            const f = (a, b, c, d, e) =>
+              Math.max(...[a, b, c, d, e].map((v) => (v && v.length) || 0));
+            const func = createFunctionForTests(f);
+
+            const memoized = memoize(func, {
+              ...config,
+              strategy: { leafStrategyClass, storageStrategyClass },
+              useWeakStorage,
+              useObjectStorage,
+            });
+            const testArgs = [
+              [1, 2, "hello world", 18, 22],
+              [6, "evil", "hello", "typeof", 0],
+              [[], { length: 2e2 }, [], {}, null],
+              [() => {}, { length: 1 }, [1111], {}, null],
+            ];
+            for (let i = 1e2; i--; )
+              expect(testArgs.map((arr) => memoized(...arr))).toEqual(
+                testArgs.map((arr) => f(...arr))
+              );
+          });
+        }
 });

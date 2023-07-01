@@ -41,35 +41,6 @@ declare class Result<V> {
 }
 
 /**
- * Destructable entity.
- */
-interface Destroyable {
-  /**
-   * Destroys given entity (unlinks all references to it).
-   */
-  destroy(): void;
-  /**
-   * Clears unerlying storage of the entity.
-   */
-  clear(): void;
-}
-/**
- * Parent able to drop an item with the supplied key.
- */
-interface Parent<K> {
-  /**
-   * Drops an item corresponding to the supplied key.
-   * @param key
-   */
-  drop(key: K): void;
-}
-
-/** Represents an absent value */
-declare const NO_VALUE: {};
-/** Absent value placeholder */
-type AbsentValue = typeof NO_VALUE;
-
-/**
  * Describes a container having a length.
  */
 declare abstract class HasLength {
@@ -114,6 +85,366 @@ declare abstract class HasCapacity extends HasLength {
   willBeFull(): boolean;
 }
 /**
+ * Destructable entity.
+ */
+interface Destroyable {
+  /**
+   * Destroys given entity (unlinks all references to it).
+   */
+  destroy(): void;
+  /**
+   * Clears unerlying storage of the entity.
+   */
+  clear(): void;
+}
+/**
+ * Parent able to drop an item with the supplied key.
+ */
+interface Parent<K> {
+  /**
+   * Drops an item corresponding to the supplied key.
+   * @param key
+   */
+  drop(key: K): void;
+}
+
+/** Represents an absent value */
+declare const NO_VALUE: {};
+/** Absent value placeholder */
+type AbsentValue = typeof NO_VALUE;
+
+/**
+ * `CacheStrategy` with implemented abstract methods.
+ */
+type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
+  len(): number;
+  drop(value: V): boolean;
+  take(): V | AbsentValue;
+  peek(): V | AbsentValue;
+  has(value: V): boolean;
+};
+/**
+ * Describes some strategy holding up to `capacity` items at the same moment.
+ */
+declare abstract class CacheStrategy<V>
+  extends HasCapacity
+  implements Destroyable, Parent<V> {
+  _parents: Iterable<Parent<CacheStrategy<V>>>;
+  constructor(capacity: number, roots?: Iterable<Parent<CacheStrategy<V>>>);
+  /**
+   * Records read access of the supplied item.
+   * @param value
+   *
+   */
+  read(value: V): Result<V>;
+  /**
+   * Records write access of the supplied item.
+   * @param value
+   *
+   */
+  write(value: V): Result<V>;
+  /**
+   * Calls a `destroy` implementation that will unlink given storage from all entities
+   * referencing it.
+   *
+   */
+  destroy(): void;
+  /**
+   * Removes all items from the storage.
+   *
+   */
+  clear(): void;
+  /**
+   * Removes supplied item from the queue.
+   * @param value
+   *
+   */
+  abstract drop(value: V): boolean;
+  /**
+   * Removes an item from the beginning of the queue.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   */
+  abstract take(): V | AbsentValue;
+  /**
+   * Peeks a value from the beginning of the queue.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   *
+   */
+  abstract peek(): V | AbsentValue;
+  /**
+   * Returns `true` if given item exists in the queue.
+   * @param node
+   *
+   */
+  abstract has(value: V): boolean;
+  /**
+   * Reserves place for an item.
+   * @param value
+   */
+  protected reservePlace(value: V): Result<V>;
+}
+
+/**
+ * The path from the parent to the child.
+ */
+declare class ChildPath<K> {
+  /**
+   * Parent.
+   */
+  parent: Parent<K>;
+  /**
+   * The key under which the child is stored.
+   * If it's a `NO_VALUE`, then the child is stored under the key equal to itself.
+   */
+  key: K | AbsentValue;
+  constructor(parent: Parent<K>, key: K | AbsentValue);
+}
+/**
+ * Storage callbacks.
+ */
+interface StorageParams<K, V> {
+  /**
+   * Callback to be called on the storage creation.
+   * @param storage
+   */
+  onCreateStorage?: (storage: Storage<K, V>) => void;
+  /**
+   * Callback to be called on the storage removal.
+   * @param storage
+   */
+  onRemoveStorage?: (storage: Storage<K, V>) => void;
+}
+/**
+ * Key-value storage.
+ */
+declare abstract class Storage<K, V>
+  extends HasLength
+  implements Destroyable, Parent<K> {
+  /**
+   * Paths from parents to the given storage.
+   */
+  parentPaths: Iterable<ChildPath<K | Storage<K, V>>>;
+  /**
+   * Parameters.
+   */
+  params: StorageParams<K, V>;
+  destroyed: boolean;
+  constructor(
+    params?: StorageParams<K, V>,
+    parentPaths?: Iterable<ChildPath<K | Storage<K, V>>>
+  );
+  /**
+   * Calls a `destroy` implementation that will unlink given storage from all entities
+   * referencing it.
+   *
+   */
+  destroy(): void;
+  /**
+   * Returns `true` if supplied is weak, and thus won't be stored directly.
+   * @param key
+   */
+  isWeak(_key: K): boolean;
+  /**
+   * Returns `true` if value associated with the given key exists.
+   * @param key
+   *
+   */
+  has(key: K): boolean;
+  /**
+   * Retrieves an item corresponding to the supplied key.
+   * @param key
+   *
+   */
+  abstract get(key: K): V | AbsentValue;
+  /**
+   * Associates supplied item with the key.
+   * @param key
+   * @param value
+   *
+   */
+  abstract set(key: K, value: V): void;
+  /**
+   * Drops an item corresponding to the supplied key.
+   * @param key
+   *
+   */
+  abstract drop(key: K): V | AbsentValue;
+  /**
+   * Removes all items from the storage.
+   *
+   */
+  abstract clear(): void;
+  /**
+   * Returns an iterator over the entries.
+   *
+   */
+  abstract entries(): SizedIterable<{
+    key: K;
+    value: V;
+  }>;
+}
+
+/**
+ * Leaf storage callbacks.
+ */
+interface LeafStorageParams<K, V> extends StorageParams<K, V> {
+  /** Callback to be called on the leaf creation */
+  onCreateLeaf?: (leafStorage: K) => void;
+  /** Callback to be called on the leaf removal */
+  onRemoveLeaf?: (leafStorage: K) => void;
+}
+/**
+ * Stores leaf key -> value pairs.
+ */
+declare class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
+  params: LeafStorageParams<K, V>;
+  storage: Storage<K, V>;
+  strategy: CacheStrategy<K>;
+  dropStorageValue: (key: K) => boolean;
+  constructor(
+    storage: Storage<K, V>,
+    strategy: CacheStrategy<K>,
+    params: LeafStorageParams<K, V>,
+    rootPath?: Iterable<ChildPath<K>>
+  );
+  /**
+   * Returns amount of keys (references) stored in a map.
+   *
+   */
+  len(): number;
+  /**
+   * Drops an item corresponding to the supplied key.
+   * @param key
+   *
+   */
+  drop(key: K): V | AbsentValue;
+  /**
+   * Retrieves an item corresponding to the supplied key.
+   * @param key
+   *
+   */
+  get(key: K): V | AbsentValue;
+  /**
+   * Associates supplied item with the key.
+   * @param key
+   * @param value
+   *
+   */
+  set(key: K, value: V): void;
+  /**
+   * Removes an item from the beginning of the queue.
+   *
+   */
+  take(): K | AbsentValue;
+  2: any;
+  /**
+   * Calls a `destroy` implementations that will unlink given storage from all entities
+   * referencing it for both storage and cache strategy.
+   *
+   */
+  destroy(): void;
+  /**
+   * Removes all items from the storage and cache strategy.
+   *
+   */
+  clear(): void;
+  /**
+   * Returns an iterator over the entries.
+   *
+   */
+  entries(): SizedIterable<{
+    key: K;
+    value: V;
+  }>;
+  /**
+   * Executes callbacks for each added/removed item.
+   * @param result
+   */
+  private handleResult;
+}
+
+/** Parameters for the `UnifiedStorage` */
+interface UnifiedStorageParams<K, V> extends StorageParams<K, V> {
+  /** Denotes if the object storage must be used for values with primitive keys */
+  useObjectStorage: boolean;
+  /** Denotes if the weak storage must be used for values with non-primitive keys */
+  useWeakStorage: boolean;
+}
+
+/**
+ * Either leaf storage or nested storage containing either nested storages or leaf storages.
+ */
+type NestedStorage<K, V> =
+  | LeafStorage<K, V>
+  | Storage<K, NestedStorage<K, V> | LeafStorage<K, V> | V>;
+/**
+ * Params for the storage context.
+ */
+interface Params<K, V>
+  extends UnifiedStorageParams<K, V>,
+    LeafStorageParams<K, V>,
+    StorageParams<K, V> {
+  /**
+   * Total limit for the storages (cache nodes).
+   */
+  totalStoragesLimit?: number;
+  /**
+   * Total limit for the leaves (cache entries). Default is 10000.
+   */
+  totalLeavesLimit?: number;
+  /**
+   * Limit of the leaves per a single leaf storage.
+   */
+  leavesPerStorageLimit?: number;
+  /**
+   * Total limit of the leaf storages.
+   */
+  totalLeafStoragesLimit?: number;
+  /**
+   * Either strategy class or different strategy classes for leaves and storage nodes.
+   */
+  strategy?: StrategyConfig<K, V> | CacheStrategyClass<unknown>;
+}
+/**
+ * Config for the leaf and storage cache strategies.
+ */
+type StrategyConfig<K, V> = {
+  leafStrategyClass: CacheStrategyClass<K | LeafStorage<K, V>>;
+  storageStrategyClass: CacheStrategyClass<NestedStorage<K, V>>;
+};
+
+/** Params interface extended with optional length and checkLast flag */
+interface ParamsWithLength<K, V> extends Params<K, V> {
+  /** Overrides function length */
+  length?: number;
+  /** Check last arguments or not (default to `true`) */
+  checkLast?: boolean;
+}
+/**
+ * Memoizes provided function returning wrapped version of the provided function.
+ * Returned function will return the calculated value if it's present in the cache for the arguments according to `Same-value-zero` algorithm.
+ * If no value is found, the underlying function will be called with provided arguments.
+ * @param func
+ * @param params
+ */
+declare function memoize<K, V>(
+  func: (...args: K[]) => V,
+  { length, checkLast, ...params }?: ParamsWithLength<K, V>
+): typeof func;
+
+/**
+ * Creates memoized selector.
+ */
+declare const createMemoizedSelector: (
+  ...params: any[]
+) => {
+  (): any;
+  recomputations(): any;
+  dependencies: any[];
+  resultFunction: any;
+};
+
+/**
  * @abstract
  * An ordered collection of items which can be walked in two directions.
  */
@@ -136,16 +467,24 @@ declare abstract class OrderedCollection<
   abstract pushFront(value: V): E;
   /**
    * Moves an element to the beginning of the collection.
+   * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveFront(element: E): void;
+  abstract moveFront(element: E): boolean;
   /**
    * Moves an element to the back.
+   * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveBack(element: E): void;
+  abstract moveBack(element: E): boolean;
+  /**
+   * Removes an element from the collection.
+   * Returns `true` in case of success.
+   * @param element
+   */
+  abstract remove(element: E): boolean;
   /**
    * Takes an element from the end of the collection.
    */
@@ -264,16 +603,24 @@ declare abstract class OrderedIndexedCollection<
   abstract pushFront(value: V): E;
   /**
    * Moves an element to the beginning of the collection.
+   * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveFront(element: E): void;
+  abstract moveFront(element: E): boolean;
   /**
    * Moves an element to the back.
+   * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveBack(element: E): void;
+  abstract moveBack(element: E): boolean;
+  /**
+   * Removes an element from the collection.
+   * Returns `true` in case of success.
+   * @param element
+   */
+  abstract remove(element: E): boolean;
   /**
    * Takes an element from the end of the collection.
    */
@@ -304,10 +651,16 @@ declare abstract class OrderedIndexedCollection<
  * A node of the double-ended linked list.
  */
 declare class ListNode<T> {
+  root: LinkedList<T> | null;
   next: ListNode<T> | null;
   prev: ListNode<T> | null;
   value: T;
-  constructor(value: T, prev?: ListNode<T> | null, next?: ListNode<T> | null);
+  constructor(
+    value: T,
+    root: LinkedList<T>,
+    prev?: ListNode<T> | null,
+    next?: ListNode<T> | null
+  );
   /**
    * Inserts supplied value before the current node.
    * @param value
@@ -321,7 +674,7 @@ declare class ListNode<T> {
    */
   insertNext(value: T): ListNode<T>;
   /**
-   * Disconnects current node from previous and next.
+   * Disconnects current node from its predecessor and successor.
    *
    */
   disconnect(): void;
@@ -348,18 +701,18 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   pushFront(element: T): ListNode<T>;
   /**
    * Moves node to the front of the queue.
-   * It's the caller responsibility to ensure that this node belongs to it.
+   * Returns `false` if element doesn't belong to the given list.
    * @param node
    *
    */
-  moveFront(node: ListNode<T>): void;
+  moveFront(node: ListNode<T>): boolean;
   /**
    * Moves node to the back of the queue.
-   * It's the caller responsibility to ensure that this node belongs to it.
+   * Returns `false` if element doesn't belong to the given list.
    * @param node
    *
    */
-  moveBack(node: ListNode<T>): void;
+  moveBack(node: ListNode<T>): boolean;
   /**
    * Peeks a value from the front of the queue.
    * Returns either item or `null` if queue is empty.
@@ -379,6 +732,12 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
    */
   takeBack(): T | null;
   /**
+   * Takes front node from the list.
+   * Returns `null` if list has no elements.
+   *
+   */
+  takeFront(): T | null;
+  /**
    * Inserts given value after the supplied raw linked list node.
    * @param node
    * @param value
@@ -387,24 +746,17 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   insertAfter(node: ListNode<T>, value: T): ListNode<T>;
   /**
    * Inserts given value before the supplied raw linked list node.
-   * It's the caller responsibility to ensure that this node belongs to it.
    * @param node
    * @param value
    *
    */
   insertBefore(node: ListNode<T>, value: T): ListNode<T>;
   /**
-   * Takes front node from the list.
-   * Returns `null` if list has no elements.
-   *
-   */
-  takeFront(): T | null;
-  /**
    * Removes given node from the list.
-   * It's the caller responsibility to ensure that this node belongs to it.
+   * Returns `false` if element doesn't belong to the given list.
    * @param element
    */
-  remove(element: ListNode<T>): void;
+  remove(element: ListNode<T>): boolean;
   /**
    * Returns amount of items stored in the list.
    *
@@ -421,7 +773,7 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 }
 
 /**
- * An ordered indexed queue where each item has an ordered queue of keys.
+ * An indexed queue where each item is an indexed queue of keys.
  * An item itself should implement `OrderedIndexedCollection`.
  */
 declare class MultiKeyQueue<
@@ -430,7 +782,7 @@ declare class MultiKeyQueue<
   E = K
 > extends OrderedIndexedCollection<K, V, ListNode<V>> {
   list: LinkedList<V>;
-  map: Map<K, ListNode<V>>;
+  map: Storage<K, ListNode<V>>;
   constructor(values?: Iterable<V>);
   /**
    * Returns amount of keys (references) stored in a map.
@@ -438,7 +790,7 @@ declare class MultiKeyQueue<
    */
   len(): number;
   /**
-   * Drops an item associated with the supplied key.
+   * Drops an item ass3ociated with the supplied key.
    * Returns dropped value in case of a successful drop or `NO_VALUE` if the value wasn't found.
    * @param key
    *
@@ -446,18 +798,25 @@ declare class MultiKeyQueue<
   drop(key: K): V | AbsentValue;
   /**
    * Moves node to the front of the queue.
-   * It's the caller responsibility to ensure that this node belongs to it.
-   * @param node
+   * Returns `true` in case of success.
+   * @param listNode
    *
    */
-  moveFront(listNode: ListNode<V>): void;
+  moveFront(listNode: ListNode<V>): boolean;
   /**
    * Moves node to the back of the queue.
-   * It's the caller responsibility to ensure that this node belongs to it.
-   * @param node
+   * Returns `true` in case of success.
+   * @param listNode
    *
    */
-  moveBack(listNode: ListNode<V>): void;
+  moveBack(listNode: ListNode<V>): boolean;
+  /**
+   * Removes an item from the queue.
+   * Returns `true` in case of success.
+   * @param listNode
+   *
+   */
+  remove(listNode: ListNode<V>): boolean;
   /**
    * Drops supplied key from the map.
    * Item belonging to this key will be deleted only if it has no more references in the map.
@@ -487,16 +846,14 @@ declare class MultiKeyQueue<
    */
   get(key: K): ListNode<V> | AbsentValue;
   /**
-   * Adds a key for the supplied element to the beginning of the queue.
-   * Returns `true` in case of success.
+   * Adds a key for the supplied element to the beginning of its queue.
    * @param key
    * @param listNode
    *
    */
   addKeyFront(key: K, item: ListNode<V>): ListNode<V>;
   /**
-   * Adds a key for the supplied element to the end of the queue.
-   * Returns `true` in case of success.
+   * Adds a key for the supplied element to the end of its queue.
    * @param key
    * @param listNode
    *
@@ -593,6 +950,13 @@ declare class MultiKeyQueue<
    *
    */
   private assocKeys;
+  /**
+   * Dissociates keys of the provided value.
+   * @param value
+   * @param node
+   *
+   */
+  private dissocKeys;
 }
 
 /**
@@ -619,342 +983,13 @@ declare class Single<V> extends OrderedIndexedCollection<V, V, V> {
   drop(value: V): {};
   peekFront(): {} | V;
   peekBack(): {} | V;
-  moveFront(element: V): V;
-  moveBack(element: V): V;
+  moveFront(element: V): boolean;
+  moveBack(element: V): boolean;
+  remove(element: V): boolean;
   valuesFront(): SizedIterable<V>;
   valuesBack(): SizedIterable<V>;
   len(): number;
 }
-
-/**
- * `CacheStrategy` with implemented abstract methods.
- */
-type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
-  len(): number;
-  drop(value: V): boolean;
-  remove(): V | AbsentValue;
-  peek(): V | AbsentValue;
-  has(value: V): boolean;
-};
-/**
- * Describes some strategy holding up to `capacity` items at the same moment.
- */
-declare abstract class CacheStrategy<V>
-  extends HasCapacity
-  implements Destroyable, Parent<V> {
-  _parents: Iterable<Parent<CacheStrategy<V>>>;
-  constructor(capacity: number, roots?: Iterable<Parent<CacheStrategy<V>>>);
-  /**
-   * Records read access of the supplied item.
-   * @param value
-   *
-   */
-  read(value: V): Result<V>;
-  /**
-   * Records write access of the supplied item.
-   * @param value
-   *
-   */
-  write(value: V): Result<V>;
-  /**
-   * Calls a `destroy` implementation that will unlink given storage from all entities
-   * referencing it.
-   *
-   */
-  destroy(): void;
-  /**
-   * Removes all items from the storage.
-   *
-   */
-  clear(): void;
-  /**
-   * Removes supplied item from the queue.
-   * @param value
-   *
-   */
-  abstract drop(value: V): boolean;
-  /**
-   * Removes an item from the beginning of the queue.
-   *
-   */
-  abstract remove(): V | AbsentValue;
-  /**
-   * Peeks a value from the beginning of the queue.
-   * Returns either item or `NO_VALUE` if queue is empty.
-   *
-   */
-  abstract peek(): V | AbsentValue;
-  /**
-   * Returns `true` if given item exists in the queue.
-   * @param node
-   *
-   */
-  abstract has(value: V): boolean;
-  /**
-   * Reserves place for an item.
-   * @param value
-   */
-  protected reservePlace(value: V): Result<V>;
-}
-
-/**
- * The path from the parent to the child.
- */
-declare class ChildPath<K> {
-  /**
-   * Parent.
-   */
-  parent: Parent<K>;
-  /**
-   * The key under which the child is stored.
-   * If it's a `NO_VALUE`, then the child is stored under the key equal to itself.
-   */
-  key: K | AbsentValue;
-  constructor(parent: Parent<K>, key: K | AbsentValue);
-}
-/**
- * Storage callbacks.
- */
-interface StorageParams<K, V> {
-  /**
-   * Callback to be called on the storage creation.
-   * @param storage
-   */
-  onCreateStorage?: (storage: Storage<K, V>) => void;
-  /**
-   * Callback to be called on the storage removal.
-   * @param storage
-   */
-  onRemoveStorage?: (storage: Storage<K, V>) => void;
-}
-/**
- * Key-value storage.
- */
-declare abstract class Storage<K, V>
-  extends HasLength
-  implements Destroyable, Parent<K> {
-  /**
-   * Paths to the parents.
-   */
-  parentPaths: Iterable<ChildPath<K | Storage<K, V>>>;
-  /**
-   * Parameters.
-   */
-  params: StorageParams<K, V>;
-  destroyed: boolean;
-  constructor(
-    params?: StorageParams<K, V>,
-    parentPaths?: Iterable<ChildPath<K | Storage<K, V>>>
-  );
-  /**
-   * Calls a `destroy` implementation that will unlink given storage from all entities
-   * referencing it.
-   *
-   */
-  destroy(): void;
-  /**
-   * Returns `true` if supplied is weak, and thus won't be stored directly.
-   * @param key
-   */
-  isWeak(_key: K): boolean;
-  /**
-   * Returns `true` if value associated with the given key exists.
-   * @param key
-   *
-   */
-  has(key: K): boolean;
-  /**
-   * Retrieves an item corresponding to the supplied key.
-   * @param key
-   *
-   */
-  abstract get(key: K): V | AbsentValue;
-  /**
-   * Associates supplied item with the key.
-   * @param key
-   * @param value
-   *
-   */
-  abstract set(key: K, value: V): void;
-  /**
-   * Drops an item corresponding to the supplied key.
-   * @param key
-   *
-   */
-  abstract drop(key: K): V | AbsentValue;
-  /**
-   * Removes all items from the storage.
-   *
-   */
-  abstract clear(): void;
-  /**
-   * Returns an iterator over the entries.
-   *
-   */
-  abstract entries(): SizedIterable<{
-    key: K;
-    value: V;
-  }>;
-}
-
-/**
- * Leaf storage callbacks.
- */
-interface LeafStorageParams<K, V> extends StorageParams<K, V> {
-  /** Callback to be called on the leaf creation */
-  onCreateLeaf?: (leafStorage: K) => void;
-  /** Callback to be called on the leaf removal */
-  onRemoveLeaf?: (leafStorage: K) => void;
-}
-/**
- * Stores leaf key -> value pairs.
- */
-declare class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
-  params: LeafStorageParams<K, V>;
-  storage: Storage<K, V>;
-  strategy: CacheStrategy<K>;
-  dropStorageValue: (key: K) => boolean;
-  constructor(
-    storage: Storage<K, V>,
-    strategy: CacheStrategy<K>,
-    params: LeafStorageParams<K, V>,
-    rootPath?: Iterable<ChildPath<K>>
-  );
-  /**
-   * Returns amount of keys (references) stored in a map.
-   *
-   */
-  len(): number;
-  /**
-   * Drops an item corresponding to the supplied key.
-   * @param key
-   *
-   */
-  drop(key: K): V | AbsentValue;
-  /**
-   * Retrieves an item corresponding to the supplied key.
-   * @param key
-   *
-   */
-  get(key: K): V | AbsentValue;
-  /**
-   * Associates supplied item with the key.
-   * @param key
-   * @param value
-   *
-   */
-  set(key: K, value: V): void;
-  /**
-   * Removes an item from the beginning of the queue.
-   *
-   */
-  remove(): K | AbsentValue;
-  /**
-   * Calls a `destroy` implementations that will unlink given storage from all entities
-   * referencing it for both storage and cache strategy.
-   *
-   */
-  destroy(): void;
-  /**
-   * Removes all items from the storage and cache strategy.
-   *
-   */
-  clear(): void;
-  /**
-   * Returns an iterator over the entries.
-   *
-   */
-  entries(): SizedIterable<{
-    key: K;
-    value: V;
-  }>;
-  /**
-   * Executes callbacks for each added/removed item.
-   * @param result
-   */
-  private handleResult;
-}
-
-/** Parameters for the `UnifiedStorage` */
-interface UnifiedStorageParams<K, V> extends StorageParams<K, V> {
-  /** Denotes if the object storage must be used for values with primitive keys */
-  useObjectStorage: boolean;
-  /** Denotes if the weak storage must be used for values with non-primitive keys */
-  useWeakStorage: boolean;
-}
-
-/**
- * Either leaf storage or nested storage containing either nested storages or leaf storages.
- */
-type NestedStorage<K, V> =
-  | LeafStorage<K, V>
-  | Storage<K, NestedStorage<K, V> | LeafStorage<K, V> | V>;
-/**
- * Params for the storage context.
- */
-interface Params<K, V>
-  extends UnifiedStorageParams<K, V>,
-    LeafStorageParams<K, V>,
-    StorageParams<K, V> {
-  /**
-   * Total limit for the storages (cache nodes).
-   */
-  totalStoragesLimit?: number;
-  /**
-   * Total limit for the leaves (cache entries). Default is 10000.
-   */
-  totalLeavesLimit?: number;
-  /**
-   * Limit of the leaves per a single leaf storage.
-   */
-  leavesPerStorageLimit?: number;
-  /**
-   * Total limit of the leaf storages.
-   */
-  totalLeafStoragesLimit?: number;
-  /**
-   * Either strategy class or different strategy classes for leaves and storage nodes.
-   */
-  strategy?: StrategyConfig<K, V> | CacheStrategyClass<unknown>;
-}
-/**
- * Config for the leaf and storage cache strategies.
- */
-type StrategyConfig<K, V> = {
-  leafStrategyClass: CacheStrategyClass<K | LeafStorage<K, V>>;
-  storageStrategyClass: CacheStrategyClass<NestedStorage<K, V>>;
-};
-
-/** Params interface extended with optional length and checkLast flag */
-interface ParamsWithLength<K, V> extends Params<K, V> {
-  /** Overrides function length */
-  length?: number;
-  /** Check last arguments or not (default to `true`) */
-  checkLast?: boolean;
-}
-/**
- * Memoizes provided function returning wrapped version of the provided function.
- * Returned function will return the calculated value if it's present in the cache for the arguments according to `Same-value-zero` algorithm.
- * If no value is found, the underlying function will be called with provided arguments.
- * @param func
- * @param params
- */
-declare function memoize<K, V>(
-  func: (...args: K[]) => V,
-  { length, checkLast, ...params }?: ParamsWithLength<K, V>
-): typeof func;
-
-/**
- * Creates memoized selector.
- */
-declare const createMemoizedSelector: (
-  ...params: any[]
-) => {
-  (): any;
-  recomputations(): any;
-  dependencies: any[];
-  resultFunction: any;
-};
 
 /**
  * `L`east `R`ecently `U`sed cache schema.
@@ -1002,7 +1037,7 @@ declare class LRU<V> extends CacheStrategy<V> {
    * Removes an item from the beginning of the queue.
    *
    */
-  remove(): V | AbsentValue;
+  take(): V | AbsentValue;
 }
 
 /** Describes a cache entry containing ordered values and its level. */
@@ -1029,8 +1064,9 @@ declare class LevelEntry<
   addKeyBack(key: V, item: E): E;
   peekKeyFront(): {} | V;
   peekKeyBack(): {} | V;
-  moveBack(element: E): void;
-  moveFront(element: E): void;
+  moveBack(element: E): boolean;
+  moveFront(element: E): boolean;
+  remove(element: E): boolean;
   valuesFront(): SizedIterable<V>;
   valuesBack(): SizedIterable<V>;
   keysFront(): Iterable<V>;
@@ -1076,10 +1112,11 @@ declare class LFU<V> extends CacheStrategy<V> {
    */
   drop(node: V): boolean;
   /**
-   * @virtual
+   * Takes a value from the beginning of the queue.
+   * Returns either item or `NO_VALUE` if queue is empty.
    *
    */
-  remove(): V | AbsentValue;
+  take(): V | AbsentValue;
   /**
    * Peeks a value from the beginning of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
@@ -1134,7 +1171,7 @@ declare class FIFO<V> extends CacheStrategy<V> {
    * Removes an item from the beginning of the queue.
    *
    */
-  remove(): V | AbsentValue;
+  take(): V | AbsentValue;
 }
 
 /** Default limit for the cache entries (leaf values) */

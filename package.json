@@ -1,6 +1,6 @@
 {
   "name": "fun-memoize",
-  "version": "0.4.1",
+  "version": "1.0.0",
   "author": "Oleg Nosov <olegnosov1@gmail.com>",
   "description": "Configurable memoization module for modern JavaScript applications",
   "dependencies": {
@@ -48,7 +48,9 @@
     "prepublish": "yarn build",
     "build": "rm -rf dist build && NODE_ENV=release rollup -c rollup.config.mjs && tsc --moduleResolution node --downlevelIteration --outDir build --sourceMap true ./src/index.ts",
     "benchmark": "node ./benchmark/index.js",
-    "test": "jest .",
+    "test:no-bigint": "jest --testPathIgnorePatterns=.*\\.bigint\\\\.js",
+    "test:bigint": "jest --maxWorkers=1 --testPathPattern=.*\\.bigint\\\\.js",
+    "test": "yarn test:bigint && yarn test:no-bigint",
     "lint": "prettier '(src/**/*.ts)|(__tests__/**/**.js)|(benchmark/*.js)' --check",
     "fmt": "prettier 'index.d.ts|(src/**/*.ts)|(__tests__/**/**.js)|(benchmark/*.js)' --write"
   }

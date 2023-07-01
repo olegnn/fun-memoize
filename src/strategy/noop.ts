@@ -72,7 +72,7 @@ export class Noop<V> extends CacheStrategy<V> {
    * Always returns `NO_VALUE`.
    *
    */
-  remove(): V | AbsentValue {
+  take(): V | AbsentValue {
     return NO_VALUE;
   }
 }

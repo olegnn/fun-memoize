@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "outDir": "dist",
+        "outDir": "build",
         "sourceMap": true,
         "moduleResolution": "node",
         "downlevelIteration": true

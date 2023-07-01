@@ -92,7 +92,7 @@ export class FIFO<V> extends CacheStrategy<V> {
    * Removes an item from the beginning of the queue.
    *
    */
-  remove(): V | AbsentValue {
+  take(): V | AbsentValue {
     const node = this.queue.takeKeyFront();
 
     if (node !== NO_VALUE) {

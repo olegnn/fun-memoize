@@ -6,7 +6,11 @@ import {
 import { EMPTY_ITER } from "../iterators";
 import { LeafStorage, LeafStorageParams } from "./LeafStorage";
 import { Storage, ChildPath, StorageParams } from "../base/Storage";
-import { MapStorage, UnifiedStorage, UnifiedStorageParams } from "../storage";
+import {
+  SafeMapStorage,
+  UnifiedStorage,
+  UnifiedStorageParams,
+} from "../storage";
 import { RootLeafStrategy } from "./RootLeafStrategy";
 import { LRU, Noop } from "../strategy";
 import { DEFAULT_MAX_ENTRIES_COUNT } from "../constants";
@@ -138,7 +142,7 @@ export class StorageContext<K, V> {
     totalLeafStoragesLimit = Infinity,
     leavesPerStorageLimit = Infinity,
     useWeakStorage = false,
-    useObjectStorage = !(Map && typeof Map.prototype.entries === "function"),
+    useObjectStorage = false,
     onCreateStorage = noop,
     onRemoveStorage = noop,
     onCreateLeaf = noop,
@@ -187,7 +191,7 @@ export class StorageContext<K, V> {
       new (withDestroyable(leafStrategyClass))(totalLeafStoragesLimit)
     );
     this.storageClass =
-      useWeakStorage || useObjectStorage ? UnifiedStorage : MapStorage;
+      useWeakStorage || useObjectStorage ? UnifiedStorage : SafeMapStorage;
     this.leafStrategyClass = leafStrategyClass as CacheStrategyClass<K>;
     this.leavesPerStorageLimit = leavesPerStorageLimit;
     this.params = {

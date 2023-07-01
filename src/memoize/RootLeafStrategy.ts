@@ -46,7 +46,7 @@ export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
    */
   protected reservePlace(_: LeafStorage<K, V>): Result<LeafStorage<K, V>> {
     if (this.isFull()) {
-      const removedItem = this.remove();
+      const removedItem = this.take();
 
       if (removedItem !== NO_VALUE) {
         return Result.removed(once(removedItem as LeafStorage<K, V>));
@@ -93,12 +93,12 @@ export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
    * Removes an item from the beginning of the queue.
    *
    */
-  remove(): LeafStorage<K, V> | AbsentValue {
+  take(): LeafStorage<K, V> | AbsentValue {
     const maybeStorage = this.peek();
 
     if (maybeStorage !== NO_VALUE) {
       const storage = maybeStorage as LeafStorage<K, V>;
-      const removed = storage.remove();
+      const removed = storage.take();
       if (removed !== NO_VALUE) {
         this._children--;
       }

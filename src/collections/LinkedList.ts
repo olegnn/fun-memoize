@@ -6,16 +6,19 @@ import { SizedIterable, EMPTY_ITER, ITER_DONE_VALUE } from "../iterators";
  * A node of the double-ended linked list.
  */
 export class ListNode<T> {
+  root: LinkedList<T> | null;
   next: ListNode<T> | null;
   prev: ListNode<T> | null;
   value: T;
 
   constructor(
     value: T,
+    root: LinkedList<T>,
     prev: ListNode<T> | null = null,
     next: ListNode<T> | null = null
   ) {
     this.value = value;
+    this.root = root;
     this.next = next;
     this.prev = prev;
   }
@@ -26,7 +29,7 @@ export class ListNode<T> {
    *
    */
   insertPrev(value: T): ListNode<T> {
-    const node = new ListNode(value, this.prev, this);
+    const node = new ListNode(value, this.root, this.prev, this);
     if (this.prev !== null) this.prev.next = node;
     return (this.prev = node);
   }
@@ -37,18 +40,19 @@ export class ListNode<T> {
    *
    */
   insertNext(value: T): ListNode<T> {
-    const node = new ListNode(value, this, this.next);
+    const node = new ListNode(value, this.root, this, this.next);
     if (this.next !== null) this.next.prev = node;
     return (this.next = node);
   }
 
   /**
-   * Disconnects current node from previous and next.
+   * Disconnects current node from its predecessor and successor.
    *
    */
   disconnect(): void {
     if (this.next !== null) this.next.prev = this.prev;
     if (this.prev !== null) this.prev.next = this.next;
+
     this.prev = this.next = null;
   }
 }
@@ -83,7 +87,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
     if (this.tail !== null) {
       this.tail = this.tail.insertNext(element);
     } else {
-      this.head = this.tail = new ListNode(element);
+      this.head = this.tail = new ListNode(element, this);
     }
 
     return this.tail;
@@ -100,7 +104,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
     if (this.head !== null) {
       this.head = this.head.insertPrev(element);
     } else {
-      this.head = this.tail = new ListNode(element);
+      this.head = this.tail = new ListNode(element, this);
     }
 
     return this.head;
@@ -108,13 +112,15 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
   /**
    * Moves node to the front of the queue.
-   * It's the caller responsibility to ensure that this node belongs to it.
+   * Returns `false` if element doesn't belong to the given list.
    * @param node
    *
    */
-  moveFront(node: ListNode<T>): void {
-    if (node === this.head) {
-      return;
+  moveFront(node: ListNode<T>): boolean {
+    if (node.root !== this) {
+      return false;
+    } else if (node === this.head) {
+      return true;
     } else if (node === this.tail) {
       this.tail = this.tail.prev;
     }
@@ -123,17 +129,21 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
     node.next = this.head;
     this.head.prev = node;
     this.head = node;
+
+    return true;
   }
 
   /**
    * Moves node to the back of the queue.
-   * It's the caller responsibility to ensure that this node belongs to it.
+   * Returns `false` if element doesn't belong to the given list.
    * @param node
    *
    */
-  moveBack(node: ListNode<T>): void {
-    if (node === this.tail) {
-      return;
+  moveBack(node: ListNode<T>): boolean {
+    if (node.root !== this) {
+      return false;
+    } else if (node === this.tail) {
+      return true;
     } else if (node === this.head) {
       this.head = this.head.next;
     }
@@ -142,6 +152,8 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
     node.prev = this.tail;
     this.tail.next = node;
     this.tail = node;
+
+    return true;
   }
 
   /**
@@ -174,12 +186,38 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
     const element = this.tail;
 
-    if (equals(element, this.head)) {
+    if (element === this.head) {
       this.head = null;
     }
 
     if (element !== null) {
       this.tail = this.tail.prev;
+      element.disconnect();
+
+      return element.value;
+    }
+
+    return null;
+  }
+
+  /**
+   * Takes front node from the list.
+   * Returns `null` if list has no elements.
+   *
+   */
+  takeFront(): T | null {
+    if (this.head === null) return null;
+
+    this.length--;
+
+    const element = this.head;
+
+    if (element === this.tail) {
+      this.tail = null;
+    }
+
+    if (element !== null) {
+      this.head = this.head.next;
       element.disconnect();
 
       return element.value;
@@ -198,7 +236,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
     this.length++;
     const inserted = node.insertNext(value);
 
-    if (equals(node, this.tail)) {
+    if (node === this.tail) {
       this.tail = inserted;
     }
 
@@ -207,7 +245,6 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
   /**
    * Inserts given value before the supplied raw linked list node.
-   * It's the caller responsibility to ensure that this node belongs to it.
    * @param node
    * @param value
    *
@@ -216,7 +253,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
     this.length++;
     const inserted = node.insertPrev(value);
 
-    if (equals(node, this.head)) {
+    if (node === this.head) {
       this.head = inserted;
     }
 
@@ -224,46 +261,27 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   }
 
   /**
-   * Takes front node from the list.
-   * Returns `null` if list has no elements.
-   *
-   */
-  takeFront(): T | null {
-    if (this.head === null) return null;
-
-    this.length--;
-
-    const element = this.head;
-    this.head = this.head.next;
-
-    if (equals(element, this.tail)) {
-      this.tail = null;
-    }
-
-    if (element !== null) {
-      element.disconnect();
-    }
-
-    return element.value;
-  }
-
-  /**
    * Removes given node from the list.
-   * It's the caller responsibility to ensure that this node belongs to it.
+   * Returns `false` if element doesn't belong to the given list.
    * @param element
    */
-  remove(element: ListNode<T>) {
+  remove(element: ListNode<T>): boolean {
+    if (element.root !== this) {
+      return false;
+    }
     this.length--;
 
-    if (equals(element, this.head) && this.head !== null) {
+    if (element === this.head && this.head !== null) {
       this.head = this.head.next;
     }
 
-    if (equals(element, this.tail) && this.tail !== null) {
+    if (element === this.tail && this.tail !== null) {
       this.tail = this.tail.prev;
     }
 
     element.disconnect();
+
+    return true;
   }
 
   /**
