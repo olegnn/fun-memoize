@@ -1,12 +1,13 @@
 # Fun memoize
 
 [![npm](https://img.shields.io/npm/v/fun-memoize.svg)](https://www.npmjs.com/package/fun-memoize)
+[![codecov](https://codecov.io/gh/olegnn/fun-memoize/branch/master/graph/badge.svg)](https://codecov.io/gh/olegnn/fun-memoize)
 
 **Have fun! 😏**
 
 Configurable memoization module with fully controllable cache for modern JavaScript applications.
 
-Provides fast memoization using **Same-value-zero** equality check for **non-variadic** functions [with **fixed arguments length**].
+Provides fast memoization using **Same-value-zero** equality check for **non-variadic** functions [with **fixed argument length**].
 
 ## Installation
 
