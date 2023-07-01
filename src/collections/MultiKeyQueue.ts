@@ -36,7 +36,7 @@ export class MultiKeyQueue<
   }
 
   /**
-   * Drops an item ass3ociated with the supplied key.
+   * Drops an item associated with the supplied key.
    * Returns dropped value in case of a successful drop or `NO_VALUE` if the value wasn't found.
    * @param key
    *
