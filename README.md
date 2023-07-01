@@ -1,4 +1,4 @@
-# Fun memoize
+# `fun-memoize`
 
 [![npm](https://img.shields.io/npm/v/fun-memoize.svg)](https://www.npmjs.com/package/fun-memoize)
 [![codecov](https://codecov.io/gh/olegnn/fun-memoize/branch/master/graph/badge.svg)](https://codecov.io/gh/olegnn/fun-memoize)
@@ -171,8 +171,8 @@ interface ParamsWithLength<K, V> extends Params<K, V> {
 }
 
 /**
- * Memoizes provided function returning wrapped version of the provided function.
- * Returned function will return the calculated value if it's present in the cache for the arguments according to `Same-value-zero` algorithm.
+ * Memoizes provided function returning wrapped version of it.
+ * Result function will return value without calling the supplied function if it's present in the cache for the supplied arguments according to `Same-value-zero` algorithm.
  * If no value is found, the underlying function will be called with provided arguments.
  * @param func
  * @param params
