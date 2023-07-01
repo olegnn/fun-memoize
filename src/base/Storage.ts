@@ -1,7 +1,6 @@
 import { NO_VALUE } from "../value";
 import type { AbsentValue } from "../value";
-import { Destroyable, EMPTY_OBJECT, Parent } from "../utils";
-import { HasLength } from "../collections";
+import { Destroyable, EMPTY_OBJECT, Parent, HasLength } from "../utils";
 import { EMPTY_ITER, SizedIterable } from "../iterators";
 
 /**
@@ -57,9 +56,10 @@ export type StorageClass<K, V> = new (...args: any[]) => Storage<K, V> & {
  */
 export abstract class Storage<K, V>
   extends HasLength
-  implements Destroyable, Parent<K> {
+  implements Destroyable, Parent<K>
+{
   /**
-   * Paths to the parents.
+   * Paths from parents to the given storage.
    */
   parentPaths: Iterable<ChildPath<K | Storage<K, V>>>;
   /**

@@ -92,6 +92,10 @@ class LevelEntry<
     return this.entry.moveFront(element);
   }
 
+  remove(element: E): boolean {
+    return this.entry.remove(element);
+  }
+
   valuesFront(): SizedIterable<V> {
     return withSize(this.entry.keysFront(), this.len());
   }
@@ -220,10 +224,11 @@ export class LFU<V> extends CacheStrategy<V> {
   }
 
   /**
-   * @virtual
+   * Takes a value from the beginning of the queue.
+   * Returns either item or `NO_VALUE` if queue is empty.
    *
    */
-  remove(): V | AbsentValue {
+  take(): V | AbsentValue {
     return this.queue.takeKeyFront();
   }
 

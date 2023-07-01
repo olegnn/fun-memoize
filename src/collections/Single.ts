@@ -93,16 +93,16 @@ export class Single<V> extends OrderedIndexedCollection<V, V, V> {
     return this.value;
   }
 
-  moveFront(element: V) {
-    this.value = element;
-
-    return element;
+  moveFront(element: V): boolean {
+    return equals(element, this.value);
   }
 
-  moveBack(element: V) {
-    this.value = element;
+  moveBack(element: V): boolean {
+    return equals(element, this.value);
+  }
 
-    return element;
+  remove(element: V) {
+    return this.drop(element) !== NO_VALUE;
   }
 
   valuesFront(): SizedIterable<V> {

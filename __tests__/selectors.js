@@ -1,4 +1,4 @@
-const { createMemoizedSelector, default: memoize } = require("../dist");
+const { createMemoizedSelector, default: memoize } = require("../build");
 
 // Construct 1E6 states for perf test outside of the perf test so as to not change the execute time of the test function
 const numOfStates = 1e6;

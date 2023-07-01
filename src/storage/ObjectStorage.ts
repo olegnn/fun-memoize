@@ -1,5 +1,5 @@
 import type { ChildPath, StorageParams } from "../base/Storage";
-import { isPrimitiveValue, AbsentValue } from "../value";
+import { isPrimitiveValue, AbsentValue, Primitive } from "../value";
 
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
@@ -8,7 +8,7 @@ import { map, withSize, SizedIterable } from "../iterators";
 /**
  * A key for the `ObjectStorage`.
  */
-export class Key<K> {
+export class Key<K extends Primitive> {
   type: number;
   value: K;
 
@@ -30,14 +30,7 @@ export class Key<K> {
 
     switch (type) {
       case "number":
-        switch (value) {
-          case Infinity:
-            return 7;
-          case -Infinity:
-            return 8;
-          default:
-            return 0;
-        }
+        return 0;
       case "bigint":
         return 1;
       case "string":
@@ -63,7 +56,7 @@ export class Key<K> {
   static valueFromStringified(type: number, value: string) {
     switch (type) {
       case 0:
-        return new Key(Number.parseInt(value, 10));
+        return new Key(Number(value));
       case 1:
         return new Key(BigInt(value));
       case 2:
@@ -76,10 +69,6 @@ export class Key<K> {
         return new Key(value === "true");
       case 6:
         return new Key(null);
-      case 7:
-        return new Key(Infinity);
-      case 8:
-        return new Key(-Infinity);
     }
 
     throw new TypeError(`Invalid type ${type} of value ${value}`);
@@ -102,7 +91,7 @@ export class Key<K> {
 /**
  * Key-value storage for values with primitive keys based on an `Object`.
  */
-export class ObjectStorage<K, V> extends Storage<K, V> {
+export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
   map: { [key: string]: V };
   length: number;
 

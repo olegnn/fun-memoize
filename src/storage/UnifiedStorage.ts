@@ -10,6 +10,7 @@ import { ObjectStorage } from "./ObjectStorage";
 import { MapStorage } from "./MapStorage";
 import type { AbsentValue, NonPrimitive, Primitive } from "../value";
 import { chain, SizedIterable } from "../iterators";
+import { mapImplemented } from "../utils";
 
 /** Parameters for the `UnifiedStorage` */
 export interface UnifiedStorageParams<K, V> extends StorageParams<K, V> {
@@ -26,7 +27,7 @@ export class UnifiedStorage<
   K extends Primitive | NonPrimitive,
   V
 > extends Storage<K, V> {
-  objectStorage: Storage<NonPrimitive, V>;
+  nonPrimitiveStorage: Storage<NonPrimitive, V>;
   primitiveStorage: Storage<Primitive, V>;
   droppedChilrenMask: number;
 
@@ -35,14 +36,17 @@ export class UnifiedStorage<
     rootPath?: Iterable<ChildPath<K>>
   ) {
     super(params, rootPath);
-    const PrimitiveStorage = params?.useObjectStorage
-      ? ObjectStorage
-      : MapStorage;
-    const NonPrimitiveStorage = params?.useWeakStorage
-      ? (WeakStorage as StorageClass<NonPrimitive, V>)
-      : (MapStorage as StorageClass<NonPrimitive, V>);
+    const isMapImplemented = mapImplemented();
+    const PrimitiveStorage =
+      params?.useObjectStorage || !isMapImplemented
+        ? (ObjectStorage as StorageClass<Primitive, V>)
+        : (MapStorage as StorageClass<Primitive, V>);
+    const NonPrimitiveStorage =
+      params?.useWeakStorage || !isMapImplemented
+        ? (WeakStorage as StorageClass<NonPrimitive, V>)
+        : (MapStorage as StorageClass<NonPrimitive, V>);
 
-    this.objectStorage = new NonPrimitiveStorage();
+    this.nonPrimitiveStorage = new NonPrimitiveStorage();
     this.primitiveStorage = new PrimitiveStorage();
   }
 
@@ -59,7 +63,7 @@ export class UnifiedStorage<
    *
    */
   len(): number {
-    return this.primitiveStorage.len() + this.objectStorage.len();
+    return this.primitiveStorage.len() + this.nonPrimitiveStorage.len();
   }
 
   /**
@@ -70,7 +74,7 @@ export class UnifiedStorage<
   has(key: K): boolean {
     return isPrimitiveValue(key)
       ? this.primitiveStorage.has(key as Primitive)
-      : this.objectStorage.has(key as NonPrimitive);
+      : this.nonPrimitiveStorage.has(key as NonPrimitive);
   }
 
   /**
@@ -81,7 +85,7 @@ export class UnifiedStorage<
   get(key: Primitive | NonPrimitive): V | AbsentValue {
     return isPrimitiveValue(key)
       ? this.primitiveStorage.get(key as Primitive)
-      : this.objectStorage.get(key as NonPrimitive);
+      : this.nonPrimitiveStorage.get(key as NonPrimitive);
   }
 
   /**
@@ -92,7 +96,7 @@ export class UnifiedStorage<
   drop(key: Primitive | NonPrimitive): V | AbsentValue {
     return isPrimitiveValue(key)
       ? this.primitiveStorage.drop(key as Primitive)
-      : this.objectStorage.drop(key as NonPrimitive);
+      : this.nonPrimitiveStorage.drop(key as NonPrimitive);
   }
 
   /**
@@ -105,7 +109,7 @@ export class UnifiedStorage<
     if (isPrimitiveValue(key)) {
       this.primitiveStorage.set(key as Primitive, value);
     } else {
-      this.objectStorage.set(key as NonPrimitive, value);
+      this.nonPrimitiveStorage.set(key as NonPrimitive, value);
     }
   }
 
@@ -115,7 +119,7 @@ export class UnifiedStorage<
    */
   clear(): void {
     this.primitiveStorage.clear();
-    this.objectStorage.clear();
+    this.nonPrimitiveStorage.clear();
   }
 
   /**
@@ -125,7 +129,7 @@ export class UnifiedStorage<
   entries(): SizedIterable<{ key: K; value: V }> {
     return chain(
       this.primitiveStorage.entries() as SizedIterable<{ key: K; value: V }>,
-      this.objectStorage.entries() as SizedIterable<{ key: K; value: V }>
+      this.nonPrimitiveStorage.entries() as SizedIterable<{ key: K; value: V }>
     );
   }
 }

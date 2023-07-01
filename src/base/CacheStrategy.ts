@@ -1,7 +1,6 @@
 import { EMPTY_ITER, once } from "../iterators";
 import { Result } from "../strategy/types";
-import { Destroyable, Parent } from "../utils";
-import { HasCapacity } from "../collections";
+import { Destroyable, Parent, HasCapacity } from "../utils";
 import { AbsentValue, NO_VALUE } from "../value";
 
 /**
@@ -10,7 +9,7 @@ import { AbsentValue, NO_VALUE } from "../value";
 export type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
   len(): number;
   drop(value: V): boolean;
-  remove(): V | AbsentValue;
+  take(): V | AbsentValue;
   peek(): V | AbsentValue;
   has(value: V): boolean;
 };
@@ -36,8 +35,8 @@ export function withDestroyable<V extends Destroyable>(
       return dropped;
     }
 
-    remove() {
-      const item = super.remove();
+    take() {
+      const item = super.take();
 
       if (item !== NO_VALUE) {
         (item as V).destroy();
@@ -55,7 +54,8 @@ export function withDestroyable<V extends Destroyable>(
  */
 export abstract class CacheStrategy<V>
   extends HasCapacity
-  implements Destroyable, Parent<V> {
+  implements Destroyable, Parent<V>
+{
   _parents: Iterable<Parent<CacheStrategy<V>>>;
 
   constructor(
@@ -101,7 +101,7 @@ export abstract class CacheStrategy<V>
    */
   public clear(): void {
     while (!this.isEmpty()) {
-      this.remove();
+      this.take();
     }
   }
 
@@ -114,9 +114,9 @@ export abstract class CacheStrategy<V>
 
   /**
    * Removes an item from the beginning of the queue.
-   *
+   * Returns either item or `NO_VALUE` if queue is empty.
    */
-  public abstract remove(): V | AbsentValue;
+  public abstract take(): V | AbsentValue;
 
   /**
    * Peeks a value from the beginning of the queue.
@@ -138,7 +138,7 @@ export abstract class CacheStrategy<V>
    */
   protected reservePlace(value: V): Result<V> {
     if (this.isFull() || (this.willBeFull() && !this.has(value))) {
-      const removedItem = this.remove();
+      const removedItem = this.take();
 
       if (removedItem !== NO_VALUE) {
         return Result.removed(once(removedItem as V));

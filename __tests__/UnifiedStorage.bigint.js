@@ -27,11 +27,21 @@ const keys = [
 describe("UnifiedStorage based on a Map", () =>
   createBasicStorageTests(UnifiedStorage, keys));
 describe("UnifiedStorage based on a WeakMap", () =>
-  createBasicStorageTests(UnifiedStorage, keys, { useWeakStorage: true }));
+  createBasicStorageTests(
+    UnifiedStorage,
+    keys,
+    { useWeakStorage: true },
+    true
+  ));
 describe("UnifiedStorage based on a ObjectMap", () =>
   createBasicStorageTests(UnifiedStorage, keys, { useObjectStorage: true }));
 describe("UnifiedStorage based on a ObjectMap", () =>
-  createBasicStorageTests(UnifiedStorage, keys, {
-    useWeakStorage: true,
-    useObjectStorage: true,
-  }));
+  createBasicStorageTests(
+    UnifiedStorage,
+    keys,
+    {
+      useWeakStorage: true,
+      useObjectStorage: true,
+    },
+    true
+  ));

@@ -99,8 +99,8 @@ export class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
    * Removes an item from the beginning of the queue.
    *
    */
-  remove(): K | AbsentValue {
-    const key = this.strategy.remove();
+  take(): K | AbsentValue {
+    const key = this.strategy.take();
     if (key !== NO_VALUE) {
       this.storage.drop(key as K);
 
@@ -109,6 +109,7 @@ export class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
 
     return key;
   }
+  2;
 
   /**
    * Calls a `destroy` implementations that will unlink given storage from all entities

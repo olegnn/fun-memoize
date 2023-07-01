@@ -4,7 +4,16 @@ const { default: memoize } = require("../build/index");
 
 const FALSY_VALUES = [0, 0n, "", NaN, undefined, null];
 
-const TRICKY_VALUES = [Infinity, -Infinity, ...FALSY_VALUES];
+const TRICKY_VALUES = [
+  Infinity,
+  -Infinity,
+  12e7,
+  2.23123123,
+  2.23231233123123123123123123,
+  123125345423423424n,
+  123123435n,
+  ...FALSY_VALUES,
+];
 
 const assertWithTrickyValues = (fn, assert) =>
   assertWithNTrickyValues(([value]) => fn(value), 1, assert);
@@ -28,9 +37,7 @@ const expectResult = (result, removed, added) => {
   }
 };
 
-const createBasicStorageTests = (StorageType, keys, params) => {
-  const weakValue = !!params?.useWeakStorage;
-
+const createBasicStorageTests = (StorageType, keys, params, weak = false) => {
   it("Checks basic workflow", () => {
     const storage = new StorageType(params);
     const baseMap = new Map();
@@ -59,7 +66,7 @@ const createBasicStorageTests = (StorageType, keys, params) => {
 
       expect([...storage.entries()].sort(sortBy)).toEqual(
         [...baseMap.entries()]
-          .filter(([key]) => (weakValue ? isPrimitiveValue(key) : true))
+          .filter(([key]) => (weak ? isPrimitiveValue(key) : true))
           .map(([key, value]) => ({ key, value }))
           .sort(sortBy)
       );

@@ -2,9 +2,11 @@ import { LinkedList, ListNode } from "./LinkedList";
 import { OrderedIndexedCollection } from "./types";
 import { AbsentValue, NO_VALUE } from "../value";
 import { EMPTY_ITER, flatMap, SizedIterable } from "../iterators";
+import { SafeMapStorage } from "../storage";
+import { Storage, StorageClass } from "../base";
 
 /**
- * An ordered indexed queue where each item has an ordered queue of keys.
+ * An indexed queue where each item is an indexed queue of keys.
  * An item itself should implement `OrderedIndexedCollection`.
  */
 export class MultiKeyQueue<
@@ -13,12 +15,12 @@ export class MultiKeyQueue<
   E = K
 > extends OrderedIndexedCollection<K, V, ListNode<V>> {
   list: LinkedList<V>;
-  map: Map<K, ListNode<V>>;
+  map: Storage<K, ListNode<V>>;
 
   constructor(values: Iterable<V> = EMPTY_ITER as Iterable<V>) {
     super();
     this.list = new LinkedList();
-    this.map = new Map();
+    this.map = new (SafeMapStorage as StorageClass<K, ListNode<V>>)();
 
     for (const value of values) {
       this.pushBack(value);
@@ -30,7 +32,7 @@ export class MultiKeyQueue<
    *
    */
   len(): number {
-    return this.map.size;
+    return this.map.len();
   }
 
   /**
@@ -40,14 +42,14 @@ export class MultiKeyQueue<
    *
    */
   drop(key: K): V | AbsentValue {
-    let listNode = this.map.get(key);
-    if (listNode == null) {
+    const maybeNoValueListNode = this.map.get(key);
+    if (maybeNoValueListNode === NO_VALUE) {
       return NO_VALUE;
     }
+    const listNode = maybeNoValueListNode as ListNode<V>;
 
-    this.list.remove(listNode);
-    for (const key of listNode.value.keysFront()) {
-      this.map.delete(key);
+    if (!this.remove(listNode)) {
+      throw new Error("Inconsistency");
     }
 
     return listNode.value;
@@ -55,22 +57,38 @@ export class MultiKeyQueue<
 
   /**
    * Moves node to the front of the queue.
-   * It's the caller responsibility to ensure that this node belongs to it.
-   * @param node
+   * Returns `true` in case of success.
+   * @param listNode
    *
    */
-  moveFront(listNode: ListNode<V>) {
+  moveFront(listNode: ListNode<V>): boolean {
     return this.list.moveFront(listNode);
   }
 
   /**
    * Moves node to the back of the queue.
-   * It's the caller responsibility to ensure that this node belongs to it.
-   * @param node
+   * Returns `true` in case of success.
+   * @param listNode
    *
    */
-  moveBack(listNode: ListNode<V>) {
+  moveBack(listNode: ListNode<V>): boolean {
     return this.list.moveBack(listNode);
+  }
+
+  /**
+   * Removes an item from the queue.
+   * Returns `true` in case of success.
+   * @param listNode
+   *
+   */
+  remove(listNode: ListNode<V>): boolean {
+    const removed = this.list.remove(listNode);
+
+    if (removed) {
+      this.dissocKeys(listNode.value);
+    }
+
+    return removed;
   }
 
   /**
@@ -81,12 +99,13 @@ export class MultiKeyQueue<
    *
    */
   dropKey(key: K): V | AbsentValue {
-    let listNode = this.map.get(key);
-    if (listNode == null) {
+    const maybeNoValueListNode = this.map.get(key);
+    if (maybeNoValueListNode === NO_VALUE) {
       return NO_VALUE;
     }
+    const listNode = maybeNoValueListNode as ListNode<V>;
 
-    this.map.delete(key);
+    this.map.drop(key);
     if (listNode.value.dropKey(key) === NO_VALUE) {
       throw new Error("Inconsistency");
     }
@@ -130,17 +149,11 @@ export class MultiKeyQueue<
    *
    */
   get(key: K): ListNode<V> | AbsentValue {
-    const value = this.map.get(key);
-    if (value == null) {
-      return NO_VALUE;
-    } else {
-      return value;
-    }
+    return this.map.get(key);
   }
 
   /**
-   * Adds a key for the supplied element to the beginning of the queue.
-   * Returns `true` in case of success.
+   * Adds a key for the supplied element to the beginning of its queue.
    * @param key
    * @param listNode
    *
@@ -157,8 +170,7 @@ export class MultiKeyQueue<
   }
 
   /**
-   * Adds a key for the supplied element to the end of the queue.
-   * Returns `true` in case of success.
+   * Adds a key for the supplied element to the end of its queue.
    * @param key
    * @param listNode
    *
@@ -191,9 +203,7 @@ export class MultiKeyQueue<
     const item = this.list.takeFront();
 
     if (item != null) {
-      for (const key of item.keysFront()) {
-        this.map.delete(key);
-      }
+      this.dissocKeys(item);
     }
 
     return item == null ? NO_VALUE : item;
@@ -207,9 +217,7 @@ export class MultiKeyQueue<
     const item = this.list.takeBack();
 
     if (item != null) {
-      for (const key of item.keysFront()) {
-        this.map.delete(key);
-      }
+      this.dissocKeys(item);
     }
 
     return item == null ? NO_VALUE : item;
@@ -283,7 +291,7 @@ export class MultiKeyQueue<
         }
 
         if (key !== NO_VALUE) {
-          this.map.delete(key as K);
+          this.map.drop(key as K);
 
           return key;
         }
@@ -311,7 +319,7 @@ export class MultiKeyQueue<
         }
 
         if (key !== NO_VALUE) {
-          this.map.delete(key as K);
+          this.map.drop(key as K);
 
           return key;
         }
@@ -392,6 +400,20 @@ export class MultiKeyQueue<
       }
 
       this.map.set(key, node);
+    }
+  }
+
+  /**
+   * Dissociates keys of the provided value.
+   * @param value
+   * @param node
+   *
+   */
+  private dissocKeys(value: V): void {
+    for (const key of value.keysFront()) {
+      if (!this.map.drop(key)) {
+        throw new Error("Key doesn't exist");
+      }
     }
   }
 }

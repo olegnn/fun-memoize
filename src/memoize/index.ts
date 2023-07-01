@@ -1,8 +1,8 @@
 import mimic from "mimic-fn";
-import { Params, StorageContext } from "./memoize/StorageContext";
-import { Root } from "./memoize/Root";
-import { equals, AbsentValue, NO_VALUE } from "./value";
-import { EMPTY_OBJECT } from "./utils";
+import { Params, StorageContext } from "./StorageContext";
+import { Root } from "./Root";
+import { equals, AbsentValue, NO_VALUE } from "../value";
+import { EMPTY_OBJECT } from "../utils";
 
 /** Params interface extended with optional length and checkLast flag */
 export interface ParamsWithLength<K, V> extends Params<K, V> {
@@ -54,10 +54,7 @@ export default function memoize<K, V>(
       let output: V;
 
       if (argsLength === length) {
-        output = root.getOrInsertWith(
-          (arguments as unknown) as K[],
-          recomputate
-        );
+        output = root.getOrInsertWith(arguments as unknown as K[], recomputate);
         // If we received a greater amount of arguments, slice it
       } else if (argsLength > length) {
         output = root.getOrInsertWith(
@@ -76,7 +73,7 @@ export default function memoize<K, V>(
   if (checkLast) {
     const fn = resultFunction;
     let lastCache: V | AbsentValue = NO_VALUE;
-    let lastArgs: IArguments = ([] as unknown) as IArguments;
+    let lastArgs: IArguments = [] as unknown as IArguments;
 
     resultFunction = function cachedFunction(): V {
       let i = arguments.length;

@@ -2,7 +2,18 @@ const { ObjectStorage } = require("../build/storage/ObjectStorage");
 const { isPrimitiveValue } = require("../build/value");
 const { TRICKY_VALUES, createBasicStorageTests } = require("./helpers");
 
-const keys = [1, "234", true, ...TRICKY_VALUES].filter(isPrimitiveValue);
+const keys = [
+  1,
+  "234",
+  13123123,
+  12.23123,
+  12.22,
+  123131231,
+  123131231n,
+  12313123123123123n,
+  true,
+  ...TRICKY_VALUES,
+].filter(isPrimitiveValue);
 
 describe("ObjectStorage", () => {
   createBasicStorageTests(ObjectStorage, keys);

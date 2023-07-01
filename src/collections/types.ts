@@ -1,72 +1,6 @@
 import { AbsentValue } from "../value";
 import { SizedIterable } from "../iterators";
-
-/**
- * Describes a container having a length.
- */
-export abstract class HasLength {
-  constructor() {}
-
-  /**
-   * Returns length of the underlying container.
-   */
-  abstract len(): number;
-
-  /**
-   * Returns `true` if the underlying container is empty (has zero length).
-   */
-  isEmpty(): boolean {
-    return this.len() === 0;
-  }
-}
-
-/**
- * Describes a container having both capacity and length.
- */
-export abstract class HasCapacity extends HasLength {
-  _capacity: number;
-
-  /**
-   * Creates a new container with supplied capacity.
-   * In case capacity is equal to zero, an error will be thrown.
-   * @param capacity
-   */
-  constructor(capacity: number) {
-    super();
-    if (capacity === 0) {
-      throw new Error("Capacity can't be equal to zero");
-    }
-
-    this._capacity = capacity;
-  }
-
-  /**
-   * Returns capacity of the underlying container.
-   *
-   *
-   */
-  capacity(): number {
-    return this._capacity;
-  }
-
-  /**
-   * Returns `true` if the length of the underlying container reached its capacity.
-   *
-   *
-   */
-  isFull(): boolean {
-    return this.capacity() < this.len();
-  }
-
-  /**
-   * Returns `true` if the length of the underlying container will reach (or already reached) its capacity.
-   *
-   *
-   */
-  willBeFull(): boolean {
-    return this.capacity() < this.len() + 1;
-  }
-}
+import { HasCapacity, HasLength } from "../utils";
 
 /**
  * @abstract
@@ -93,17 +27,26 @@ export abstract class OrderedCollection<
 
   /**
    * Moves an element to the beginning of the collection.
+   * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveFront(element: E): void;
+  abstract moveFront(element: E): boolean;
 
   /**
    * Moves an element to the back.
+   * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveBack(element: E): void;
+  abstract moveBack(element: E): boolean;
+
+  /**
+   * Removes an element from the collection.
+   * Returns `true` in case of success.
+   * @param element
+   */
+  abstract remove(element: E): boolean;
 
   /**
    * Takes an element from the end of the collection.
@@ -226,7 +169,8 @@ export abstract class OrderedIndexedCollection<
     Absent = AbsentValue
   >
   extends IndexedCollectionWithOrderedKeys<K, E, Absent>
-  implements OrderedCollection<V, E> {
+  implements OrderedCollection<V, E>
+{
   /**
    * Adds an item to the end of the collection.
    * @param value
@@ -243,17 +187,26 @@ export abstract class OrderedIndexedCollection<
 
   /**
    * Moves an element to the beginning of the collection.
+   * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveFront(element: E): void;
+  abstract moveFront(element: E): boolean;
 
   /**
    * Moves an element to the back.
+   * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveBack(element: E): void;
+  abstract moveBack(element: E): boolean;
+
+  /**
+   * Removes an element from the collection.
+   * Returns `true` in case of success.
+   * @param element
+   */
+  abstract remove(element: E): boolean;
 
   /**
    * Takes an element from the end of the collection.
@@ -285,3 +238,5 @@ export abstract class OrderedIndexedCollection<
    */
   abstract valuesFront(): SizedIterable<V>;
 }
+
+export { HasCapacity, HasLength };
