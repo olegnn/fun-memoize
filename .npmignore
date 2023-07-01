@@ -2,10 +2,8 @@ benchmark
 node_modules
 package-lock.json
 yarn.lock
-build
 coverage
 .github
-src
 jest.config.js
 rollup.config.mjs
 .vscode

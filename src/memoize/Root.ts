@@ -162,9 +162,9 @@ export class Root<K, V> {
   constructor(length: number, ctx: StorageContext<K, V>) {
     this.length = length;
     this.ctx = ctx;
-    this.root = (length > 1
-      ? ctx.createStorage()
-      : ctx.createLeafStorage()) as NestedStorage<K, V>;
+    this.root = (
+      length > 1 ? ctx.createStorage() : ctx.createLeafStorage()
+    ) as NestedStorage<K, V>;
     this.last = new Last(length, this.root);
 
     this.rootPath = new ChildPath(this.ctx.rootStorageStrategy, NO_VALUE);
@@ -250,7 +250,7 @@ export class Root<K, V> {
             ? this.ctx.createStorage(rootPath)
             : this.ctx.createLeafStorage(append(rootPath, this.leafPath));
 
-        cache.set(current, (next as unknown) as V);
+        cache.set(current, next as unknown as V);
       }
 
       cache = next as NestedStorage<K, V>;

@@ -169,7 +169,8 @@ export abstract class OrderedIndexedCollection<
     Absent = AbsentValue
   >
   extends IndexedCollectionWithOrderedKeys<K, E, Absent>
-  implements OrderedCollection<V, E> {
+  implements OrderedCollection<V, E>
+{
   /**
    * Adds an item to the end of the collection.
    * @param value

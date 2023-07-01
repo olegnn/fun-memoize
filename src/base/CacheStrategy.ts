@@ -54,7 +54,8 @@ export function withDestroyable<V extends Destroyable>(
  */
 export abstract class CacheStrategy<V>
   extends HasCapacity
-  implements Destroyable, Parent<V> {
+  implements Destroyable, Parent<V>
+{
   _parents: Iterable<Parent<CacheStrategy<V>>>;
 
   constructor(

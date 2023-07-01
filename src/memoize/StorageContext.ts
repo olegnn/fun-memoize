@@ -160,10 +160,8 @@ export class StorageContext<K, V> {
         K,
         V
       >;
-      storageStrategyClass = config.storageStrategyClass as StorageCacheStrategyClass<
-        K,
-        V
-      >;
+      storageStrategyClass =
+        config.storageStrategyClass as StorageCacheStrategyClass<K, V>;
     }
     if (leafStrategyClass?.constructor !== CacheStrategy.constructor) {
       throw new Error("Invalid `leafStrategyClass`");

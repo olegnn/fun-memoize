@@ -54,10 +54,7 @@ export default function memoize<K, V>(
       let output: V;
 
       if (argsLength === length) {
-        output = root.getOrInsertWith(
-          (arguments as unknown) as K[],
-          recomputate
-        );
+        output = root.getOrInsertWith(arguments as unknown as K[], recomputate);
         // If we received a greater amount of arguments, slice it
       } else if (argsLength > length) {
         output = root.getOrInsertWith(
@@ -76,7 +73,7 @@ export default function memoize<K, V>(
   if (checkLast) {
     const fn = resultFunction;
     let lastCache: V | AbsentValue = NO_VALUE;
-    let lastArgs: IArguments = ([] as unknown) as IArguments;
+    let lastArgs: IArguments = [] as unknown as IArguments;
 
     resultFunction = function cachedFunction(): V {
       let i = arguments.length;

@@ -128,7 +128,8 @@ type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
  */
 declare abstract class CacheStrategy<V>
   extends HasCapacity
-  implements Destroyable, Parent<V> {
+  implements Destroyable, Parent<V>
+{
   _parents: Iterable<Parent<CacheStrategy<V>>>;
   constructor(capacity: number, roots?: Iterable<Parent<CacheStrategy<V>>>);
   /**
@@ -219,7 +220,8 @@ interface StorageParams<K, V> {
  */
 declare abstract class Storage<K, V>
   extends HasLength
-  implements Destroyable, Parent<K> {
+  implements Destroyable, Parent<K>
+{
   /**
    * Paths from parents to the given storage.
    */
@@ -435,9 +437,7 @@ declare function memoize<K, V>(
 /**
  * Creates memoized selector.
  */
-declare const createMemoizedSelector: (
-  ...params: any[]
-) => {
+declare const createMemoizedSelector: (...params: any[]) => {
   (): any;
   recomputations(): any;
   dependencies: any[];
@@ -588,7 +588,8 @@ declare abstract class OrderedIndexedCollection<
     Absent = AbsentValue
   >
   extends IndexedCollectionWithOrderedKeys<K, E, Absent>
-  implements OrderedCollection<V, E> {
+  implements OrderedCollection<V, E>
+{
   /**
    * Adds an item to the end of the collection.
    * @param value

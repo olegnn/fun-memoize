@@ -56,7 +56,8 @@ export type StorageClass<K, V> = new (...args: any[]) => Storage<K, V> & {
  */
 export abstract class Storage<K, V>
   extends HasLength
-  implements Destroyable, Parent<K> {
+  implements Destroyable, Parent<K>
+{
   /**
    * Paths from parents to the given storage.
    */
