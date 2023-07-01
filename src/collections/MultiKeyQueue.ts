@@ -48,11 +48,11 @@ export class MultiKeyQueue<
     }
     const listNode = maybeNoValueListNode as ListNode<V>;
 
-    if (!this.remove(listNode as ListNode<V>)) {
+    if (!this.remove(listNode)) {
       throw new Error("Inconsistency");
     }
 
-    return (listNode as ListNode<V>).value;
+    return listNode.value;
   }
 
   /**
