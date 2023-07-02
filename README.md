@@ -187,7 +187,7 @@ declare function memoize<K, V>(
 
 - `LFU` - `L`east `F`requently `U`used cache replacement policy.
 - `LRU` - `L`east `R`ecently `U`sed cache replacement policy.
-- `FIFO` - `F`irst in - `F`irst out cache replacement policy.
+- `FIFO` - `F`irst `I`n - `F`irst `O`ut cache replacement policy.
 
 Also, you can build your own by extending `CacheStrategy` or one of the existing strategy classes.
 
