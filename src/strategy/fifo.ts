@@ -1,5 +1,4 @@
 import { CacheStrategy } from "../base/CacheStrategy";
-import { EMPTY_ITER } from "../iterators";
 import { ListNode } from "../collections/LinkedList";
 import { MultiKeyQueue, Single } from "../collections";
 import { AbsentValue, NO_VALUE } from "../value";

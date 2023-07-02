@@ -1,4 +1,4 @@
-import { EMPTY_ITER, once } from "../iterators";
+import { once } from "../iterators";
 import { Result } from "../strategy/types";
 import { Destroyable, Parent, HasCapacity, Clearable } from "../utils";
 import { AbsentValue, NO_VALUE } from "../value";

@@ -1,5 +1,4 @@
 import { CacheStrategy } from "../base/CacheStrategy";
-import { EMPTY_ITER } from "../iterators";
 import { Result } from "../strategy/types";
 import { AbsentValue, NO_VALUE } from "../value";
 
