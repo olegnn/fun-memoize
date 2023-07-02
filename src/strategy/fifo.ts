@@ -1,21 +1,17 @@
 import { CacheStrategy } from "../base/CacheStrategy";
-import { EMPTY_ITER } from "../iterators";
 import { ListNode } from "../collections/LinkedList";
 import { MultiKeyQueue, Single } from "../collections";
 import { AbsentValue, NO_VALUE } from "../value";
 import { Result } from "./types";
 
 /**
- * `F`irst in - `F`irst out cache strategy.
+ * `F`irst in - `F`irst out cache replacement policy.
  */
 export class FIFO<V> extends CacheStrategy<V> {
   queue: MultiKeyQueue<V, Single<V>>;
 
-  constructor(
-    capacity: number,
-    roots: Iterable<CacheStrategy<FIFO<V>>> = EMPTY_ITER as any
-  ) {
-    super(capacity, roots);
+  constructor(capacity: number) {
+    super(capacity);
     this.queue = new MultiKeyQueue();
   }
 
@@ -93,14 +89,6 @@ export class FIFO<V> extends CacheStrategy<V> {
    *
    */
   take(): V | AbsentValue {
-    const node = this.queue.takeKeyFront();
-
-    if (node !== NO_VALUE) {
-      if (this.isEmpty()) {
-        this.destroy();
-      }
-    }
-
-    return node;
+    return this.queue.takeKeyFront();
   }
 }

@@ -1,37 +1,44 @@
-import { chain, EMPTY_ITER, map, SizedIterable } from "../iterators";
+import { chain, EMPTY_ITER, map } from "../iterators";
 
 /**
  * Contains removed/added entities.
  */
 export class Result<V> {
-  removed: SizedIterable<V>;
-  added: SizedIterable<V>;
+  removed: Iterable<V>;
+  added: Iterable<V>;
 
   static EMPTY_RESULT = new Result();
 
   private constructor(
-    removed: SizedIterable<V> = EMPTY_ITER,
-    added: SizedIterable<V> = EMPTY_ITER
+    removed: Iterable<V> = EMPTY_ITER,
+    added: Iterable<V> = EMPTY_ITER
   ) {
     this.removed = removed;
     this.added = added;
   }
 
-  static added<V>(added: SizedIterable<V>): Result<V> {
+  /** Creates a result containing added entities */
+  static added<V>(added: Iterable<V>): Result<V> {
     return new Result(void 0, added);
   }
 
-  static removed<V>(removed: SizedIterable<V>): Result<V> {
+  /** Creates a result containing removed entities */
+  static removed<V>(removed: Iterable<V>): Result<V> {
     return new Result(removed);
   }
 
-  static removedAdded<V>(
-    removed: SizedIterable<V>,
-    added: SizedIterable<V>
-  ): Result<V> {
+  /**
+   * Creates a result containing removed and added entities.
+   * @param removed
+   * @param added
+   */
+  static removedAdded<V>(removed: Iterable<V>, added: Iterable<V>): Result<V> {
     return new Result(removed, added);
   }
 
+  /**
+   * Creates an empty result.
+   */
   static empty<V>(): Result<V> {
     return Result.EMPTY_RESULT as Result<V>;
   }
@@ -48,14 +55,6 @@ export class Result<V> {
   }
 
   /**
-   * Returns difference between added and removed item counts.
-   *
-   */
-  counter(): number {
-    return this.added.size() - this.removed.size();
-  }
-
-  /**
    * Executes given function for each added item.
    * @param fn
    *
@@ -66,12 +65,21 @@ export class Result<V> {
     return this;
   }
 
+  /**
+   * Executes given function for each removed item.
+   * @param fn
+   *
+   */
   forEachRemoved(fn: (removed: V) => void): this {
     for (const removed of this.removed) fn(removed);
 
     return this;
   }
 
+  /**
+   * Maps given result over removed and added items.
+   * @param fn
+   */
   map<R>(fn: (value: V) => R): Result<R> {
     return new Result(map(fn, this.removed), map(fn, this.added));
   }

@@ -1,6 +1,6 @@
-import { EMPTY_ITER, once } from "../iterators";
+import { once } from "../iterators";
 import { Result } from "../strategy/types";
-import { Destroyable, Parent, HasCapacity } from "../utils";
+import { Destroyable, Parent, HasCapacity, Clearable } from "../utils";
 import { AbsentValue, NO_VALUE } from "../value";
 
 /**
@@ -54,16 +54,10 @@ export function withDestroyable<V extends Destroyable>(
  */
 export abstract class CacheStrategy<V>
   extends HasCapacity
-  implements Destroyable, Parent<V>
+  implements Clearable, Parent<V>
 {
-  _parents: Iterable<Parent<CacheStrategy<V>>>;
-
-  constructor(
-    capacity: number,
-    roots: Iterable<Parent<CacheStrategy<V>>> = EMPTY_ITER
-  ) {
+  constructor(capacity: number) {
     super(capacity);
-    this._parents = roots;
   }
 
   /**
@@ -85,18 +79,7 @@ export abstract class CacheStrategy<V>
   }
 
   /**
-   * Calls a `destroy` implementation that will unlink given storage from all entities
-   * referencing it.
-   *
-   */
-  public destroy(): void {
-    for (const root of this._parents) {
-      root.drop(this);
-    }
-  }
-
-  /**
-   * Removes all items from the storage.
+   * Removes all items from the strategy.
    *
    */
   public clear(): void {

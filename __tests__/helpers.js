@@ -2,7 +2,9 @@ const { NO_VALUE, isPrimitiveValue } = require("../build/value");
 const { zip, once } = require("../build/iterators");
 const { default: memoize } = require("../build/index");
 
-const FALSY_VALUES = [0, 0n, "", NaN, undefined, null];
+const FALSY_VALUES = [0, 0n, "", NaN, undefined, null].filter(
+  (value) => !(process.env.OMIT_BIGINT && value?.constructor === BigInt)
+);
 
 const TRICKY_VALUES = [
   Infinity,
@@ -13,7 +15,9 @@ const TRICKY_VALUES = [
   123125345423423424n,
   123123435n,
   ...FALSY_VALUES,
-];
+].filter(
+  (value) => !(process.env.OMIT_BIGINT && value?.constructor === BigInt)
+);
 
 const assertWithTrickyValues = (fn, assert) =>
   assertWithNTrickyValues(([value]) => fn(value), 1, assert);

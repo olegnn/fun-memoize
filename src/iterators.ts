@@ -1,20 +1,13 @@
 /**
- * An iterable with a fixed size.
- */
-export interface SizedIterable<V> extends Iterable<V> {
-  size(): number;
-}
-
-/**
  * Chains two iterables.
  * @param firstIterable
  * @param secondIterable
- * @returns {SizedIterable<V>}
+ * @returns {Iterable<V>}
  */
 export function chain<V>(
-  firstIterable: SizedIterable<V>,
-  secondIterable: SizedIterable<V>
-): SizedIterable<V> {
+  firstIterable: Iterable<V>,
+  secondIterable: Iterable<V>
+): Iterable<V> {
   return {
     [Symbol.iterator]() {
       let iter = firstIterable[Symbol.iterator]();
@@ -39,48 +32,6 @@ export function chain<V>(
         },
       };
     },
-    size() {
-      return firstIterable.size() + secondIterable.size();
-    },
-  };
-}
-
-/**
- * Creates an iterable that emits one item and then iterates over supplied iterable.
- * @param value
- * @param iterable
- * @returns {SizedIterable<V>}
- */
-export function prepend<V>(
-  value: V,
-  iterable: SizedIterable<V>
-): SizedIterable<V> {
-  return {
-    [Symbol.iterator]() {
-      let state = 0;
-      const iter = iterable[Symbol.iterator]();
-
-      return {
-        next() {
-          if (state === 0) {
-            state = 1;
-
-            return { value, done: false };
-          } else if (state === 1) {
-            const item = iter.next();
-
-            if (!item.done) {
-              return item;
-            }
-          }
-
-          return ITER_DONE_VALUE;
-        },
-      };
-    },
-    size() {
-      return 1 + iterable.size();
-    },
   };
 }
 
@@ -88,12 +39,9 @@ export function prepend<V>(
  * Creates an iterable that then iterates over supplied iterable and then emits one item.
  * @param value
  * @param iterable
- * @returns {SizedIterable<V>}
+ * @returns {Iterable<V>}
  */
-export function append<V>(
-  iterable: SizedIterable<V>,
-  value: V
-): SizedIterable<V> {
+export function append<V>(iterable: Iterable<V>, value: V): Iterable<V> {
   return {
     [Symbol.iterator]() {
       let state = 0;
@@ -120,9 +68,6 @@ export function append<V>(
         },
       };
     },
-    size() {
-      return 1 + iterable.size();
-    },
   };
 }
 
@@ -130,12 +75,12 @@ export function append<V>(
  * Zips two iterables together.
  * @param leftIterable
  * @param rightIterable
- * @returns {SizedIterable<{ left: L; right: R }>}
+ * @returns {Iterable<{ left: L; right: R }>}
  */
 export function zip<L, R>(
-  leftIterable: SizedIterable<L>,
-  rightIterable: SizedIterable<R>
-): SizedIterable<{ left: L; right: R }> {
+  leftIterable: Iterable<L>,
+  rightIterable: Iterable<R>
+): Iterable<{ left: L; right: R }> {
   return {
     [Symbol.iterator]() {
       let leftIter = leftIterable[Symbol.iterator]();
@@ -159,9 +104,6 @@ export function zip<L, R>(
         },
       };
     },
-    size() {
-      return Math.min(leftIterable.size(), rightIterable.size());
-    },
   };
 }
 
@@ -169,12 +111,12 @@ export function zip<L, R>(
  * Maps supplied iterable using given function.
  * @param fn
  * @param iterable
- * @returns {SizedIterable<R>}
+ * @returns {Iterable<R>}
  */
 export function map<V, R>(
   fn: (item: V) => R,
-  iterable: SizedIterable<V>
-): SizedIterable<R> {
+  iterable: Iterable<V>
+): Iterable<R> {
   return {
     [Symbol.iterator]() {
       const iter = iterable[Symbol.iterator]();
@@ -186,9 +128,6 @@ export function map<V, R>(
           return done ? ITER_DONE_VALUE : { value: fn(value), done };
         },
       };
-    },
-    size() {
-      return iterable.size();
     },
   };
 }
@@ -239,18 +178,18 @@ export function flatMap<V, R>(
 
 /**
  * Creates an iterable which emits no items.
- * @returns {SizedIterable<V>}
+ * @returns {Iterable<V>}
  */
-export function empty<V>(): SizedIterable<V> {
+export function empty<V>(): Iterable<V> {
   return EMPTY_ITER;
 }
 
 /**
  * Creates an iterable which emits one item.
  * @param value
- * @returns {SizedIterable<V>}
+ * @returns {Iterable<V>}
  */
-export function once<V>(value: V): SizedIterable<V> {
+export function once<V>(value: V): Iterable<V> {
   return {
     [Symbol.iterator]() {
       let taken = false;
@@ -267,16 +206,13 @@ export function once<V>(value: V): SizedIterable<V> {
         },
       };
     },
-    size() {
-      return 1;
-    },
   };
 }
 
 /**
  * Creates an iterable that endlessly repeats supplied iterable.
  * @param iter
- * @returns {SizedIterable<V>}
+ * @returns {Iterable<V>}
  */
 export function cycle<V>(iter: Iterable<V>): Iterable<V> {
   return {
@@ -303,32 +239,12 @@ export function cycle<V>(iter: Iterable<V>): Iterable<V> {
 }
 
 /**
- * Adds supplied size to the given iterable.
- * @param iterable
- * @param size
- * @returns
- */
-export function withSize<V>(
-  iterable: Iterable<V>,
-  size: number
-): SizedIterable<V> {
-  return {
-    [Symbol.iterator]() {
-      return iterable[Symbol.iterator]();
-    },
-    size() {
-      return size;
-    },
-  };
-}
-
-/**
  * Creates an iterable which emits two items.
  * @param first
  * @param second
- * @returns {SizedIterable<V>}
+ * @returns {Iterable<V>}
  */
-export function double<V>(first: V, second: V): SizedIterable<V> {
+export function double<V>(first: V, second: V): Iterable<V> {
   return {
     [Symbol.iterator]() {
       let state = 0;
@@ -350,9 +266,6 @@ export function double<V>(first: V, second: V): SizedIterable<V> {
         },
       };
     },
-    size() {
-      return 2;
-    },
   };
 }
 
@@ -370,8 +283,5 @@ export const EMPTY_ITER_NEXT = {
 export const EMPTY_ITER = {
   [Symbol.iterator]() {
     return EMPTY_ITER_NEXT;
-  },
-  size() {
-    return 0;
   },
 };

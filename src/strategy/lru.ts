@@ -1,5 +1,4 @@
 import { CacheStrategy } from "../base/CacheStrategy";
-import { EMPTY_ITER } from "../iterators";
 import { ListNode } from "../collections/LinkedList";
 import { MultiKeyQueue, Single } from "../collections";
 import { AbsentValue, NO_VALUE } from "../value";
@@ -11,11 +10,8 @@ import { Result } from "./types";
 export class LRU<V> extends CacheStrategy<V> {
   queue: MultiKeyQueue<V, Single<V>>;
 
-  constructor(
-    capacity: number,
-    roots: Iterable<CacheStrategy<LRU<V>>> = EMPTY_ITER
-  ) {
-    super(capacity, roots);
+  constructor(capacity: number) {
+    super(capacity);
     this.queue = new MultiKeyQueue();
   }
 
@@ -91,14 +87,6 @@ export class LRU<V> extends CacheStrategy<V> {
    *
    */
   take(): V | AbsentValue {
-    const node = this.queue.takeKeyFront();
-
-    if (node !== NO_VALUE) {
-      if (this.isEmpty()) {
-        this.destroy();
-      }
-    }
-
-    return node;
+    return this.queue.takeKeyFront();
   }
 }

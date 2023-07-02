@@ -1,11 +1,15 @@
-import { SizedIterable, empty, once } from "../iterators";
+import { empty, once } from "../iterators";
 import { AbsentValue, NO_VALUE, equals } from "../value";
-import { OrderedIndexedCollection } from "./types";
+import { IndexedOrderedCollectionWithOrderedKeys } from "./types";
 
 /**
  * Wrapper class which represents ordered indexed collection with a single item.
  */
-export class Single<V> extends OrderedIndexedCollection<V, V, V> {
+export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
+  V,
+  V,
+  V
+> {
   value: V | AbsentValue;
 
   constructor(value: V) {
@@ -77,6 +81,13 @@ export class Single<V> extends OrderedIndexedCollection<V, V, V> {
     return value;
   }
 
+  insertAfter(node: V, value: V): V | AbsentValue {
+    return equals(node, this.value) ? (this.value = value) : NO_VALUE;
+  }
+  insertBefore(node: V, value: V): V | AbsentValue {
+    return equals(node, this.value) ? (this.value = value) : NO_VALUE;
+  }
+
   has(value: V) {
     return equals(this.value, value);
   }
@@ -105,11 +116,11 @@ export class Single<V> extends OrderedIndexedCollection<V, V, V> {
     return this.drop(element) !== NO_VALUE;
   }
 
-  valuesFront(): SizedIterable<V> {
+  valuesFront(): Iterable<V> {
     return this.value === NO_VALUE ? empty() : once(this.value as V);
   }
 
-  valuesBack(): SizedIterable<V> {
+  valuesBack(): Iterable<V> {
     return this.valuesFront();
   }
 

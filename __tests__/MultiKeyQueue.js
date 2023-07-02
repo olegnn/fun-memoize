@@ -1,13 +1,10 @@
 const { MultiKeyQueue, Single } = require("../build/collections");
+const { SingleKeyQueue } = require("../build/collections/SingleKeyQueue");
 const { NO_VALUE } = require("../build/value");
 
 describe("MultiKeyQueue", () => {
-  it("basic workflow", () => {
-    let inner = new MultiKeyQueue([
-      new Single(1),
-      new Single(2),
-      new Single(3),
-    ]);
+  it("basic workflow front", () => {
+    let inner = new SingleKeyQueue([1, 2, 3]);
     let queue = new MultiKeyQueue([inner]);
     expect(queue.len()).toBe(3);
     expect(queue.isEmpty()).toBe(false);
@@ -34,7 +31,43 @@ describe("MultiKeyQueue", () => {
     }
   });
 
-  it("front workflow", () => {
+  it("basic workflow back", () => {
+    let inner = new SingleKeyQueue([1, 2, 3]);
+    let queue = new MultiKeyQueue([inner]);
+    expect(queue.len()).toBe(3);
+    expect(queue.isEmpty()).toBe(false);
+
+    const keys = [3, 2, 1];
+    expect([...queue.keysBack()]).toEqual(keys);
+    for (const key of keys) {
+      const peeked = queue.peekKeyBack();
+      const item = queue.takeKeyBack();
+      expect(item).toBe(key);
+      expect(item).toBe(peeked);
+    }
+
+    inner = new MultiKeyQueue([new Single(1), new Single(2), new Single(3)]);
+    queue = new MultiKeyQueue([inner]);
+
+    expect(queue.peekBack()).toEqual(inner);
+    expect(queue.takeBack()).toEqual(inner);
+    expect(queue.takeBack()).toEqual(NO_VALUE);
+
+    for (const key of keys) {
+      const item = inner.takeKeyBack();
+      expect(item).toEqual(key);
+    }
+  });
+
+  it("assoc/dissoc", () => {
+    const queue = new MultiKeyQueue([new SingleKeyQueue([1, 2, 3])]);
+    queue.dissocKeys(queue.peekFront());
+    expect(queue.isEmpty()).toBe(true);
+    queue.assocKeys(queue.peekFront());
+    expect(queue.len()).toBe(3);
+  });
+
+  it("front keys workflow", () => {
     let queue = new MultiKeyQueue();
     queue.pushFront(new Single(1));
     queue.pushFront(new Single(2));
@@ -50,7 +83,7 @@ describe("MultiKeyQueue", () => {
     }
   });
 
-  it("back workflow", () => {
+  it("back keys workflow", () => {
     let queue = new MultiKeyQueue();
     queue.pushBack(new Single(1));
     queue.pushBack(new Single(2));

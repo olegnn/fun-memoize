@@ -106,7 +106,8 @@ describe("selectors:", () => {
   it("first argument can be an array", () => {
     const selector = createMemoizedSelector(
       [(state) => state.a, (state) => state.b],
-      (a, b) => a + b
+      (a, b) => a + b,
+      { totalLeavesLimit: 5 }
     );
     expect(selector({ a: 1, b: 2 })).toEqual(3);
     expect(selector({ a: 1, b: 2 })).toEqual(3);
@@ -234,7 +235,8 @@ describe("selectors:", () => {
       (_, b) => b,
       (_, __, c) => c,
       (_, b) => b,
-      (a, b, c, b1) => a + b + c + b1
+      (a, b, c, b1) => a + b + c + b1,
+      { totalLeavesLimit: 10 }
     );
 
     for (let i = 10; --i; ) expect(selector(5, 6, 7)).toBe(24);

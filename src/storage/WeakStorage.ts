@@ -3,7 +3,7 @@ import type { NonPrimitive, AbsentValue } from "../value";
 import "weakmap-polyfill";
 import { ChildPath, Storage, StorageParams } from "../base/Storage";
 import { NO_VALUE } from "../value";
-import { empty, SizedIterable } from "../iterators";
+import { empty } from "../iterators";
 
 /**
  * Weak storage for values with non-primitive keys.
@@ -94,7 +94,7 @@ export class WeakStorage<K extends NonPrimitive, V> extends Storage<K, V> {
    * Returns an iterator over the entries.
    *
    */
-  entries(): SizedIterable<{ key: K; value: V }> {
+  entries(): Iterable<{ key: K; value: V }> {
     return empty();
   }
 }

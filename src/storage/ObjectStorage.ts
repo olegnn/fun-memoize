@@ -3,7 +3,7 @@ import { isPrimitiveValue, AbsentValue, Primitive } from "../value";
 
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
-import { map, withSize, SizedIterable } from "../iterators";
+import { map } from "../iterators";
 
 /**
  * A key for the `ObjectStorage`.
@@ -182,13 +182,13 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
    * Returns an iterator over the entries.
    *
    */
-  entries(): SizedIterable<{ key: K; value: V }> {
+  entries(): Iterable<{ key: K; value: V }> {
     return map(
       ([key, value]) => ({
         key: Key.fromString(key).value,
         value,
       }),
-      withSize(Object.entries(this.map), this.len())
+      Object.entries(this.map)
     );
   }
 }

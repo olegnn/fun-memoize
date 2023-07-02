@@ -23,21 +23,6 @@ describe("Result", () => {
     );
   });
 
-  it("checks `counter`", () => {
-    expect(new Result().counter()).toBe(0),
-      expect(new Result(void 0, withSize([1], 1)).counter()).toBe(1);
-    expect(new Result(withSize([1], 1), void 0).counter()).toBe(-1);
-    expect(
-      new Result(withSize([1, 2, 3], 3), withSize([4, 5, 6], 3)).counter()
-    ).toBe(0);
-    expect(new Result(withSize([1, 2, 3], 3), withSize([4], 1)).counter()).toBe(
-      -2
-    );
-    expect(new Result(withSize([1], 1), withSize([4, 5, 6], 3)).counter()).toBe(
-      2
-    );
-  });
-
   it("checks combinators", () => {
     const removed = [];
     const added = [];

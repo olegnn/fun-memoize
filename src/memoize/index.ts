@@ -28,13 +28,13 @@ export default function memoize<K, V>(
     checkLast = true,
     ...params
   }: ParamsWithLength<K, V> = EMPTY_OBJECT as ParamsWithLength<K, V>
-): typeof func {
+): typeof func & { recomputations: number } {
   const recomputate = function () {
-    ++(resultFunction as any).recomputations;
+    ++resultFunction.recomputations;
     return func.apply(func, arguments);
   };
 
-  let resultFunction: typeof func;
+  let resultFunction: typeof func & { recomputations?: number };
   if (length === 0) {
     let value = NO_VALUE;
 
@@ -94,7 +94,8 @@ export default function memoize<K, V>(
   try {
     void mimic(resultFunction, func);
   } finally {
-    (resultFunction as any).recomputations = 0;
-    return resultFunction;
+    resultFunction.recomputations = 0;
+
+    return resultFunction as typeof func & { recomputations: number };
   }
 }

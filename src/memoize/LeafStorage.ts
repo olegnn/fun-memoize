@@ -2,7 +2,7 @@ import { AbsentValue, NO_VALUE } from "../value";
 import { ChildPath, Storage, StorageParams } from "../base/Storage";
 import { CacheStrategy } from "../base/CacheStrategy";
 import { Result } from "../strategy";
-import { SizedIterable } from "../iterators";
+
 import { Destroyable } from "../utils";
 
 /**
@@ -109,7 +109,6 @@ export class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
 
     return key;
   }
-  2;
 
   /**
    * Calls a `destroy` implementations that will unlink given storage from all entities
@@ -118,7 +117,6 @@ export class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
    */
   destroy(): void {
     super.destroy();
-    this.strategy.destroy();
   }
 
   /**
@@ -134,7 +132,7 @@ export class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
    * Returns an iterator over the entries.
    *
    */
-  entries(): SizedIterable<{ key: K; value: V }> {
+  entries(): Iterable<{ key: K; value: V }> {
     return this.storage.entries();
   }
 

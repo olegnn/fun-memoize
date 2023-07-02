@@ -1,7 +1,13 @@
 import { NO_VALUE } from "../value";
 import type { AbsentValue } from "../value";
-import { Destroyable, EMPTY_OBJECT, Parent, HasLength } from "../utils";
-import { EMPTY_ITER, SizedIterable } from "../iterators";
+import {
+  Destroyable,
+  EMPTY_OBJECT,
+  Parent,
+  HasLength,
+  Clearable,
+} from "../utils";
+import { EMPTY_ITER } from "../iterators";
 
 /**
  * The path from the parent to the child.
@@ -48,7 +54,7 @@ export type StorageClass<K, V> = new (...args: any[]) => Storage<K, V> & {
   drop(key: K): V | AbsentValue;
   len(): number;
   clear(): void;
-  entries(): SizedIterable<{ key: K; value: V }>;
+  entries(): Iterable<{ key: K; value: V }>;
 };
 
 /**
@@ -56,7 +62,7 @@ export type StorageClass<K, V> = new (...args: any[]) => Storage<K, V> & {
  */
 export abstract class Storage<K, V>
   extends HasLength
-  implements Destroyable, Parent<K>
+  implements Destroyable, Clearable, Parent<K>
 {
   /**
    * Paths from parents to the given storage.
@@ -145,5 +151,5 @@ export abstract class Storage<K, V>
    * Returns an iterator over the entries.
    *
    */
-  abstract entries(): SizedIterable<{ key: K; value: V }>;
+  abstract entries(): Iterable<{ key: K; value: V }>;
 }

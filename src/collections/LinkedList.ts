@@ -1,6 +1,6 @@
 import { OrderedCollection } from "./types";
 import { equals } from "../value";
-import { SizedIterable, EMPTY_ITER, ITER_DONE_VALUE } from "../iterators";
+import { EMPTY_ITER, ITER_DONE_VALUE } from "../iterators";
 
 /**
  * A node of the double-ended linked list.
@@ -228,11 +228,16 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
   /**
    * Inserts given value after the supplied raw linked list node.
+   * Returns `null` in case supplied element doesn't belong to this list.
    * @param node
    * @param value
    *
    */
-  insertAfter(node: ListNode<T>, value: T): ListNode<T> {
+  insertAfter(node: ListNode<T>, value: T): ListNode<T> | null {
+    if (node.root !== this) {
+      return null;
+    }
+
     this.length++;
     const inserted = node.insertNext(value);
 
@@ -245,11 +250,16 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
   /**
    * Inserts given value before the supplied raw linked list node.
+   * Returns `null` in case supplied element doesn't belong to this list.
    * @param node
    * @param value
    *
    */
   insertBefore(node: ListNode<T>, value: T): ListNode<T> {
+    if (node.root !== this) {
+      return null;
+    }
+
     this.length++;
     const inserted = node.insertPrev(value);
 
@@ -295,7 +305,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   /**
    * Returns an iterator over collection values starting from the end.
    */
-  valuesBack(): SizedIterable<T> {
+  valuesBack(): Iterable<T> {
     const that = this;
 
     return {
@@ -315,16 +325,13 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
           },
         };
       },
-      size() {
-        return that.len();
-      },
     };
   }
 
   /**
    * Returns an iterator over collection values starting from the beginning.
    */
-  valuesFront(): SizedIterable<T> {
+  valuesFront(): Iterable<T> {
     const that = this;
 
     return {
@@ -343,9 +350,6 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
             }
           },
         };
-      },
-      size() {
-        return that.len();
       },
     };
   }

@@ -28,7 +28,7 @@ export type NestedStorage<K, V> =
  */
 type NestedStorageClass<K, V> = new (
   params: StorageParams<K, V>,
-  root: Iterable<ChildPath<any>>
+  parents: Iterable<ChildPath<K>>
 ) => NestedStorage<K, V>;
 
 /**
@@ -150,7 +150,7 @@ export class StorageContext<K, V> {
   }: Params<K, V>) {
     let leafStrategyClass: LeafCacheStrategyClass<K, V>,
       storageStrategyClass: StorageCacheStrategyClass<K, V>;
-    if (strategy.constructor === CacheStrategy.constructor) {
+    if (strategy instanceof CacheStrategy.constructor) {
       leafStrategyClass = strategy as LeafCacheStrategyClass<K, V>;
       storageStrategyClass = strategy as StorageCacheStrategyClass<K, V>;
     } else {
@@ -163,10 +163,16 @@ export class StorageContext<K, V> {
       storageStrategyClass =
         config.storageStrategyClass as StorageCacheStrategyClass<K, V>;
     }
-    if (leafStrategyClass?.constructor !== CacheStrategy.constructor) {
+    if (
+      !leafStrategyClass ||
+      !(leafStrategyClass instanceof CacheStrategy.constructor)
+    ) {
       throw new Error("Invalid `leafStrategyClass`");
     }
-    if (storageStrategyClass?.constructor !== CacheStrategy.constructor) {
+    if (
+      !storageStrategyClass ||
+      !(storageStrategyClass instanceof CacheStrategy.constructor)
+    ) {
       throw new Error("Invalid `storageStrategyClass`");
     }
     ensureLimitIsValid("totalLeavesLimit", totalLeavesLimit);

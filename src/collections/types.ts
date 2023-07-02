@@ -1,5 +1,5 @@
 import { AbsentValue } from "../value";
-import { SizedIterable } from "../iterators";
+
 import { HasCapacity, HasLength } from "../utils";
 
 /**
@@ -59,6 +59,23 @@ export abstract class OrderedCollection<
   abstract takeFront(): V | Absent;
 
   /**
+   * Inserts given value after the supplied element returning new element.
+   * Returns `Absent` in case supplied element doesn't belong to this list.
+   * @param element
+   * @param value
+   */
+  abstract insertAfter(element: E, value: V): E | Absent;
+
+  /**
+   * Inserts given value before the supplied element returning new element.
+   * Returns `Absent` in case supplied element doesn't belong to this list.
+   * @param element
+   * @param value
+   *
+   */
+  abstract insertBefore(element: E, value: V): E | Absent;
+
+  /**
    * Peeks an element from the end of the collection.
    */
   abstract peekBack(): V | Absent;
@@ -71,12 +88,51 @@ export abstract class OrderedCollection<
   /**
    * Returns an iterator over collection values starting from the end.
    */
-  abstract valuesBack(): SizedIterable<V>;
+  abstract valuesBack(): Iterable<V>;
 
   /**
    * Returns an iterator over collection values starting from the beginning.
    */
-  abstract valuesFront(): SizedIterable<V>;
+  abstract valuesFront(): Iterable<V>;
+}
+
+/**
+ * @abstract
+ * An indexed ordered collection of items.
+ *
+ * **Item `->` Key** relation may be either one-to-one or one-to-many
+ * while **Key `->` Item** relation always holds one-to-one.
+ */
+export abstract class IndexedOrderedCollection<
+  Key,
+  Value,
+  Item,
+  Absent = AbsentValue
+> extends OrderedCollection<Value, Item, Absent> {
+  /**
+   * Retrieves an item associated with the provided key returning it.
+   */
+  abstract get(key: Key): Item | Absent;
+
+  /**
+   * Returns `true` if collection has an item associated with the provided key.
+   */
+  abstract has(key: Key): boolean;
+
+  /**
+   * Drops an item associated with the provided key returning it.
+   */
+  abstract drop(key: Key): Item | Absent;
+
+  /**
+   * Drops an item's key from the collection. If referenced item has no more keys, it will be dropped as well.
+   */
+  abstract dropKey(key: Key): Item | Absent;
+
+  /**
+   * An iterator over keys.
+   */
+  abstract keys(): Iterable<Key>;
 }
 
 /**
@@ -86,11 +142,12 @@ export abstract class OrderedCollection<
  * **Item `->` Key** relation may be either one-to-one or one-to-many
  * while **Key `->` Item** relation always holds one-to-one.
  */
-export abstract class IndexedCollectionWithOrderedKeys<
+export abstract class IndexedOrderedCollectionWithOrderedKeys<
   Key,
+  Value,
   Item,
   Absent = AbsentValue
-> extends HasLength {
+> extends IndexedOrderedCollection<Key, Value, Item, Absent> {
   /**
    * Takes an item's key from the beginning of the collection. If referenced item has no more keys, it will be dropped.
    */
@@ -112,21 +169,6 @@ export abstract class IndexedCollectionWithOrderedKeys<
   abstract peekKeyBack(): Key | Absent;
 
   /**
-   * Returns `true` if collection has an item associated with the provided key.
-   */
-  abstract has(key: Key): boolean;
-
-  /**
-   * Drops an item associated with the provided key returning it.
-   */
-  abstract drop(key: Key): Item | Absent;
-
-  /**
-   * Retrieves an item associated with the provided key returning it.
-   */
-  abstract get(key: Key): Item | Absent;
-
-  /**
    * Associates supplied key with the provided value.
    * Key will be added to the beginning of the queue.
    */
@@ -139,11 +181,6 @@ export abstract class IndexedCollectionWithOrderedKeys<
   abstract addKeyBack(key: Key, item: Item): Item;
 
   /**
-   * Drops an item's key from the collection. If referenced item has no more keys, it will be dropped as well.
-   */
-  abstract dropKey(key: Key): Item | Absent;
-
-  /**
    * Returns an iterator over underlying keys.
    */
   abstract keysFront(): Iterable<Key>;
@@ -152,91 +189,10 @@ export abstract class IndexedCollectionWithOrderedKeys<
    * Returns an iterator over underlying keys.
    */
   abstract keysBack(): Iterable<Key>;
-}
 
-/**
- * @abstract
- * An indexed ordered collection of items. In addition to methods inherited from `OrderedCollection`, this type
- * of collection introduces keys used to access items.
- *
- * **Item `->` Key** relation may be either one-to-one or one-to-many
- * while **Key `->` Item** relation always holds one-to-one.
- */
-export abstract class OrderedIndexedCollection<
-    K,
-    V,
-    E = V,
-    Absent = AbsentValue
-  >
-  extends IndexedCollectionWithOrderedKeys<K, E, Absent>
-  implements OrderedCollection<V, E>
-{
-  /**
-   * Adds an item to the end of the collection.
-   * @param value
-   *
-   */
-  abstract pushBack(value: V): E;
-
-  /**
-   * Pushes an item to the beginning of the collection.
-   * @param value
-   *
-   */
-  abstract pushFront(value: V): E;
-
-  /**
-   * Moves an element to the beginning of the collection.
-   * Returns `true` in case of success.
-   * @param element
-   *
-   */
-  abstract moveFront(element: E): boolean;
-
-  /**
-   * Moves an element to the back.
-   * Returns `true` in case of success.
-   * @param element
-   *
-   */
-  abstract moveBack(element: E): boolean;
-
-  /**
-   * Removes an element from the collection.
-   * Returns `true` in case of success.
-   * @param element
-   */
-  abstract remove(element: E): boolean;
-
-  /**
-   * Takes an element from the end of the collection.
-   */
-  abstract takeBack(): V | Absent;
-
-  /**
-   * Takes an element from the beginning of the collection.
-   */
-  abstract takeFront(): V | Absent;
-
-  /**
-   * Peeks an element from the end of the collection.
-   */
-  abstract peekBack(): V | Absent;
-
-  /**
-   * Peeks an element from the beginning of the collection.
-   */
-  abstract peekFront(): V | Absent;
-
-  /**
-   * Returns an iterator over collection values starting from the end.
-   */
-  abstract valuesBack(): SizedIterable<V>;
-
-  /**
-   * Returns an iterator over collection values starting from the beginning.
-   */
-  abstract valuesFront(): SizedIterable<V>;
+  keys() {
+    return this.keysFront();
+  }
 }
 
 export { HasCapacity, HasLength };
