@@ -368,9 +368,9 @@ declare class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
 /** Parameters for the `UnifiedStorage` */
 interface UnifiedStorageParams<K, V> extends StorageParams<K, V> {
   /** Denotes if the object storage must be used for values with primitive keys */
-  useObjectStorage: boolean;
+  useObjectStorage?: boolean;
   /** Denotes if the weak storage must be used for values with non-primitive keys */
-  useWeakStorage: boolean;
+  useWeakStorage?: boolean;
 }
 
 /**
@@ -431,9 +431,9 @@ interface ParamsWithLength<K, V> extends Params<K, V> {
  * @param func
  * @param params
  */
-declare function memoize<K, V>(
-  func: (...args: K[]) => V,
-  { length, checkLast, ...params }?: ParamsWithLength<K, V>
+declare function memoize<V>(
+  func: (...args: any[]) => V,
+  { length, checkLast, ...params }?: ParamsWithLength<any, V>
 ): typeof func & {
   recomputations: number;
 };
