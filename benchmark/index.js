@@ -69,9 +69,12 @@ const assertEq = (param1, param2) => {
 };
 
 const buildSuite = (fn, data, name, callWithF = false) => {
-  const fns = [memoize, lruMemoize.default(), fastMemoize, memoizeMoize].map(
-    (memo) => memo(fn)
-  );
+  const fns = [
+    memoize,
+    lruMemoize.default(),
+    fastMemoize,
+    memoizeMoize,
+  ].map((memo) => memo(fn));
 
   const results = data.map((args) => ({
     data: args,
@@ -156,7 +159,7 @@ const suites = [
   ),
   buildSuite(
     fibonacci,
-    Array.from({ length: 30 }, (_, i) => [i]),
+    Array.from({ length: 10 }, (_, i) => [i]),
     "fib",
     true
   ),
