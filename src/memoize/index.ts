@@ -21,13 +21,13 @@ const { slice } = Array.prototype;
  * @param func
  * @param params
  */
-export default function memoize<K, V>(
-  func: (...args: K[]) => V,
+export default function memoize<V>(
+  func: (...args: any[]) => V,
   {
     length = func.length,
     checkLast = true,
     ...params
-  }: ParamsWithLength<K, V> = EMPTY_OBJECT as ParamsWithLength<K, V>
+  }: ParamsWithLength<any, V> = EMPTY_OBJECT as ParamsWithLength<any, V>
 ): typeof func & { recomputations: number } {
   const recomputate = function () {
     ++resultFunction.recomputations;
@@ -54,11 +54,14 @@ export default function memoize<K, V>(
       let output: V;
 
       if (argsLength === length) {
-        output = root.getOrInsertWith(arguments as unknown as K[], recomputate);
+        output = root.getOrInsertWith(
+          arguments as unknown as any[],
+          recomputate
+        );
         // If we received a greater amount of arguments, slice it
       } else if (argsLength > length) {
         output = root.getOrInsertWith(
-          slice.call(arguments, 0, length) as K[],
+          slice.call(arguments, 0, length) as any[],
           recomputate
         );
         // Otherwise don't use cache

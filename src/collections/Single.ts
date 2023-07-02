@@ -17,14 +17,16 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     this.value = value;
   }
 
-  pushFront(value: V): V {
-    this.value = value;
-    return value;
+  pushFront(value: V): V | AbsentValue {
+    if (this.isEmpty()) {
+      return (this.value = value);
+    } else {
+      return NO_VALUE;
+    }
   }
 
-  pushBack(value: V): V {
-    this.value = value;
-    return value;
+  pushBack(value: V): V | AbsentValue {
+    return this.pushFront(value);
   }
 
   takeKeyFront(): V | AbsentValue {
@@ -43,22 +45,20 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return this.peekBack();
   }
 
-  addKeyFront(_: V, item: V): V {
-    this.value = item;
-    return item;
+  addKeyFront(_key: V, _item: V): boolean {
+    return false;
   }
 
-  addKeyBack(_: V, item: V): V {
-    this.value = item;
-    return item;
+  addKeyBack(_key: V, _item: V): boolean {
+    return false;
   }
 
   dropKey(value: V): V | AbsentValue {
-    return equals(value, this.value) ? this.takeKeyFront() : NO_VALUE;
+    return this.has(value) ? this.takeFront() : NO_VALUE;
   }
 
   get(value: V): V | AbsentValue {
-    return equals(value, this.value) ? this.value : NO_VALUE;
+    return this.has(value) ? this.value : NO_VALUE;
   }
 
   keysFront(): Iterable<V> {
@@ -76,24 +76,27 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
   }
 
   takeBack() {
-    const value = this.value;
-    this.value = NO_VALUE;
-    return value;
+    return this.takeFront();
   }
 
-  insertAfter(node: V, value: V): V | AbsentValue {
-    return equals(node, this.value) ? (this.value = value) : NO_VALUE;
-  }
-  insertBefore(node: V, value: V): V | AbsentValue {
-    return equals(node, this.value) ? (this.value = value) : NO_VALUE;
+  insertAfter(_element: V, _value: V): V | AbsentValue {
+    return NO_VALUE;
   }
 
-  has(value: V) {
-    return equals(this.value, value);
+  insertBefore(_element: V, _value: V): V | AbsentValue {
+    return NO_VALUE;
   }
 
-  drop(value: V) {
-    return equals(this.value, value) ? this.takeFront() : NO_VALUE;
+  contains(element: V): boolean {
+    return equals(element, this.value);
+  }
+
+  has(value: V): boolean {
+    return equals(value, this.value);
+  }
+
+  drop(value: V): V | AbsentValue {
+    return this.has(value) ? this.takeFront() : NO_VALUE;
   }
 
   peekFront() {
@@ -105,11 +108,11 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
   }
 
   moveFront(element: V): boolean {
-    return equals(element, this.value);
+    return this.contains(element);
   }
 
   moveBack(element: V): boolean {
-    return equals(element, this.value);
+    return this.contains(element);
   }
 
   remove(element: V) {

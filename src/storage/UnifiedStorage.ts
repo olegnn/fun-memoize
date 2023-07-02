@@ -15,9 +15,9 @@ import { mapImplemented } from "../utils";
 /** Parameters for the `UnifiedStorage` */
 export interface UnifiedStorageParams<K, V> extends StorageParams<K, V> {
   /** Denotes if the object storage must be used for values with primitive keys */
-  useObjectStorage: boolean;
+  useObjectStorage?: boolean;
   /** Denotes if the weak storage must be used for values with non-primitive keys */
-  useWeakStorage: boolean;
+  useWeakStorage?: boolean;
 }
 
 /**

@@ -1,5 +1,5 @@
 import { CacheStrategy } from "../base/CacheStrategy";
-import { Result } from "../strategy/types";
+import { Result } from "../utils";
 import { AbsentValue, NO_VALUE } from "../value";
 
 /**

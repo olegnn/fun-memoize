@@ -57,7 +57,9 @@ export interface Params<K, V>
   /**
    * Either strategy class or different strategy classes for leaves and storage nodes.
    */
-  strategy?: StrategyConfig<K, V> | CacheStrategyClass<unknown>;
+  strategy?:
+    | StrategyConfig<K, V>
+    | CacheStrategyClass<K | LeafStorage<K, V> | NestedStorage<K, V>>;
 }
 
 /**
@@ -95,6 +97,18 @@ const ensureLimitIsValid = (name: string, value: number) => {
     throw new Error(`\`${name}\` is invalid: ${value}`);
   }
 };
+
+/**
+ * Returns `true` if supplied class extends `CacheStrategy`.
+ * @param strategy
+ */
+const extendsCacheStrategy = (strategy: unknown) =>
+  strategy &&
+  (
+    strategy as {
+      prototype: any;
+    }
+  ).prototype instanceof CacheStrategy;
 
 /**
  * Class describing a cache strategy to be used for the leaf nodes.
@@ -150,7 +164,7 @@ export class StorageContext<K, V> {
   }: Params<K, V>) {
     let leafStrategyClass: LeafCacheStrategyClass<K, V>,
       storageStrategyClass: StorageCacheStrategyClass<K, V>;
-    if (strategy instanceof CacheStrategy.constructor) {
+    if (extendsCacheStrategy(strategy)) {
       leafStrategyClass = strategy as LeafCacheStrategyClass<K, V>;
       storageStrategyClass = strategy as StorageCacheStrategyClass<K, V>;
     } else {
@@ -163,16 +177,10 @@ export class StorageContext<K, V> {
       storageStrategyClass =
         config.storageStrategyClass as StorageCacheStrategyClass<K, V>;
     }
-    if (
-      !leafStrategyClass ||
-      !(leafStrategyClass instanceof CacheStrategy.constructor)
-    ) {
+    if (!extendsCacheStrategy(leafStrategyClass)) {
       throw new Error("Invalid `leafStrategyClass`");
     }
-    if (
-      !storageStrategyClass ||
-      !(storageStrategyClass instanceof CacheStrategy.constructor)
-    ) {
+    if (!extendsCacheStrategy(storageStrategyClass)) {
       throw new Error("Invalid `storageStrategyClass`");
     }
     ensureLimitIsValid("totalLeavesLimit", totalLeavesLimit);

@@ -10,54 +10,6 @@ import {
 import { EMPTY_ITER } from "../iterators";
 
 /**
- * The path from the parent to the child.
- */
-export class ChildPath<K> {
-  /**
-   * Parent.
-   */
-  parent: Parent<K>;
-  /**
-   * The key under which the child is stored.
-   * If it's a `NO_VALUE`, then the child is stored under the key equal to itself.
-   */
-  key: K | AbsentValue;
-
-  constructor(parent: Parent<K>, key: K | AbsentValue) {
-    this.parent = parent;
-    this.key = key;
-  }
-}
-
-/**
- * Storage callbacks.
- */
-export interface StorageParams<K, V> {
-  /**
-   * Callback to be called on the storage creation.
-   * @param storage
-   */
-  onCreateStorage?: (storage: Storage<K, V>) => void;
-  /**
-   * Callback to be called on the storage removal.
-   * @param storage
-   */
-  onRemoveStorage?: (storage: Storage<K, V>) => void;
-}
-
-/**
- * Extended storage class with implemented abstract methods.
- */
-export type StorageClass<K, V> = new (...args: any[]) => Storage<K, V> & {
-  get(key: K): V | AbsentValue;
-  set(key: K, value: V): void;
-  drop(key: K): V | AbsentValue;
-  len(): number;
-  clear(): void;
-  entries(): Iterable<{ key: K; value: V }>;
-};
-
-/**
  * Key-value storage.
  */
 export abstract class Storage<K, V>
@@ -152,4 +104,52 @@ export abstract class Storage<K, V>
    *
    */
   abstract entries(): Iterable<{ key: K; value: V }>;
+}
+
+/**
+ * Extended storage class with implemented abstract methods.
+ */
+export type StorageClass<K, V> = new (...args: any[]) => Storage<K, V> & {
+  get(key: K): V | AbsentValue;
+  set(key: K, value: V): void;
+  drop(key: K): V | AbsentValue;
+  len(): number;
+  clear(): void;
+  entries(): Iterable<{ key: K; value: V }>;
+};
+
+/**
+ * The path from the parent to the child.
+ */
+export class ChildPath<K> {
+  /**
+   * Parent.
+   */
+  parent: Parent<K>;
+  /**
+   * The key under which the child is stored.
+   * If it's a `NO_VALUE`, then the child is stored under the key equal to itself.
+   */
+  key: K | AbsentValue;
+
+  constructor(parent: Parent<K>, key: K | AbsentValue) {
+    this.parent = parent;
+    this.key = key;
+  }
+}
+
+/**
+ * Storage callbacks.
+ */
+export interface StorageParams<K, V> {
+  /**
+   * Callback to be called on the storage creation.
+   * @param storage
+   */
+  onCreateStorage?: (storage: Storage<K, V>) => void;
+  /**
+   * Callback to be called on the storage removal.
+   * @param storage
+   */
+  onRemoveStorage?: (storage: Storage<K, V>) => void;
 }
