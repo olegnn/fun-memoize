@@ -88,7 +88,10 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param key
    *
    */
-  insertAfter(node: ListNode<Single<V>>, value: V): ListNode<Single<V>> {
+  insertAfter(
+    node: ListNode<Single<V>>,
+    value: V
+  ): ListNode<Single<V>> | AbsentValue {
     return this.inner.insertAfter(node, new Single(value));
   }
 
@@ -98,7 +101,10 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param key
    *
    */
-  insertBefore(node: ListNode<Single<V>>, value: V): ListNode<Single<V>> {
+  insertBefore(
+    node: ListNode<Single<V>>,
+    value: V
+  ): ListNode<Single<V>> | AbsentValue {
     return this.inner.insertBefore(node, new Single(value));
   }
 

@@ -126,8 +126,11 @@ export class MultiKeyQueue<
    * @param key
    *
    */
-  insertAfter(node: ListNode<V>, value: V): ListNode<V> {
+  insertAfter(node: ListNode<V>, value: V): ListNode<V> | AbsentValue {
     const listNode = this.list.insertAfter(node, value);
+    if (listNode == null) {
+      return NO_VALUE;
+    }
     this.assocKeys(value, listNode);
 
     return listNode;
@@ -139,8 +142,11 @@ export class MultiKeyQueue<
    * @param key
    *
    */
-  insertBefore(node: ListNode<V>, value: V): ListNode<V> {
+  insertBefore(node: ListNode<V>, value: V): ListNode<V> | AbsentValue {
     const listNode = this.list.insertBefore(node, value);
+    if (listNode == null) {
+      return NO_VALUE;
+    }
     this.assocKeys(value, listNode);
 
     return listNode;
@@ -153,6 +159,15 @@ export class MultiKeyQueue<
    */
   get(key: K): ListNode<V> | AbsentValue {
     return this.map.get(key);
+  }
+
+  /**
+   * Returns `true` if value associated with the given key exists.
+   * @param key
+   *
+   */
+  has(node: K): boolean {
+    return this.map.has(node);
   }
 
   /**
@@ -187,15 +202,6 @@ export class MultiKeyQueue<
     item.value.pushBack(key);
 
     return item;
-  }
-
-  /**
-   * Returns `true` if value associated with the given key exists.
-   * @param key
-   *
-   */
-  has(node: K): boolean {
-    return this.map.has(node);
   }
 
   /**
@@ -363,7 +369,9 @@ export class MultiKeyQueue<
    *
    */
   keysBack(): Iterable<K> {
-    return flatMap(this.list.valuesBack(), (iter) => iter.keys());
+    return flatMap(this.list.valuesBack(), (iter) =>
+      [...iter.keys()].reverse()
+    );
   }
 
   /**

@@ -60,19 +60,20 @@ export abstract class OrderedCollection<
 
   /**
    * Inserts given value after the supplied element returning new element.
-   * @param node
-   * @param key
-   *
+   * Returns `Absent` in case supplied element doesn't belong to this list.
+   * @param element
+   * @param value
    */
-  abstract insertAfter(node: E, value: V): E;
+  abstract insertAfter(element: E, value: V): E | Absent;
 
   /**
    * Inserts given value before the supplied element returning new element.
-   * @param node
-   * @param key
+   * Returns `Absent` in case supplied element doesn't belong to this list.
+   * @param element
+   * @param value
    *
    */
-  abstract insertBefore(node: E, value: V): E;
+  abstract insertBefore(element: E, value: V): E | Absent;
 
   /**
    * Peeks an element from the end of the collection.

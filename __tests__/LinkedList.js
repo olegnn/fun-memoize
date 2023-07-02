@@ -32,6 +32,11 @@ describe("MultiKeyQueue", () => {
     list1.moveBack(head);
 
     expect([...list1.valuesFront()]).toEqual([2, 3, 4, 1]);
+
+    const prevTail = list1.tail;
+    list1.insertAfter(list1.tail, -10);
+    expect(list1.tail.prev).toBe(prevTail);
+    expect(list1.peekBack()).toBe(-10);
   });
 
   it("front workflow", () => {
@@ -58,5 +63,10 @@ describe("MultiKeyQueue", () => {
     list1.moveFront(back);
 
     expect([...list1.valuesFront()]).toEqual([4, 1, 2, 3]);
+
+    const prevHead = list1.head;
+    list1.insertBefore(list1.head, -10);
+    expect(list1.head.next).toBe(prevHead);
+    expect(list1.peekFront()).toBe(-10);
   });
 });

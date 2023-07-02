@@ -479,18 +479,19 @@ declare abstract class OrderedCollection<
   abstract takeFront(): V | Absent;
   /**
    * Inserts given value after the supplied element returning new element.
-   * @param node
-   * @param key
-   *
+   * Returns `Absent` in case supplied element doesn't belong to this list.
+   * @param element
+   * @param value
    */
-  abstract insertAfter(node: E, value: V): E;
+  abstract insertAfter(element: E, value: V): E | Absent;
   /**
    * Inserts given value before the supplied element returning new element.
-   * @param node
-   * @param key
+   * Returns `Absent` in case supplied element doesn't belong to this list.
+   * @param element
+   * @param value
    *
    */
-  abstract insertBefore(node: E, value: V): E;
+  abstract insertBefore(element: E, value: V): E | Absent;
   /**
    * Peeks an element from the end of the collection.
    */
@@ -684,13 +685,15 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   takeFront(): T | null;
   /**
    * Inserts given value after the supplied raw linked list node.
+   * Returns `null` in case supplied element doesn't belong to this list.
    * @param node
    * @param value
    *
    */
-  insertAfter(node: ListNode<T>, value: T): ListNode<T>;
+  insertAfter(node: ListNode<T>, value: T): ListNode<T> | null;
   /**
    * Inserts given value before the supplied raw linked list node.
+   * Returns `null` in case supplied element doesn't belong to this list.
    * @param node
    * @param value
    *
@@ -776,20 +779,26 @@ declare class MultiKeyQueue<
    * @param key
    *
    */
-  insertAfter(node: ListNode<V>, value: V): ListNode<V>;
+  insertAfter(node: ListNode<V>, value: V): ListNode<V> | AbsentValue;
   /**
    * Inserts given value before the supplied raw linked list node.
    * @param node
    * @param key
    *
    */
-  insertBefore(node: ListNode<V>, value: V): ListNode<V>;
+  insertBefore(node: ListNode<V>, value: V): ListNode<V> | AbsentValue;
   /**
    * Returns value associated with the given key or `NO_VALUE` if the value wasn't found.
    * @param key
    *
    */
   get(key: K): ListNode<V> | AbsentValue;
+  /**
+   * Returns `true` if value associated with the given key exists.
+   * @param key
+   *
+   */
+  has(node: K): boolean;
   /**
    * Adds a key for the supplied element to the beginning of its queue.
    * @param key
@@ -804,12 +813,6 @@ declare class MultiKeyQueue<
    *
    */
   addKeyBack(key: K, item: ListNode<V>): ListNode<V>;
-  /**
-   * Returns `true` if value associated with the given key exists.
-   * @param key
-   *
-   */
-  has(node: K): boolean;
   /**
    * Takes a value from the beginning of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
@@ -928,8 +931,8 @@ declare class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
   keysBack(): Iterable<V>;
   takeFront(): {} | V;
   takeBack(): {} | V;
-  insertAfter(node: V, value: V): V;
-  insertBefore(node: V, value: V): V;
+  insertAfter(node: V, value: V): V | AbsentValue;
+  insertBefore(node: V, value: V): V | AbsentValue;
   has(value: V): boolean;
   drop(value: V): {};
   peekFront(): {} | V;
@@ -999,14 +1002,20 @@ declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param key
    *
    */
-  insertAfter(node: ListNode<Single<V>>, value: V): ListNode<Single<V>>;
+  insertAfter(
+    node: ListNode<Single<V>>,
+    value: V
+  ): ListNode<Single<V>> | AbsentValue;
   /**
    * Inserts given value before the supplied raw linked list node.
    * @param node
    * @param key
    *
    */
-  insertBefore(node: ListNode<Single<V>>, value: V): ListNode<Single<V>>;
+  insertBefore(
+    node: ListNode<Single<V>>,
+    value: V
+  ): ListNode<Single<V>> | AbsentValue;
   /**
    * Returns value associated with the given key or `NO_VALUE` if the value wasn't found.
    * @param key

@@ -81,11 +81,11 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return value;
   }
 
-  insertAfter(node: V, value: V): V {
-    return (this.value = value);
+  insertAfter(node: V, value: V): V | AbsentValue {
+    return equals(node, this.value) ? (this.value = value) : NO_VALUE;
   }
-  insertBefore(node: V, value: V): V {
-    return (this.value = value);
+  insertBefore(node: V, value: V): V | AbsentValue {
+    return equals(node, this.value) ? (this.value = value) : NO_VALUE;
   }
 
   has(value: V) {
