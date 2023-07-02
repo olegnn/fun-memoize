@@ -69,12 +69,9 @@ const assertEq = (param1, param2) => {
 };
 
 const buildSuite = (fn, data, name, callWithF = false) => {
-  const fns = [
-    memoize,
-    lruMemoize.default(),
-    fastMemoize,
-    memoizeMoize,
-  ].map((memo) => memo(fn));
+  const fns = [memoize, lruMemoize.default(), fastMemoize, memoizeMoize].map(
+    (memo) => memo(fn)
+  );
 
   const results = data.map((args) => ({
     data: args,
