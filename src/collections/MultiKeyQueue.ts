@@ -1,5 +1,8 @@
 import { LinkedList, ListNode } from "./LinkedList";
-import { OrderedIndexedCollection } from "./types";
+import {
+  IndexedOrderedCollection,
+  IndexedOrderedCollectionWithOrderedKeys,
+} from "./types";
 import { AbsentValue, NO_VALUE } from "../value";
 import { EMPTY_ITER, flatMap } from "../iterators";
 import { SafeMapStorage } from "../storage";
@@ -7,13 +10,13 @@ import { Storage, StorageClass } from "../base";
 
 /**
  * An indexed queue where each item is an indexed queue of keys.
- * An item itself should implement `OrderedIndexedCollection`.
+ * An item itself should implement `IndexedOrderedCollection`.
  */
 export class MultiKeyQueue<
   K,
-  V extends OrderedIndexedCollection<K, K, E>,
+  V extends IndexedOrderedCollection<K, K, E>,
   E = K
-> extends OrderedIndexedCollection<K, V, ListNode<V>> {
+> extends IndexedOrderedCollectionWithOrderedKeys<K, V, ListNode<V>> {
   list: LinkedList<V>;
   map: Storage<K, ListNode<V>>;
 
@@ -254,7 +257,7 @@ export class MultiKeyQueue<
     const first = this.list.peekFront();
 
     if (first != null) {
-      return first.peekKeyFront();
+      return first.peekFront();
     } else {
       return NO_VALUE;
     }
@@ -269,7 +272,7 @@ export class MultiKeyQueue<
     const first = this.list.peekBack();
 
     if (first != null) {
-      return first.peekKeyBack();
+      return first.peekBack();
     } else {
       return NO_VALUE;
     }
@@ -285,7 +288,7 @@ export class MultiKeyQueue<
       const first = this.list.peekFront();
 
       if (first != null) {
-        const key = first.takeKeyFront();
+        const key = first.takeFront();
         if (first.isEmpty()) {
           this.list.takeFront();
         }
@@ -313,7 +316,7 @@ export class MultiKeyQueue<
       const last = this.list.peekBack();
 
       if (last != null) {
-        const key = last.takeKeyBack();
+        const key = last.takeBack();
         if (last.isEmpty()) {
           this.list.takeBack();
         }
@@ -352,7 +355,7 @@ export class MultiKeyQueue<
    *
    */
   keysFront(): Iterable<K> {
-    return flatMap(this.list.valuesFront(), (iter) => iter.keysFront());
+    return flatMap(this.list.valuesFront(), (iter) => iter.keys());
   }
 
   /**
@@ -360,7 +363,7 @@ export class MultiKeyQueue<
    *
    */
   keysBack(): Iterable<K> {
-    return flatMap(this.list.valuesBack(), (iter) => iter.keysBack());
+    return flatMap(this.list.valuesBack(), (iter) => iter.keys());
   }
 
   /**
@@ -394,7 +397,7 @@ export class MultiKeyQueue<
    *
    */
   private assocKeys(value: V, node: ListNode<V>): void {
-    for (const key of value.keysFront()) {
+    for (const key of value.keys()) {
       if (this.map.has(key)) {
         throw new Error("Key already exists");
       }
@@ -410,7 +413,7 @@ export class MultiKeyQueue<
    *
    */
   private dissocKeys(value: V): void {
-    for (const key of value.keysFront()) {
+    for (const key of value.keys()) {
       if (!this.map.drop(key)) {
         throw new Error("Key doesn't exist");
       }

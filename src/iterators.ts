@@ -239,20 +239,6 @@ export function cycle<V>(iter: Iterable<V>): Iterable<V> {
 }
 
 /**
- * Adds supplied size to the given iterable.
- * @param iterable
- * @param size
- * @returns
- */
-export function withSize<V>(iterable: Iterable<V>, size: number): Iterable<V> {
-  return {
-    [Symbol.iterator]() {
-      return iterable[Symbol.iterator]();
-    },
-  };
-}
-
-/**
  * Creates an iterable which emits two items.
  * @param first
  * @param second

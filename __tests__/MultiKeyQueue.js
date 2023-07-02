@@ -1,13 +1,10 @@
 const { MultiKeyQueue, Single } = require("../build/collections");
+const { SingleKeyQueue } = require("../build/collections/SingleKeyQueue");
 const { NO_VALUE } = require("../build/value");
 
 describe("MultiKeyQueue", () => {
   it("basic workflow", () => {
-    let inner = new MultiKeyQueue([
-      new Single(1),
-      new Single(2),
-      new Single(3),
-    ]);
+    let inner = new SingleKeyQueue([1, 2, 3]);
     let queue = new MultiKeyQueue([inner]);
     expect(queue.len()).toBe(3);
     expect(queue.isEmpty()).toBe(false);

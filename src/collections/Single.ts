@@ -1,11 +1,15 @@
 import { empty, once } from "../iterators";
 import { AbsentValue, NO_VALUE, equals } from "../value";
-import { OrderedIndexedCollection } from "./types";
+import { IndexedOrderedCollectionWithOrderedKeys } from "./types";
 
 /**
  * Wrapper class which represents ordered indexed collection with a single item.
  */
-export class Single<V> extends OrderedIndexedCollection<V, V, V> {
+export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
+  V,
+  V,
+  V
+> {
   value: V | AbsentValue;
 
   constructor(value: V) {
@@ -75,6 +79,13 @@ export class Single<V> extends OrderedIndexedCollection<V, V, V> {
     const value = this.value;
     this.value = NO_VALUE;
     return value;
+  }
+
+  insertAfter(node: V, value: V): V {
+    return (this.value = value);
+  }
+  insertBefore(node: V, value: V): V {
+    return (this.value = value);
   }
 
   has(value: V) {

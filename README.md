@@ -47,7 +47,7 @@ const myResAgainAgain = memoizedFunc(50, 60, 70);
 // Almost instantly again
 ```
 
-Also, you can replace [reselect](https://github.com/reactjs/reselect), which stores only last result of the function execution
+Also, you can replace [reselect](https://github.com/reactjs/reselect), which stores only the last result of the function execution
 
 ```javascript
 import { createMemoizedSelector } from "fun-memoize";
@@ -183,10 +183,20 @@ declare function memoize<K, V>(
 ): typeof func;
 ```
 
+## Available cache strategies
+
+- `LFU` - `L`east `F`requently `U`used cache schema.
+- `LRU` - `L`east `R`ecently `U`sed cache schema.
+- `FIFO` - `F`irst in - `F`irst out cache strategy.
+
+Also, you can build your own by extending `CacheStrategy` or one of the existing strategy classes.
+
 ## Example custom configuration
 
 ```javascript
 import { memoize, LRU, LFU } from "fun-memoize";
+
+const fn = (a, b, c, d, e) => a + b + c + d + e;
 
 const memo = memoize(fn, {
   length: 5,

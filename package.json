@@ -48,7 +48,7 @@
     "prepublish": "yarn build",
     "build": "rm -rf dist build && NODE_ENV=release rollup -c rollup.config.mjs && tsc --moduleResolution node --downlevelIteration --outDir build --sourceMap true ./src/index.ts",
     "benchmark": "node ./benchmark/index.js",
-    "test": "jest . --maxWorkers=1",
+    "test": "jest .",
     "lint": "prettier '(src/**/*.ts)|(__tests__/**/**.js)|(benchmark/*.js)' --check",
     "fmt": "prettier 'index.d.ts|(src/**/*.ts)|(__tests__/**/**.js)|(benchmark/*.js)' --write"
   }

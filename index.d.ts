@@ -478,6 +478,20 @@ declare abstract class OrderedCollection<
    */
   abstract takeFront(): V | Absent;
   /**
+   * Inserts given value after the supplied element returning new element.
+   * @param node
+   * @param key
+   *
+   */
+  abstract insertAfter(node: E, value: V): E;
+  /**
+   * Inserts given value before the supplied element returning new element.
+   * @param node
+   * @param key
+   *
+   */
+  abstract insertBefore(node: E, value: V): E;
+  /**
    * Peeks an element from the end of the collection.
    */
   abstract peekBack(): V | Absent;
@@ -496,16 +510,51 @@ declare abstract class OrderedCollection<
 }
 /**
  * @abstract
+ * An indexed ordered collection of items.
+ *
+ * **Item `->` Key** relation may be either one-to-one or one-to-many
+ * while **Key `->` Item** relation always holds one-to-one.
+ */
+declare abstract class IndexedOrderedCollection<
+  Key,
+  Value,
+  Item,
+  Absent = AbsentValue
+> extends OrderedCollection<Value, Item, Absent> {
+  /**
+   * Retrieves an item associated with the provided key returning it.
+   */
+  abstract get(key: Key): Item | Absent;
+  /**
+   * Returns `true` if collection has an item associated with the provided key.
+   */
+  abstract has(key: Key): boolean;
+  /**
+   * Drops an item associated with the provided key returning it.
+   */
+  abstract drop(key: Key): Item | Absent;
+  /**
+   * Drops an item's key from the collection. If referenced item has no more keys, it will be dropped as well.
+   */
+  abstract dropKey(key: Key): Item | Absent;
+  /**
+   * An iterator over keys.
+   */
+  abstract keys(): Iterable<Key>;
+}
+/**
+ * @abstract
  * An indexed collection of items with ordered keys.
  *
  * **Item `->` Key** relation may be either one-to-one or one-to-many
  * while **Key `->` Item** relation always holds one-to-one.
  */
-declare abstract class IndexedCollectionWithOrderedKeys<
+declare abstract class IndexedOrderedCollectionWithOrderedKeys<
   Key,
+  Value,
   Item,
   Absent = AbsentValue
-> extends HasLength {
+> extends IndexedOrderedCollection<Key, Value, Item, Absent> {
   /**
    * Takes an item's key from the beginning of the collection. If referenced item has no more keys, it will be dropped.
    */
@@ -523,18 +572,6 @@ declare abstract class IndexedCollectionWithOrderedKeys<
    */
   abstract peekKeyBack(): Key | Absent;
   /**
-   * Returns `true` if collection has an item associated with the provided key.
-   */
-  abstract has(key: Key): boolean;
-  /**
-   * Drops an item associated with the provided key returning it.
-   */
-  abstract drop(key: Key): Item | Absent;
-  /**
-   * Retrieves an item associated with the provided key returning it.
-   */
-  abstract get(key: Key): Item | Absent;
-  /**
    * Associates supplied key with the provided value.
    * Key will be added to the beginning of the queue.
    */
@@ -545,10 +582,6 @@ declare abstract class IndexedCollectionWithOrderedKeys<
    */
   abstract addKeyBack(key: Key, item: Item): Item;
   /**
-   * Drops an item's key from the collection. If referenced item has no more keys, it will be dropped as well.
-   */
-  abstract dropKey(key: Key): Item | Absent;
-  /**
    * Returns an iterator over underlying keys.
    */
   abstract keysFront(): Iterable<Key>;
@@ -556,80 +589,7 @@ declare abstract class IndexedCollectionWithOrderedKeys<
    * Returns an iterator over underlying keys.
    */
   abstract keysBack(): Iterable<Key>;
-}
-/**
- * @abstract
- * An indexed ordered collection of items. In addition to methods inherited from `OrderedCollection`, this type
- * of collection introduces keys used to access items.
- *
- * **Item `->` Key** relation may be either one-to-one or one-to-many
- * while **Key `->` Item** relation always holds one-to-one.
- */
-declare abstract class OrderedIndexedCollection<
-    K,
-    V,
-    E = V,
-    Absent = AbsentValue
-  >
-  extends IndexedCollectionWithOrderedKeys<K, E, Absent>
-  implements OrderedCollection<V, E>
-{
-  /**
-   * Adds an item to the end of the collection.
-   * @param value
-   *
-   */
-  abstract pushBack(value: V): E;
-  /**
-   * Pushes an item to the beginning of the collection.
-   * @param value
-   *
-   */
-  abstract pushFront(value: V): E;
-  /**
-   * Moves an element to the beginning of the collection.
-   * Returns `true` in case of success.
-   * @param element
-   *
-   */
-  abstract moveFront(element: E): boolean;
-  /**
-   * Moves an element to the back.
-   * Returns `true` in case of success.
-   * @param element
-   *
-   */
-  abstract moveBack(element: E): boolean;
-  /**
-   * Removes an element from the collection.
-   * Returns `true` in case of success.
-   * @param element
-   */
-  abstract remove(element: E): boolean;
-  /**
-   * Takes an element from the end of the collection.
-   */
-  abstract takeBack(): V | Absent;
-  /**
-   * Takes an element from the beginning of the collection.
-   */
-  abstract takeFront(): V | Absent;
-  /**
-   * Peeks an element from the end of the collection.
-   */
-  abstract peekBack(): V | Absent;
-  /**
-   * Peeks an element from the beginning of the collection.
-   */
-  abstract peekFront(): V | Absent;
-  /**
-   * Returns an iterator over collection values starting from the end.
-   */
-  abstract valuesBack(): Iterable<V>;
-  /**
-   * Returns an iterator over collection values starting from the beginning.
-   */
-  abstract valuesFront(): Iterable<V>;
+  keys(): Iterable<Key>;
 }
 
 /**
@@ -759,13 +719,13 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
 /**
  * An indexed queue where each item is an indexed queue of keys.
- * An item itself should implement `OrderedIndexedCollection`.
+ * An item itself should implement `IndexedOrderedCollection`.
  */
 declare class MultiKeyQueue<
   K,
-  V extends OrderedIndexedCollection<K, K, E>,
+  V extends IndexedOrderedCollection<K, K, E>,
   E = K
-> extends OrderedIndexedCollection<K, V, ListNode<V>> {
+> extends IndexedOrderedCollectionWithOrderedKeys<K, V, ListNode<V>> {
   list: LinkedList<V>;
   map: Storage<K, ListNode<V>>;
   constructor(values?: Iterable<V>);
@@ -947,7 +907,11 @@ declare class MultiKeyQueue<
 /**
  * Wrapper class which represents ordered indexed collection with a single item.
  */
-declare class Single<V> extends OrderedIndexedCollection<V, V, V> {
+declare class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
+  V,
+  V,
+  V
+> {
   value: V | AbsentValue;
   constructor(value: V);
   pushFront(value: V): V;
@@ -964,6 +928,8 @@ declare class Single<V> extends OrderedIndexedCollection<V, V, V> {
   keysBack(): Iterable<V>;
   takeFront(): {} | V;
   takeBack(): {} | V;
+  insertAfter(node: V, value: V): V;
+  insertBefore(node: V, value: V): V;
   has(value: V): boolean;
   drop(value: V): {};
   peekFront(): {} | V;
@@ -974,6 +940,177 @@ declare class Single<V> extends OrderedIndexedCollection<V, V, V> {
   valuesFront(): Iterable<V>;
   valuesBack(): Iterable<V>;
   len(): number;
+}
+
+/**
+ * An indexed queue of items where each item has a single key.
+ */
+declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
+  V,
+  V,
+  ListNode<Single<V>>
+> {
+  inner: MultiKeyQueue<V, Single<V>>;
+  constructor(values?: Iterable<V>);
+  /**
+   * Returns amount of keys (references) stored in a map.
+   *
+   */
+  len(): number;
+  /**
+   * Drops an item associated with the supplied key.
+   * Returns dropped value in case of a successful drop or `NO_VALUE` if the value wasn't found.
+   * @param key
+   *
+   */
+  drop(key: V): V | AbsentValue;
+  /**
+   * Moves node to the front of the queue.
+   * Returns `true` in case of success.
+   * @param listNode
+   *
+   */
+  moveFront(element: ListNode<Single<V>>): boolean;
+  /**
+   * Moves node to the back of the queue.
+   * Returns `true` in case of success.
+   * @param listNode
+   *
+   */
+  moveBack(element: ListNode<Single<V>>): boolean;
+  /**
+   * Removes an item from the queue.
+   * Returns `true` in case of success.
+   * @param listNode
+   *
+   */
+  remove(element: ListNode<Single<V>>): boolean;
+  /**
+   * Drops supplied key from the map.
+   * Item belonging to this key will be deleted only if it has no more references in the map.
+   * Returns dropped value in case of a successful drop or `NO_VALUE` if the value wasn't found.
+   * @param key
+   *
+   */
+  dropKey(key: V): AbsentValue | ListNode<Single<V>>;
+  /**
+   * Inserts given value after the supplied raw linked list node.
+   * @param node
+   * @param key
+   *
+   */
+  insertAfter(node: ListNode<Single<V>>, value: V): ListNode<Single<V>>;
+  /**
+   * Inserts given value before the supplied raw linked list node.
+   * @param node
+   * @param key
+   *
+   */
+  insertBefore(node: ListNode<Single<V>>, value: V): ListNode<Single<V>>;
+  /**
+   * Returns value associated with the given key or `NO_VALUE` if the value wasn't found.
+   * @param key
+   *
+   */
+  get(key: V): AbsentValue | ListNode<Single<V>>;
+  /**
+   * Returns `true` if value associated with the given key exists.
+   * @param key
+   *
+   */
+  has(key: V): boolean;
+  /**
+   * Adds a key for the supplied element to the beginning of its queue.
+   * @param key
+   * @param listNode
+   *
+   */
+  addKeyFront(key: V, item: ListNode<Single<V>>): ListNode<Single<V>>;
+  /**
+   * Adds a key for the supplied element to the end of its queue.
+   * @param key
+   * @param listNode
+   *
+   */
+  addKeyBack(key: V, item: ListNode<Single<V>>): ListNode<Single<V>>;
+  /**
+   * Takes a value from the beginning of the queue.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   */
+  takeFront(): AbsentValue | V;
+  /**
+   * Takes a value from the end of the queue.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   */
+  takeBack(): AbsentValue | V;
+  /**
+   * Peeks a value from the beginning of the queue.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   *
+   */
+  peekFront(): AbsentValue | V;
+  /**
+   * Peeks a value from the end of the queue.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   *
+   */
+  peekBack(): AbsentValue | V;
+  /**
+   * Peeks a key of the item from the beginning of the queue.
+   * Returns either key or `NO_VALUE` if queue is empty.
+   *
+   */
+  peekKeyFront(): AbsentValue | V;
+  /**
+   * Peeks a key of the item from the end of the queue.
+   * Returns either key or `NO_VALUE` if queue is empty.
+   *
+   */
+  peekKeyBack(): AbsentValue | V;
+  /**
+   * Takes a key of the item from the beginning of the queue.
+   * Returns either key or `NO_VALUE` if queue is empty.
+   *
+   */
+  takeKeyFront(): AbsentValue | V;
+  /**
+   * Takes a key of the item from the end of the queue.
+   * Returns either key or `NO_VALUE` if queue is empty.
+   *
+   */
+  takeKeyBack(): AbsentValue | V;
+  /**
+   * Returns an iterator over values.
+   *
+   */
+  valuesFront(): Iterable<V>;
+  /**
+   * Returns an iterator over values.
+   *
+   */
+  valuesBack(): Iterable<V>;
+  /**
+   * Returns an iterator over keys starting from the beginning.
+   *
+   */
+  keysFront(): Iterable<V>;
+  /**
+   * Returns an iterator over keys starting from the end.
+   *
+   */
+  keysBack(): Iterable<V>;
+  /**
+   * Pushes an item to the end of the queue.
+   * @param value
+   *
+   */
+  pushBack(value: V): ListNode<Single<V>>;
+  /**
+   * Pushes an item to the beginning of the queue.
+   * @param value
+   *
+   */
+  pushFront(value: V): ListNode<Single<V>>;
 }
 
 /**
@@ -1029,7 +1166,7 @@ declare class LRU<V> extends CacheStrategy<V> {
  * `L`east `F`requently `U`used cache schema.
  */
 declare class LFU<V> extends CacheStrategy<V> {
-  queue: MultiKeyQueue<V, Entry<V>, ListNode<Single<V>>>;
+  queue: MultiKeyQueue<V, LevelEntry<V>, ListNode<Single<V>>>;
   constructor(capacity: number);
   /**
    * Returns amount of keys (references) stored in a map.
@@ -1073,43 +1210,12 @@ declare class LFU<V> extends CacheStrategy<V> {
    *
    */
   peek(): V | AbsentValue;
-  private buildLevelEntry;
 }
 /** Describes a cache entry containing ordered values and its level. */
-declare class LevelEntry<
-  V,
-  E,
-  S extends OrderedIndexedCollection<V, Single<V>, E>
-> extends OrderedIndexedCollection<V, V, E> {
+declare class LevelEntry<V> extends SingleKeyQueue<V> {
   level: number;
-  entry: S;
-  constructor(level: number, entry: S);
-  pushFront(value: V): E;
-  pushBack(value: V): E;
-  takeFront(): {} | Single<V>;
-  takeBack(): {} | Single<V>;
-  peekFront(): {} | Single<V>;
-  peekBack(): {} | Single<V>;
-  takeKeyFront(): {} | V;
-  takeKeyBack(): {} | V;
-  get(key: V): {} | E;
-  dropKey(key: V): {} | E;
-  has(value: V): boolean;
-  addKeyFront(key: V, item: E): E;
-  addKeyBack(key: V, item: E): E;
-  peekKeyFront(): {} | V;
-  peekKeyBack(): {} | V;
-  moveBack(element: E): boolean;
-  moveFront(element: E): boolean;
-  remove(element: E): boolean;
-  valuesFront(): Iterable<V>;
-  valuesBack(): Iterable<V>;
-  keysFront(): Iterable<V>;
-  keysBack(): Iterable<V>;
-  len(): number;
-  drop(value: V): {} | E;
+  constructor(level: number, value: V);
 }
-type Entry<V> = LevelEntry<V, ListNode<Single<V>>, MultiKeyQueue<V, Single<V>>>;
 
 /**
  * `F`irst in - `F`irst out cache strategy.
