@@ -1,7 +1,7 @@
 import memoize from "./memoize";
 
 /**
- * Creates memoized selector.
+ * Creates memoized selector. If last argument is an object, it will be treated as configuration.
  */
 const createMemoizedSelector = (...params: any[]) => {
   const paramsOrFunc = params.slice(-1)[0];

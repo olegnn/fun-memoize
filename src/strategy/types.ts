@@ -17,18 +17,28 @@ export class Result<V> {
     this.added = added;
   }
 
+  /** Creates a result containing added entities */
   static added<V>(added: Iterable<V>): Result<V> {
     return new Result(void 0, added);
   }
 
+  /** Creates a result containing removed entities */
   static removed<V>(removed: Iterable<V>): Result<V> {
     return new Result(removed);
   }
 
+  /**
+   * Creates a result containing removed and added entities.
+   * @param removed
+   * @param added
+   */
   static removedAdded<V>(removed: Iterable<V>, added: Iterable<V>): Result<V> {
     return new Result(removed, added);
   }
 
+  /**
+   * Creates an empty result.
+   */
   static empty<V>(): Result<V> {
     return Result.EMPTY_RESULT as Result<V>;
   }
@@ -55,12 +65,21 @@ export class Result<V> {
     return this;
   }
 
+  /**
+   * Executes given function for each removed item.
+   * @param fn
+   *
+   */
   forEachRemoved(fn: (removed: V) => void): this {
     for (const removed of this.removed) fn(removed);
 
     return this;
   }
 
+  /**
+   * Maps given result over removed and added items.
+   * @param fn
+   */
   map<R>(fn: (value: V) => R): Result<R> {
     return new Result(map(fn, this.removed), map(fn, this.added));
   }

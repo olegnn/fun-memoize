@@ -6,7 +6,7 @@ import { once } from "../iterators";
 import { ListNode } from "../collections/LinkedList";
 
 /**
- * `L`east `F`requently `U`used cache schema.
+ * `L`east `F`requently `U`used cache replacement policy.
  */
 export class LFU<V> extends CacheStrategy<V> {
   queue: MultiKeyQueue<V, LevelEntry<V>, ListNode<Single<V>>>;
