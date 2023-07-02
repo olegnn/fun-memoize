@@ -1,18 +1,19 @@
 import { CacheStrategy } from "../base/CacheStrategy";
 import { ListNode } from "../collections/LinkedList";
-import { MultiKeyQueue, Single } from "../collections";
+import { Single, SingleKeyQueue } from "../collections";
 import { AbsentValue, NO_VALUE } from "../value";
-import { Result } from "./types";
+import { Result } from "../utils";
+import { once } from "../iterators";
 
 /**
  * `FIFO` - `F`irst `I`n - `F`irst `O`ut cache replacement policy.
  */
 export class FIFO<V> extends CacheStrategy<V> {
-  queue: MultiKeyQueue<V, Single<V>>;
+  queue: SingleKeyQueue<V>;
 
   constructor(capacity: number) {
     super(capacity);
-    this.queue = new MultiKeyQueue();
+    this.queue = new SingleKeyQueue();
   }
 
   /**
@@ -64,14 +65,19 @@ export class FIFO<V> extends CacheStrategy<V> {
     const res = super.write(value);
     const item = this.queue.get(value);
     if (item !== NO_VALUE) {
-      this.queue.moveBack(item as ListNode<Single<V>>);
+      const moved = this.queue.moveBack(item as ListNode<Single<V>>);
+      if (!moved) {
+        throw new Error(`\`FIFO\`: failed to move the cache entry`);
+      }
 
       return res;
     } else {
-      const item = new Single(value);
-      this.queue.pushBack(item);
+      const pushed = this.queue.pushBack(value);
+      if (pushed === NO_VALUE) {
+        throw new Error(`\`FIFO\`: failed to push a new cache entry`);
+      }
 
-      return res.chain(Result.added(item.valuesFront()));
+      return res.chain(Result.added(once(value)));
     }
   }
 

@@ -3,7 +3,7 @@ import memoize from "./memoize";
 /**
  * Creates memoized selector. If last argument is an object, it will be treated as configuration.
  */
-const createMemoizedSelector = (...params: any[]) => {
+const createMemoizedSelector = (...params: any[]): Function => {
   const paramsOrFunc = params.slice(-1)[0];
   let selectorFuncs = params.slice(0, -1);
   if (Array.isArray(selectorFuncs[0])) [selectorFuncs] = selectorFuncs;

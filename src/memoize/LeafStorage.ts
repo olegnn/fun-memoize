@@ -1,7 +1,7 @@
 import { AbsentValue, NO_VALUE } from "../value";
 import { ChildPath, Storage, StorageParams } from "../base/Storage";
 import { CacheStrategy } from "../base/CacheStrategy";
-import { Result } from "../strategy";
+import { Result } from "../utils";
 
 import { Destroyable } from "../utils";
 

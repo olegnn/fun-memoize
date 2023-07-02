@@ -7,23 +7,25 @@ import { HasCapacity, HasLength } from "../utils";
  * An ordered collection of items which can be walked in two directions.
  */
 export abstract class OrderedCollection<
-  V,
-  E,
+  Value,
+  Item,
   Absent = AbsentValue
 > extends HasLength {
   /**
    * Adds an item to the end of the collection.
+   * Returns either created element or absent value in case value can't be added.
    * @param value
    *
    */
-  abstract pushBack(value: V): E;
+  abstract pushBack(value: Value): Item | Absent;
 
   /**
    * Pushes an item to the beginning of the collection.
+   * Returns either created element or absent value in case value can't be added.
    * @param value
    *
    */
-  abstract pushFront(value: V): E;
+  abstract pushFront(value: Value): Item | Absent;
 
   /**
    * Moves an element to the beginning of the collection.
@@ -31,7 +33,7 @@ export abstract class OrderedCollection<
    * @param element
    *
    */
-  abstract moveFront(element: E): boolean;
+  abstract moveFront(element: Item): boolean;
 
   /**
    * Moves an element to the back.
@@ -39,61 +41,61 @@ export abstract class OrderedCollection<
    * @param element
    *
    */
-  abstract moveBack(element: E): boolean;
+  abstract moveBack(element: Item): boolean;
 
   /**
    * Removes an element from the collection.
    * Returns `true` in case of success.
-   * @param element
    */
-  abstract remove(element: E): boolean;
+  abstract remove(element: Item): boolean;
+
+  /**
+   * Returns `true` if supplied element belongs to the collection.
+   */
+  abstract contains(element: Item): boolean;
 
   /**
    * Takes an element from the end of the collection.
    */
-  abstract takeBack(): V | Absent;
+  abstract takeBack(): Value | Absent;
 
   /**
    * Takes an element from the beginning of the collection.
    */
-  abstract takeFront(): V | Absent;
+  abstract takeFront(): Value | Absent;
 
   /**
    * Inserts given value after the supplied element returning new element.
    * Returns `Absent` in case supplied element doesn't belong to this list.
-   * @param element
-   * @param value
    */
-  abstract insertAfter(element: E, value: V): E | Absent;
+  abstract insertAfter(element: Item, value: Value): Item | Absent;
 
   /**
    * Inserts given value before the supplied element returning new element.
    * Returns `Absent` in case supplied element doesn't belong to this list.
-   * @param element
-   * @param value
    *
    */
-  abstract insertBefore(element: E, value: V): E | Absent;
+  abstract insertBefore(element: Item, value: Value): Item | Absent;
 
   /**
    * Peeks an element from the end of the collection.
    */
-  abstract peekBack(): V | Absent;
+  abstract peekBack(): Value | Absent;
 
   /**
    * Peeks an element from the beginning of the collection.
    */
-  abstract peekFront(): V | Absent;
+  abstract peekFront(): Value | Absent;
 
   /**
    * Returns an iterator over collection values starting from the end.
    */
-  abstract valuesBack(): Iterable<V>;
+  abstract valuesBack(): Iterable<Value>;
 
   /**
    * Returns an iterator over collection values starting from the beginning.
    */
-  abstract valuesFront(): Iterable<V>;
+  abstract valuesFront(): Iterable<Value>;
 }
 
 /**
@@ -172,13 +174,13 @@ export abstract class IndexedOrderedCollectionWithOrderedKeys<
    * Associates supplied key with the provided value.
    * Key will be added to the beginning of the queue.
    */
-  abstract addKeyFront(key: Key, item: Item): Item;
+  abstract addKeyFront(key: Key, item: Item): boolean;
 
   /**
    * Associates supplied key with the provided value.
    * Key will be added to the end of the queue.
    */
-  abstract addKeyBack(key: Key, item: Item): Item;
+  abstract addKeyBack(key: Key, item: Item): boolean;
 
   /**
    * Returns an iterator over underlying keys.

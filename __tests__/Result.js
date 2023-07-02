@@ -1,6 +1,5 @@
-const { Result } = require("../build/strategy/types");
+const { Result } = require("../build/utils");
 const { expectResult } = require("./helpers");
-const { withSize } = require("../build/iterators");
 
 describe("Result", () => {
   it("checks constructor", () => {

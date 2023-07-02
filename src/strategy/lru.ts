@@ -1,18 +1,19 @@
 import { CacheStrategy } from "../base/CacheStrategy";
 import { ListNode } from "../collections/LinkedList";
-import { MultiKeyQueue, Single } from "../collections";
+import { Single, SingleKeyQueue } from "../collections";
 import { AbsentValue, NO_VALUE } from "../value";
-import { Result } from "./types";
+import { Result } from "../utils";
+import { once } from "../iterators";
 
 /**
- * `L`east `R`ecently `U`sed cache schema.
+ * `L`east `R`ecently `U`sed cache replacement policy.
  */
 export class LRU<V> extends CacheStrategy<V> {
-  queue: MultiKeyQueue<V, Single<V>>;
+  queue: SingleKeyQueue<V>;
 
   constructor(capacity: number) {
     super(capacity);
-    this.queue = new MultiKeyQueue();
+    this.queue = new SingleKeyQueue();
   }
 
   /**
@@ -62,14 +63,19 @@ export class LRU<V> extends CacheStrategy<V> {
   private touch(value: V): Result<V> {
     const item = this.queue.get(value);
     if (item !== NO_VALUE) {
-      this.queue.moveBack(item as ListNode<Single<V>>);
+      const moved = this.queue.moveBack(item as ListNode<Single<V>>);
+      if (!moved) {
+        throw new Error(`\`LRU\`: failed to move the cache entry`);
+      }
 
       return Result.empty();
     } else {
-      const added = new Single(value);
-      this.queue.pushBack(added);
+      const pushed = this.queue.pushBack(value);
+      if (pushed === NO_VALUE) {
+        throw new Error(`\`LRU\`: failed to push a new cache entry`);
+      }
 
-      return Result.added(added.valuesFront());
+      return Result.added(once(value));
     }
   }
 

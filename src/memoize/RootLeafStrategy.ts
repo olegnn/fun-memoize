@@ -1,6 +1,6 @@
 import { CacheStrategy } from "../base/CacheStrategy";
 import { once } from "../iterators";
-import { Result } from "../strategy/types";
+import { Result } from "../utils";
 import { AbsentValue, NO_VALUE } from "../value";
 import { LeafStorage } from "./LeafStorage";
 

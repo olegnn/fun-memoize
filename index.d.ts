@@ -1,50 +1,4 @@
 /**
- * Contains removed/added entities.
- */
-declare class Result<V> {
-  removed: Iterable<V>;
-  added: Iterable<V>;
-  static EMPTY_RESULT: Result<unknown>;
-  private constructor();
-  /** Creates a result containing added entities */
-  static added<V>(added: Iterable<V>): Result<V>;
-  /** Creates a result containing removed entities */
-  static removed<V>(removed: Iterable<V>): Result<V>;
-  /**
-   * Creates a result containing removed and added entities.
-   * @param removed
-   * @param added
-   */
-  static removedAdded<V>(removed: Iterable<V>, added: Iterable<V>): Result<V>;
-  /**
-   * Creates an empty result.
-   */
-  static empty<V>(): Result<V>;
-  /**
-   * Appends remove/added items from the supplied result to the current result.
-   * @param result
-   */
-  chain(result: Result<V>): Result<V>;
-  /**
-   * Executes given function for each added item.
-   * @param fn
-   *
-   */
-  forEachAdded(fn: (added: V) => void): this;
-  /**
-   * Executes given function for each removed item.
-   * @param fn
-   *
-   */
-  forEachRemoved(fn: (removed: V) => void): this;
-  /**
-   * Maps given result over removed and added items.
-   * @param fn
-   */
-  map<R>(fn: (value: V) => R): Result<R>;
-}
-
-/**
  * Describes a container having a length.
  */
 declare abstract class HasLength {
@@ -116,22 +70,57 @@ interface Parent<K> {
    */
   drop(key: K): void;
 }
+/**
+ * Contains removed/added entities.
+ */
+declare class Result<V> {
+  removed: Iterable<V>;
+  added: Iterable<V>;
+  static EMPTY_RESULT: Result<unknown>;
+  private constructor();
+  /** Creates a result containing added entities */
+  static added<V>(added: Iterable<V>): Result<V>;
+  /** Creates a result containing removed entities */
+  static removed<V>(removed: Iterable<V>): Result<V>;
+  /**
+   * Creates a result containing removed and added entities.
+   * @param removed
+   * @param added
+   */
+  static removedAdded<V>(removed: Iterable<V>, added: Iterable<V>): Result<V>;
+  /**
+   * Creates an empty result.
+   */
+  static empty<V>(): Result<V>;
+  /**
+   * Appends remove/added items from the supplied result to the current result.
+   * @param result
+   */
+  chain(result: Result<V>): Result<V>;
+  /**
+   * Executes given function for each added item.
+   * @param fn
+   *
+   */
+  forEachAdded(fn: (added: V) => void): this;
+  /**
+   * Executes given function for each removed item.
+   * @param fn
+   *
+   */
+  forEachRemoved(fn: (removed: V) => void): this;
+  /**
+   * Maps given result over removed and added items.
+   * @param fn
+   */
+  map<R>(fn: (value: V) => R): Result<R>;
+}
 
 /** Represents an absent value */
 declare const NO_VALUE: {};
 /** Absent value placeholder */
 type AbsentValue = typeof NO_VALUE;
 
-/**
- * `CacheStrategy` with implemented abstract methods.
- */
-type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
-  len(): number;
-  drop(value: V): boolean;
-  take(): V | AbsentValue;
-  peek(): V | AbsentValue;
-  has(value: V): boolean;
-};
 /**
  * Describes some strategy holding up to `capacity` items at the same moment.
  */
@@ -186,37 +175,17 @@ declare abstract class CacheStrategy<V>
    */
   protected reservePlace(value: V): Result<V>;
 }
+/**
+ * `CacheStrategy` with implemented abstract methods.
+ */
+type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
+  len(): number;
+  drop(value: V): boolean;
+  take(): V | AbsentValue;
+  peek(): V | AbsentValue;
+  has(value: V): boolean;
+};
 
-/**
- * The path from the parent to the child.
- */
-declare class ChildPath<K> {
-  /**
-   * Parent.
-   */
-  parent: Parent<K>;
-  /**
-   * The key under which the child is stored.
-   * If it's a `NO_VALUE`, then the child is stored under the key equal to itself.
-   */
-  key: K | AbsentValue;
-  constructor(parent: Parent<K>, key: K | AbsentValue);
-}
-/**
- * Storage callbacks.
- */
-interface StorageParams<K, V> {
-  /**
-   * Callback to be called on the storage creation.
-   * @param storage
-   */
-  onCreateStorage?: (storage: Storage<K, V>) => void;
-  /**
-   * Callback to be called on the storage removal.
-   * @param storage
-   */
-  onRemoveStorage?: (storage: Storage<K, V>) => void;
-}
 /**
  * Key-value storage.
  */
@@ -286,6 +255,36 @@ declare abstract class Storage<K, V>
     key: K;
     value: V;
   }>;
+}
+/**
+ * The path from the parent to the child.
+ */
+declare class ChildPath<K> {
+  /**
+   * Parent.
+   */
+  parent: Parent<K>;
+  /**
+   * The key under which the child is stored.
+   * If it's a `NO_VALUE`, then the child is stored under the key equal to itself.
+   */
+  key: K | AbsentValue;
+  constructor(parent: Parent<K>, key: K | AbsentValue);
+}
+/**
+ * Storage callbacks.
+ */
+interface StorageParams<K, V> {
+  /**
+   * Callback to be called on the storage creation.
+   * @param storage
+   */
+  onCreateStorage?: (storage: Storage<K, V>) => void;
+  /**
+   * Callback to be called on the storage removal.
+   * @param storage
+   */
+  onRemoveStorage?: (storage: Storage<K, V>) => void;
 }
 
 /**
@@ -406,7 +405,9 @@ interface Params<K, V>
   /**
    * Either strategy class or different strategy classes for leaves and storage nodes.
    */
-  strategy?: StrategyConfig<K, V> | CacheStrategyClass<unknown>;
+  strategy?:
+    | StrategyConfig<K, V>
+    | CacheStrategyClass<K | LeafStorage<K, V> | NestedStorage<K, V>>;
 }
 /**
  * Config for the leaf and storage cache strategies.
@@ -440,93 +441,89 @@ declare function memoize<K, V>(
 /**
  * Creates memoized selector. If last argument is an object, it will be treated as configuration.
  */
-declare const createMemoizedSelector: (...params: any[]) => {
-  (): any;
-  recomputations(): number;
-  dependencies: any[];
-  resultFunction: any;
-};
+declare const createMemoizedSelector: (...params: any[]) => Function;
 
 /**
  * @abstract
  * An ordered collection of items which can be walked in two directions.
  */
 declare abstract class OrderedCollection<
-  V,
-  E,
+  Value,
+  Item,
   Absent = AbsentValue
 > extends HasLength {
   /**
    * Adds an item to the end of the collection.
+   * Returns either created element or absent value in case value can't be added.
    * @param value
    *
    */
-  abstract pushBack(value: V): E;
+  abstract pushBack(value: Value): Item | Absent;
   /**
    * Pushes an item to the beginning of the collection.
+   * Returns either created element or absent value in case value can't be added.
    * @param value
    *
    */
-  abstract pushFront(value: V): E;
+  abstract pushFront(value: Value): Item | Absent;
   /**
    * Moves an element to the beginning of the collection.
    * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveFront(element: E): boolean;
+  abstract moveFront(element: Item): boolean;
   /**
    * Moves an element to the back.
    * Returns `true` in case of success.
    * @param element
    *
    */
-  abstract moveBack(element: E): boolean;
+  abstract moveBack(element: Item): boolean;
   /**
    * Removes an element from the collection.
    * Returns `true` in case of success.
-   * @param element
    */
-  abstract remove(element: E): boolean;
+  abstract remove(element: Item): boolean;
+  /**
+   * Returns `true` if supplied element belongs to the collection.
+   */
+  abstract contains(element: Item): boolean;
   /**
    * Takes an element from the end of the collection.
    */
-  abstract takeBack(): V | Absent;
+  abstract takeBack(): Value | Absent;
   /**
    * Takes an element from the beginning of the collection.
    */
-  abstract takeFront(): V | Absent;
+  abstract takeFront(): Value | Absent;
   /**
    * Inserts given value after the supplied element returning new element.
    * Returns `Absent` in case supplied element doesn't belong to this list.
-   * @param element
-   * @param value
    */
-  abstract insertAfter(element: E, value: V): E | Absent;
+  abstract insertAfter(element: Item, value: Value): Item | Absent;
   /**
    * Inserts given value before the supplied element returning new element.
    * Returns `Absent` in case supplied element doesn't belong to this list.
-   * @param element
-   * @param value
    *
    */
-  abstract insertBefore(element: E, value: V): E | Absent;
+  abstract insertBefore(element: Item, value: Value): Item | Absent;
   /**
    * Peeks an element from the end of the collection.
    */
-  abstract peekBack(): V | Absent;
+  abstract peekBack(): Value | Absent;
   /**
    * Peeks an element from the beginning of the collection.
    */
-  abstract peekFront(): V | Absent;
+  abstract peekFront(): Value | Absent;
   /**
    * Returns an iterator over collection values starting from the end.
    */
-  abstract valuesBack(): Iterable<V>;
+  abstract valuesBack(): Iterable<Value>;
   /**
    * Returns an iterator over collection values starting from the beginning.
    */
-  abstract valuesFront(): Iterable<V>;
+  abstract valuesFront(): Iterable<Value>;
 }
 /**
  * @abstract
@@ -595,12 +592,12 @@ declare abstract class IndexedOrderedCollectionWithOrderedKeys<
    * Associates supplied key with the provided value.
    * Key will be added to the beginning of the queue.
    */
-  abstract addKeyFront(key: Key, item: Item): Item;
+  abstract addKeyFront(key: Key, item: Item): boolean;
   /**
    * Associates supplied key with the provided value.
    * Key will be added to the end of the queue.
    */
-  abstract addKeyBack(key: Key, item: Item): Item;
+  abstract addKeyBack(key: Key, item: Item): boolean;
   /**
    * Returns an iterator over underlying keys.
    */
@@ -653,27 +650,27 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   tail: ListNode<T> | null;
   constructor(values?: Iterable<T>);
   /**
-   * Pushes an element to the back of the list.
-   * @param element
+   * Pushes an node to the back of the list.
+   * @param node
    *
    */
-  pushBack(element: T): ListNode<T>;
+  pushBack(node: T): ListNode<T>;
   /**
-   * Pushes an element to the front of the list.
-   * @param element
+   * Pushes an node to the front of the list.
+   * @param node
    *
    */
-  pushFront(element: T): ListNode<T>;
+  pushFront(node: T): ListNode<T>;
   /**
    * Moves node to the front of the queue.
-   * Returns `false` if element doesn't belong to the given list.
+   * Returns `false` if node doesn't belong to the given list.
    * @param node
    *
    */
   moveFront(node: ListNode<T>): boolean;
   /**
    * Moves node to the back of the queue.
-   * Returns `false` if element doesn't belong to the given list.
+   * Returns `false` if node doesn't belong to the given list.
    * @param node
    *
    */
@@ -698,13 +695,13 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   takeBack(): T | null;
   /**
    * Takes front node from the list.
-   * Returns `null` if list has no elements.
+   * Returns `null` if list has no nodes.
    *
    */
   takeFront(): T | null;
   /**
    * Inserts given value after the supplied raw linked list node.
-   * Returns `null` in case supplied element doesn't belong to this list.
+   * Returns `null` in case supplied node doesn't belong to this list.
    * @param node
    * @param value
    *
@@ -712,18 +709,23 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   insertAfter(node: ListNode<T>, value: T): ListNode<T> | null;
   /**
    * Inserts given value before the supplied raw linked list node.
-   * Returns `null` in case supplied element doesn't belong to this list.
+   * Returns `null` in case supplied node doesn't belong to this list.
    * @param node
    * @param value
    *
    */
   insertBefore(node: ListNode<T>, value: T): ListNode<T>;
   /**
-   * Removes given node from the list.
-   * Returns `false` if element doesn't belong to the given list.
-   * @param element
+   * Returns `true` if supplied node belongs to the list.
+   * @param node
    */
-  remove(element: ListNode<T>): boolean;
+  contains(node: ListNode<T>): boolean;
+  /**
+   * Removes given node from the list.
+   * Returns `false` if node doesn't belong to the given list.
+   * @param node
+   */
+  remove(node: ListNode<T>): boolean;
   /**
    * Returns amount of items stored in the list.
    *
@@ -744,13 +746,13 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
  * An item itself should implement `IndexedOrderedCollection`.
  */
 declare class MultiKeyQueue<
-  K,
-  V extends IndexedOrderedCollection<K, K, E>,
-  E = K
-> extends IndexedOrderedCollectionWithOrderedKeys<K, V, ListNode<V>> {
-  list: LinkedList<V>;
-  map: Storage<K, ListNode<V>>;
-  constructor(values?: Iterable<V>);
+  Key,
+  Item extends IndexedOrderedCollection<Key, Key, InnerItem>,
+  InnerItem = Key
+> extends IndexedOrderedCollectionWithOrderedKeys<Key, Item, ListNode<Item>> {
+  list: LinkedList<Item>;
+  map: Storage<Key, ListNode<Item>>;
+  constructor(values?: Iterable<Item>);
   /**
    * Returns amount of keys (references) stored in a map.
    *
@@ -762,28 +764,32 @@ declare class MultiKeyQueue<
    * @param key
    *
    */
-  drop(key: K): V | AbsentValue;
+  drop(key: Key): Item | AbsentValue;
   /**
    * Moves node to the front of the queue.
    * Returns `true` in case of success.
    * @param listNode
    *
    */
-  moveFront(listNode: ListNode<V>): boolean;
+  moveFront(listNode: ListNode<Item>): boolean;
   /**
    * Moves node to the back of the queue.
    * Returns `true` in case of success.
    * @param listNode
    *
    */
-  moveBack(listNode: ListNode<V>): boolean;
+  moveBack(listNode: ListNode<Item>): boolean;
   /**
    * Removes an item from the queue.
    * Returns `true` in case of success.
    * @param listNode
    *
    */
-  remove(listNode: ListNode<V>): boolean;
+  remove(listNode: ListNode<Item>): boolean;
+  /**
+   * Returns `true` if supplied element belongs to the collection.
+   */
+  contains(listNode: ListNode<Item>): boolean;
   /**
    * Drops supplied key from the map.
    * Item belonging to this key will be deleted only if it has no more references in the map.
@@ -791,125 +797,125 @@ declare class MultiKeyQueue<
    * @param key
    *
    */
-  dropKey(key: K): V | AbsentValue;
+  dropKey(key: Key): Item | AbsentValue;
   /**
    * Inserts given value after the supplied raw linked list node.
    * @param node
    * @param key
    *
    */
-  insertAfter(node: ListNode<V>, value: V): ListNode<V> | AbsentValue;
+  insertAfter(node: ListNode<Item>, value: Item): ListNode<Item> | AbsentValue;
   /**
    * Inserts given value before the supplied raw linked list node.
    * @param node
    * @param key
    *
    */
-  insertBefore(node: ListNode<V>, value: V): ListNode<V> | AbsentValue;
+  insertBefore(node: ListNode<Item>, value: Item): ListNode<Item> | AbsentValue;
   /**
    * Returns value associated with the given key or `NO_VALUE` if the value wasn't found.
    * @param key
    *
    */
-  get(key: K): ListNode<V> | AbsentValue;
+  get(key: Key): ListNode<Item> | AbsentValue;
   /**
    * Returns `true` if value associated with the given key exists.
    * @param key
    *
    */
-  has(node: K): boolean;
+  has(node: Key): boolean;
   /**
    * Adds a key for the supplied element to the beginning of its queue.
    * @param key
    * @param listNode
    *
    */
-  addKeyFront(key: K, item: ListNode<V>): ListNode<V>;
+  addKeyFront(key: Key, item: ListNode<Item>): boolean;
   /**
    * Adds a key for the supplied element to the end of its queue.
    * @param key
    * @param listNode
    *
    */
-  addKeyBack(key: K, item: ListNode<V>): ListNode<V>;
+  addKeyBack(key: Key, item: ListNode<Item>): boolean;
   /**
    * Takes a value from the beginning of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
    */
-  takeFront(): V | AbsentValue;
+  takeFront(): Item | AbsentValue;
   /**
    * Takes a value from the end of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
    */
-  takeBack(): V | AbsentValue;
+  takeBack(): Item | AbsentValue;
   /**
    * Peeks a value from the beginning of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
    *
    */
-  peekFront(): V | AbsentValue;
+  peekFront(): Item | AbsentValue;
   /**
    * Peeks a value from the end of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
    *
    */
-  peekBack(): V | AbsentValue;
+  peekBack(): Item | AbsentValue;
   /**
    * Peeks a key of the item from the beginning of the queue.
    * Returns either key or `NO_VALUE` if queue is empty.
    *
    */
-  peekKeyFront(): K | AbsentValue;
+  peekKeyFront(): Key | AbsentValue;
   /**
    * Peeks a key of the item from the end of the queue.
    * Returns either key or `NO_VALUE` if queue is empty.
    *
    */
-  peekKeyBack(): K | AbsentValue;
+  peekKeyBack(): Key | AbsentValue;
   /**
    * Takes a key of the item from the beginning of the queue.
    * Returns either key or `NO_VALUE` if queue is empty.
    *
    */
-  takeKeyFront(): K | AbsentValue;
+  takeKeyFront(): Key | AbsentValue;
   /**
    * Takes a key of the item from the end of the queue.
    * Returns either key or `NO_VALUE` if queue is empty.
    *
    */
-  takeKeyBack(): K | AbsentValue;
+  takeKeyBack(): Key | AbsentValue;
   /**
    * Returns an iterator over values.
    *
    */
-  valuesFront(): Iterable<V>;
+  valuesFront(): Iterable<Item>;
   /**
    * Returns an iterator over values.
    *
    */
-  valuesBack(): Iterable<V>;
+  valuesBack(): Iterable<Item>;
   /**
    * Returns an iterator over keys starting from the beginning.
    *
    */
-  keysFront(): Iterable<K>;
+  keysFront(): Iterable<Key>;
   /**
    * Returns an iterator over keys starting from the end.
    *
    */
-  keysBack(): Iterable<K>;
+  keysBack(): Iterable<Key>;
   /**
    * Pushes an item to the end of the queue.
    * @param value
    *
    */
-  pushBack(value: V): ListNode<V>;
+  pushBack(value: Item): ListNode<Item>;
   /**
    * Pushes an item to the beginning of the queue.
    * @param value
    *
    */
-  pushFront(value: V): ListNode<V>;
+  pushFront(value: Item): ListNode<Item>;
   /**
    * Associates keys of the provided value with the supplied raw linked list node.
    * @param value
@@ -936,24 +942,25 @@ declare class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
 > {
   value: V | AbsentValue;
   constructor(value: V);
-  pushFront(value: V): V;
-  pushBack(value: V): V;
+  pushFront(value: V): V | AbsentValue;
+  pushBack(value: V): V | AbsentValue;
   takeKeyFront(): V | AbsentValue;
   takeKeyBack(): V | AbsentValue;
   peekKeyFront(): V | AbsentValue;
   peekKeyBack(): V | AbsentValue;
-  addKeyFront(_: V, item: V): V;
-  addKeyBack(_: V, item: V): V;
+  addKeyFront(_key: V, _item: V): boolean;
+  addKeyBack(_key: V, _item: V): boolean;
   dropKey(value: V): V | AbsentValue;
   get(value: V): V | AbsentValue;
   keysFront(): Iterable<V>;
   keysBack(): Iterable<V>;
   takeFront(): {} | V;
   takeBack(): {} | V;
-  insertAfter(node: V, value: V): V | AbsentValue;
-  insertBefore(node: V, value: V): V | AbsentValue;
+  insertAfter(_element: V, _value: V): V | AbsentValue;
+  insertBefore(_element: V, _value: V): V | AbsentValue;
+  contains(element: V): boolean;
   has(value: V): boolean;
-  drop(value: V): {};
+  drop(value: V): V | AbsentValue;
   peekFront(): {} | V;
   peekBack(): {} | V;
   moveFront(element: V): boolean;
@@ -989,24 +996,26 @@ declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   /**
    * Moves node to the front of the queue.
    * Returns `true` in case of success.
-   * @param listNode
+   * @param element
    *
    */
   moveFront(element: ListNode<Single<V>>): boolean;
   /**
    * Moves node to the back of the queue.
    * Returns `true` in case of success.
-   * @param listNode
+   * @param element
    *
    */
   moveBack(element: ListNode<Single<V>>): boolean;
   /**
    * Removes an item from the queue.
    * Returns `true` in case of success.
-   * @param listNode
-   *
    */
   remove(element: ListNode<Single<V>>): boolean;
+  /**
+   * Returns `true` if supplied element belongs to the collection.
+   */
+  contains(element: ListNode<Single<V>>): boolean;
   /**
    * Drops supplied key from the map.
    * Item belonging to this key will be deleted only if it has no more references in the map.
@@ -1050,17 +1059,17 @@ declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   /**
    * Adds a key for the supplied element to the beginning of its queue.
    * @param key
-   * @param listNode
+   * @param element
    *
    */
-  addKeyFront(key: V, item: ListNode<Single<V>>): ListNode<Single<V>>;
+  addKeyFront(key: V, item: ListNode<Single<V>>): boolean;
   /**
    * Adds a key for the supplied element to the end of its queue.
    * @param key
-   * @param listNode
+   * @param element
    *
    */
-  addKeyBack(key: V, item: ListNode<Single<V>>): ListNode<Single<V>>;
+  addKeyBack(key: V, item: ListNode<Single<V>>): boolean;
   /**
    * Takes a value from the beginning of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
@@ -1132,20 +1141,20 @@ declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param value
    *
    */
-  pushBack(value: V): ListNode<Single<V>>;
+  pushBack(value: V): ListNode<Single<V>> | AbsentValue;
   /**
    * Pushes an item to the beginning of the queue.
    * @param value
    *
    */
-  pushFront(value: V): ListNode<Single<V>>;
+  pushFront(value: V): ListNode<Single<V>> | AbsentValue;
 }
 
 /**
- * `L`east `R`ecently `U`sed cache schema.
+ * `L`east `R`ecently `U`sed cache replacement policy.
  */
 declare class LRU<V> extends CacheStrategy<V> {
-  queue: MultiKeyQueue<V, Single<V>>;
+  queue: SingleKeyQueue<V>;
   constructor(capacity: number);
   /**
    * Returns amount of keys (references) stored in a map.
@@ -1246,10 +1255,10 @@ declare class LevelEntry<V> extends SingleKeyQueue<V> {
 }
 
 /**
- * `F`irst in - `F`irst out cache replacement policy.
+ * `FIFO` - `F`irst `I`n - `F`irst `O`ut cache replacement policy.
  */
 declare class FIFO<V> extends CacheStrategy<V> {
-  queue: MultiKeyQueue<V, Single<V>>;
+  queue: SingleKeyQueue<V>;
   constructor(capacity: number);
   /**
    * Returns amount of stored items.

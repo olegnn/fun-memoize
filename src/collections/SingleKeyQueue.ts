@@ -44,7 +44,7 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   /**
    * Moves node to the front of the queue.
    * Returns `true` in case of success.
-   * @param listNode
+   * @param element
    *
    */
   moveFront(element: ListNode<Single<V>>): boolean {
@@ -54,7 +54,7 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   /**
    * Moves node to the back of the queue.
    * Returns `true` in case of success.
-   * @param listNode
+   * @param element
    *
    */
   moveBack(element: ListNode<Single<V>>): boolean {
@@ -64,11 +64,16 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   /**
    * Removes an item from the queue.
    * Returns `true` in case of success.
-   * @param listNode
-   *
    */
   remove(element: ListNode<Single<V>>): boolean {
     return this.inner.remove(element);
+  }
+
+  /**
+   * Returns `true` if supplied element belongs to the collection.
+   */
+  contains(element: ListNode<Single<V>>): boolean {
+    return this.inner.contains(element);
   }
 
   /**
@@ -129,20 +134,20 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   /**
    * Adds a key for the supplied element to the beginning of its queue.
    * @param key
-   * @param listNode
+   * @param element
    *
    */
-  addKeyFront(key: V, item: ListNode<Single<V>>): ListNode<Single<V>> {
+  addKeyFront(key: V, item: ListNode<Single<V>>): boolean {
     return this.inner.addKeyFront(key, item);
   }
 
   /**
    * Adds a key for the supplied element to the end of its queue.
    * @param key
-   * @param listNode
+   * @param element
    *
    */
-  addKeyBack(key: V, item: ListNode<Single<V>>): ListNode<Single<V>> {
+  addKeyBack(key: V, item: ListNode<Single<V>>): boolean {
     return this.inner.addKeyBack(key, item);
   }
 
@@ -253,7 +258,7 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param value
    *
    */
-  pushBack(value: V): ListNode<Single<V>> {
+  pushBack(value: V): ListNode<Single<V>> | AbsentValue {
     return this.inner.pushBack(new Single(value));
   }
 
@@ -262,7 +267,7 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param value
    *
    */
-  pushFront(value: V): ListNode<Single<V>> {
+  pushFront(value: V): ListNode<Single<V>> | AbsentValue {
     return this.inner.pushFront(new Single(value));
   }
 }

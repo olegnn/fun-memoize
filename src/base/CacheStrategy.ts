@@ -1,53 +1,7 @@
 import { once } from "../iterators";
-import { Result } from "../strategy/types";
+import { Result } from "../utils";
 import { Destroyable, Parent, HasCapacity, Clearable } from "../utils";
 import { AbsentValue, NO_VALUE } from "../value";
-
-/**
- * `CacheStrategy` with implemented abstract methods.
- */
-export type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
-  len(): number;
-  drop(value: V): boolean;
-  take(): V | AbsentValue;
-  peek(): V | AbsentValue;
-  has(value: V): boolean;
-};
-
-/**
- * Forces provided strategy class to call `.destroy` on removed entities.
- */
-export function withDestroyable<V extends Destroyable>(
-  strategy: CacheStrategyClass<V>
-): CacheStrategyClass<V> {
-  class WithDestroyable extends strategy {
-    constructor(...args: any[]) {
-      super(...args);
-    }
-
-    drop(value: V) {
-      const dropped = super.drop(value);
-
-      if (dropped) {
-        value.destroy();
-      }
-
-      return dropped;
-    }
-
-    take() {
-      const item = super.take();
-
-      if (item !== NO_VALUE) {
-        (item as V).destroy();
-      }
-
-      return item;
-    }
-  }
-
-  return WithDestroyable;
-}
 
 /**
  * Describes some strategy holding up to `capacity` items at the same moment.
@@ -130,4 +84,50 @@ export abstract class CacheStrategy<V>
 
     return Result.empty();
   }
+}
+
+/**
+ * `CacheStrategy` with implemented abstract methods.
+ */
+export type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
+  len(): number;
+  drop(value: V): boolean;
+  take(): V | AbsentValue;
+  peek(): V | AbsentValue;
+  has(value: V): boolean;
+};
+
+/**
+ * Forces provided strategy class to call `.destroy` on removed entities.
+ */
+export function withDestroyable<V extends Destroyable>(
+  strategy: CacheStrategyClass<V>
+): CacheStrategyClass<V> {
+  class WithDestroyable extends strategy {
+    constructor(...args: any[]) {
+      super(...args);
+    }
+
+    drop(value: V) {
+      const dropped = super.drop(value);
+
+      if (dropped) {
+        value.destroy();
+      }
+
+      return dropped;
+    }
+
+    take() {
+      const item = super.take();
+
+      if (item !== NO_VALUE) {
+        (item as V).destroy();
+      }
+
+      return item;
+    }
+  }
+
+  return WithDestroyable;
 }

@@ -77,34 +77,34 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   }
 
   /**
-   * Pushes an element to the back of the list.
-   * @param element
+   * Pushes an node to the back of the list.
+   * @param node
    *
    */
-  pushBack(element: T): ListNode<T> {
+  pushBack(node: T): ListNode<T> {
     this.length += 1;
 
     if (this.tail !== null) {
-      this.tail = this.tail.insertNext(element);
+      this.tail = this.tail.insertNext(node);
     } else {
-      this.head = this.tail = new ListNode(element, this);
+      this.head = this.tail = new ListNode(node, this);
     }
 
     return this.tail;
   }
 
   /**
-   * Pushes an element to the front of the list.
-   * @param element
+   * Pushes an node to the front of the list.
+   * @param node
    *
    */
-  pushFront(element: T): ListNode<T> {
+  pushFront(node: T): ListNode<T> {
     this.length += 1;
 
     if (this.head !== null) {
-      this.head = this.head.insertPrev(element);
+      this.head = this.head.insertPrev(node);
     } else {
-      this.head = this.tail = new ListNode(element, this);
+      this.head = this.tail = new ListNode(node, this);
     }
 
     return this.head;
@@ -112,12 +112,12 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
   /**
    * Moves node to the front of the queue.
-   * Returns `false` if element doesn't belong to the given list.
+   * Returns `false` if node doesn't belong to the given list.
    * @param node
    *
    */
   moveFront(node: ListNode<T>): boolean {
-    if (node.root !== this) {
+    if (!this.contains(node)) {
       return false;
     } else if (node === this.head) {
       return true;
@@ -135,12 +135,12 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
   /**
    * Moves node to the back of the queue.
-   * Returns `false` if element doesn't belong to the given list.
+   * Returns `false` if node doesn't belong to the given list.
    * @param node
    *
    */
   moveBack(node: ListNode<T>): boolean {
-    if (node.root !== this) {
+    if (!this.contains(node)) {
       return false;
     } else if (node === this.tail) {
       return true;
@@ -184,17 +184,17 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
     this.length--;
 
-    const element = this.tail;
+    const node = this.tail;
 
-    if (element === this.head) {
+    if (node === this.head) {
       this.head = null;
     }
 
-    if (element !== null) {
+    if (node !== null) {
       this.tail = this.tail.prev;
-      element.disconnect();
+      node.disconnect();
 
-      return element.value;
+      return node.value;
     }
 
     return null;
@@ -202,7 +202,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
   /**
    * Takes front node from the list.
-   * Returns `null` if list has no elements.
+   * Returns `null` if list has no nodes.
    *
    */
   takeFront(): T | null {
@@ -210,17 +210,17 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
     this.length--;
 
-    const element = this.head;
+    const node = this.head;
 
-    if (element === this.tail) {
+    if (node === this.tail) {
       this.tail = null;
     }
 
-    if (element !== null) {
+    if (node !== null) {
       this.head = this.head.next;
-      element.disconnect();
+      node.disconnect();
 
-      return element.value;
+      return node.value;
     }
 
     return null;
@@ -228,13 +228,13 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
   /**
    * Inserts given value after the supplied raw linked list node.
-   * Returns `null` in case supplied element doesn't belong to this list.
+   * Returns `null` in case supplied node doesn't belong to this list.
    * @param node
    * @param value
    *
    */
   insertAfter(node: ListNode<T>, value: T): ListNode<T> | null {
-    if (node.root !== this) {
+    if (!this.contains(node)) {
       return null;
     }
 
@@ -250,13 +250,13 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
   /**
    * Inserts given value before the supplied raw linked list node.
-   * Returns `null` in case supplied element doesn't belong to this list.
+   * Returns `null` in case supplied node doesn't belong to this list.
    * @param node
    * @param value
    *
    */
   insertBefore(node: ListNode<T>, value: T): ListNode<T> {
-    if (node.root !== this) {
+    if (!this.contains(node)) {
       return null;
     }
 
@@ -271,25 +271,33 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   }
 
   /**
-   * Removes given node from the list.
-   * Returns `false` if element doesn't belong to the given list.
-   * @param element
+   * Returns `true` if supplied node belongs to the list.
+   * @param node
    */
-  remove(element: ListNode<T>): boolean {
-    if (element.root !== this) {
+  contains(node: ListNode<T>): boolean {
+    return node.root === this;
+  }
+
+  /**
+   * Removes given node from the list.
+   * Returns `false` if node doesn't belong to the given list.
+   * @param node
+   */
+  remove(node: ListNode<T>): boolean {
+    if (!this.contains(node)) {
       return false;
     }
     this.length--;
 
-    if (element === this.head && this.head !== null) {
+    if (node === this.head && this.head !== null) {
       this.head = this.head.next;
     }
 
-    if (element === this.tail && this.tail !== null) {
+    if (node === this.tail && this.tail !== null) {
       this.tail = this.tail.prev;
     }
 
-    element.disconnect();
+    node.disconnect();
 
     return true;
   }
