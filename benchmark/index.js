@@ -156,7 +156,7 @@ const suites = [
   ),
   buildSuite(
     fibonacci,
-    Array.from({ length: 30 }, (_, i) => [i]),
+    Array.from({ length: 10 }, (_, i) => [i]),
     "fib",
     true
   ),
