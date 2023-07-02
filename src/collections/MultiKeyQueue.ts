@@ -223,7 +223,7 @@ export class MultiKeyQueue<
       return true;
     }
 
-    return true;
+    return false;
   }
 
   /**
