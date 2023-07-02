@@ -5,7 +5,7 @@ import { AbsentValue, NO_VALUE } from "../value";
 import { Result } from "./types";
 
 /**
- * `F`irst in - `F`irst out cache replacement policy.
+ * `FIFO` - `F`irst `I`n - `F`irst `O`ut cache replacement policy.
  */
 export class FIFO<V> extends CacheStrategy<V> {
   queue: MultiKeyQueue<V, Single<V>>;
