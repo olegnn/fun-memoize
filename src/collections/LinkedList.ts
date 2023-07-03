@@ -1,11 +1,12 @@
 import { OrderedCollection } from "./types";
 import { equals } from "../value";
 import { EMPTY_ITER, ITER_DONE_VALUE } from "../iterators";
+import { Destroyable } from "../utils";
 
 /**
  * A node of the double-ended linked list.
  */
-export class ListNode<T> {
+export class ListNode<T> implements Destroyable {
   root: LinkedList<T> | null;
   next: ListNode<T> | null;
   prev: ListNode<T> | null;
@@ -49,11 +50,20 @@ export class ListNode<T> {
    * Disconnects current node from its predecessor and successor.
    *
    */
-  disconnect(): void {
+  unlink(): void {
     if (this.next !== null) this.next.prev = this.prev;
     if (this.prev !== null) this.prev.next = this.next;
 
     this.prev = this.next = null;
+  }
+
+  /**
+   * Disconnects current node from its predecessor, successor and root.
+   *
+   */
+  destroy(): void {
+    this.unlink();
+    this.root = null;
   }
 }
 
@@ -124,7 +134,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
     } else if (node === this.tail) {
       this.tail = this.tail.prev;
     }
-    node.disconnect();
+    node.unlink();
 
     node.next = this.head;
     this.head.prev = node;
@@ -147,7 +157,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
     } else if (node === this.head) {
       this.head = this.head.next;
     }
-    node.disconnect();
+    node.unlink();
 
     node.prev = this.tail;
     this.tail.next = node;
@@ -192,7 +202,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
     if (node !== null) {
       this.tail = this.tail.prev;
-      node.disconnect();
+      node.destroy();
 
       return node.value;
     }
@@ -218,7 +228,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
     if (node !== null) {
       this.head = this.head.next;
-      node.disconnect();
+      node.destroy();
 
       return node.value;
     }
@@ -297,7 +307,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
       this.tail = this.tail.prev;
     }
 
-    node.disconnect();
+    node.destroy();
 
     return true;
   }

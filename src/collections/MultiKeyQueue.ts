@@ -383,7 +383,7 @@ export class MultiKeyQueue<
    *
    */
   keysFront(): Iterable<Key> {
-    return flatMap(this.list.valuesFront(), (iter) => iter.keys());
+    return flatMap((iter) => iter.keys(), this.list.valuesFront());
   }
 
   /**
@@ -391,8 +391,9 @@ export class MultiKeyQueue<
    *
    */
   keysBack(): Iterable<Key> {
-    return flatMap(this.list.valuesBack(), (iter) =>
-      [...iter.keys()].reverse()
+    return flatMap(
+      (iter) => [...iter.keys()].reverse(),
+      this.list.valuesBack()
     );
   }
 

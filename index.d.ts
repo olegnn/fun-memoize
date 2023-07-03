@@ -529,8 +529,7 @@ declare abstract class OrderedCollection<
  * @abstract
  * An indexed ordered collection of items.
  *
- * **Item `->` Key** relation may be either one-to-one or one-to-many
- * while **Key `->` Item** relation always holds one-to-one.
+ * **Item `->` Key** relation may be either one-to-one or one-to-many.
  */
 declare abstract class IndexedOrderedCollection<
   Key,
@@ -563,8 +562,7 @@ declare abstract class IndexedOrderedCollection<
  * @abstract
  * An indexed collection of items with ordered keys.
  *
- * **Item `->` Key** relation may be either one-to-one or one-to-many
- * while **Key `->` Item** relation always holds one-to-one.
+ * **Item `->` Key** relation may be either one-to-one or one-to-many.
  */
 declare abstract class IndexedOrderedCollectionWithOrderedKeys<
   Key,
@@ -612,7 +610,7 @@ declare abstract class IndexedOrderedCollectionWithOrderedKeys<
 /**
  * A node of the double-ended linked list.
  */
-declare class ListNode<T> {
+declare class ListNode<T> implements Destroyable {
   root: LinkedList<T> | null;
   next: ListNode<T> | null;
   prev: ListNode<T> | null;
@@ -639,7 +637,12 @@ declare class ListNode<T> {
    * Disconnects current node from its predecessor and successor.
    *
    */
-  disconnect(): void;
+  unlink(): void;
+  /**
+   * Disconnects current node from its predecessor, successor and root.
+   *
+   */
+  destroy(): void;
 }
 /**
  * Double-ended linked list.

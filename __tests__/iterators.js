@@ -1,4 +1,14 @@
-const { zip, chain } = require("../build/iterators");
+const {
+  zip,
+  chain,
+  append,
+  cycle,
+  flatMap,
+  map,
+  empty,
+  once,
+  double,
+} = require("../build/iterators");
 
 describe("Iterators", () => {
   it("Checks `zip`", () => {
@@ -23,5 +33,46 @@ describe("Iterators", () => {
     expect([...chain([1, 2, 3], [4, 5, 6])]).toEqual([1, 2, 3, 4, 5, 6]);
     expect([...chain([1, 2, 3], [])]).toEqual([1, 2, 3]);
     expect([...chain([], [1, 2, 3])]).toEqual([1, 2, 3]);
+  });
+
+  it("Checks `append`", () => {
+    expect([...append([1, 2], 3)]).toEqual([1, 2, 3]);
+    expect([...append([], 1)]).toEqual([1]);
+  });
+
+  it("Checks `cycle`", () => {
+    let ctr = 1,
+      repetitions = 0;
+    for (const item of cycle([1, 2, 3])) {
+      if (ctr === 4) {
+        ctr = 1;
+        if (++repetitions === 10) break;
+      }
+      expect(item).toBe(ctr++);
+    }
+
+    expect(repetitions).toBe(10);
+  });
+
+  it("Checks `map`", () => {
+    expect([...map((item) => item + 1, [1, 2, 3])]).toEqual([2, 3, 4]);
+  });
+
+  it("Checks `flatMap`", () => {
+    expect([...flatMap((item) => [...item, 2], [[1], [2], [3, 4]])]).toEqual([
+      1, 2, 2, 2, 3, 4, 2,
+    ]);
+  });
+
+  it("Checks `once`", () => {
+    expect([...once(2)]).toEqual([2]);
+  });
+
+  it("Checks `double`", () => {
+    expect([...double(1, 2)]).toEqual([1, 2]);
+  });
+
+  it("Checks `empty`", () => {
+    expect([...empty()]).toEqual([]);
   });
 });

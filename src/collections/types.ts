@@ -102,8 +102,7 @@ export abstract class OrderedCollection<
  * @abstract
  * An indexed ordered collection of items.
  *
- * **Item `->` Key** relation may be either one-to-one or one-to-many
- * while **Key `->` Item** relation always holds one-to-one.
+ * **Item `->` Key** relation can be either one-to-one or one-to-many.
  */
 export abstract class IndexedOrderedCollection<
   Key,
@@ -141,8 +140,7 @@ export abstract class IndexedOrderedCollection<
  * @abstract
  * An indexed collection of items with ordered keys.
  *
- * **Item `->` Key** relation may be either one-to-one or one-to-many
- * while **Key `->` Item** relation always holds one-to-one.
+ * **Item `->` Key** relation can be either one-to-one or one-to-many.
  */
 export abstract class IndexedOrderedCollectionWithOrderedKeys<
   Key,

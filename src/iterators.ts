@@ -139,8 +139,8 @@ export function map<V, R>(
  * @returns {Iterable<R>}
  */
 export function flatMap<V, R>(
-  iterable: Iterable<V>,
-  map: (item: V) => Iterable<R>
+  map: (item: V) => Iterable<R>,
+  iterable: Iterable<V>
 ): Iterable<R> {
   return {
     [Symbol.iterator]() {

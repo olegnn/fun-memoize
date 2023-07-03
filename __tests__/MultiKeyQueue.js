@@ -11,6 +11,7 @@ describe("MultiKeyQueue", () => {
 
     const keys = [1, 2, 3];
     expect([...queue.keysFront()]).toEqual(keys);
+    expect([...queue.valuesFront()]).toEqual([inner]);
     for (const key of keys) {
       const peeked = queue.peekKeyFront();
       const item = queue.takeKeyFront();
@@ -29,6 +30,11 @@ describe("MultiKeyQueue", () => {
       const item = inner.takeKeyFront();
       expect(item).toEqual(key);
     }
+
+    queue = new MultiKeyQueue([new SingleKeyQueue([1, 2, 3])]);
+    expect(() =>
+      queue.addKeyFront(1, queue.get(queue.peekKeyFront()))
+    ).toThrowErrorMatchingSnapshot();
   });
 
   it("basic workflow back", () => {
@@ -39,6 +45,7 @@ describe("MultiKeyQueue", () => {
 
     const keys = [3, 2, 1];
     expect([...queue.keysBack()]).toEqual(keys);
+    expect([...queue.valuesBack()]).toEqual([inner]);
     for (const key of keys) {
       const peeked = queue.peekKeyBack();
       const item = queue.takeKeyBack();
@@ -57,6 +64,11 @@ describe("MultiKeyQueue", () => {
       const item = inner.takeKeyBack();
       expect(item).toEqual(key);
     }
+
+    queue = new MultiKeyQueue([new SingleKeyQueue([1, 2, 3])]);
+    expect(() =>
+      queue.addKeyBack(1, queue.get(queue.peekKeyBack()))
+    ).toThrowErrorMatchingSnapshot();
   });
 
   it("assoc/dissoc", () => {
@@ -75,6 +87,7 @@ describe("MultiKeyQueue", () => {
 
     const keys = [3, 2, 1];
     expect([...queue.keysBack()]).toEqual([...queue.keysFront()].reverse());
+    expect([...queue.valuesBack()]).toEqual([...queue.valuesFront()].reverse());
     for (const key of keys) {
       const peeked = queue.peekKeyFront();
       const item = queue.takeKeyFront();
@@ -90,7 +103,7 @@ describe("MultiKeyQueue", () => {
     queue.pushBack(new Single(3));
 
     const keys = [3, 2, 1];
-    expect([...queue.keysFront()]).toEqual([...queue.keysBack()].reverse());
+    expect([...queue.valuesFront()]).toEqual([...queue.valuesBack()].reverse());
     for (const key of keys) {
       const peeked = queue.peekKeyBack();
       const item = queue.takeKeyBack();
