@@ -5,7 +5,7 @@ import {
 } from "../base/CacheStrategy";
 import { EMPTY_ITER } from "../iterators";
 import { LeafStorage, LeafStorageParams } from "./LeafStorage";
-import { Storage, ChildPath, StorageParams } from "../base/Storage";
+import { Storage, StorageParams } from "../base/Storage";
 import {
   SafeMapStorage,
   UnifiedStorage,
@@ -14,7 +14,7 @@ import {
 import { RootLeafStrategy } from "./RootLeafStrategy";
 import { LRU, Noop } from "../strategy";
 import { DEFAULT_MAX_ENTRIES_COUNT } from "../constants";
-import { noop } from "../utils";
+import { noop, ChildPath } from "../utils";
 
 /**
  * Either leaf storage or nested storage containing either nested storages or leaf storages.

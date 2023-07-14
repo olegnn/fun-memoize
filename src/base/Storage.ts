@@ -6,6 +6,7 @@ import {
   Parent,
   HasLength,
   Clearable,
+  ChildPath,
 } from "../utils";
 import { EMPTY_ITER } from "../iterators";
 
@@ -117,26 +118,6 @@ export type StorageClass<K, V> = new (...args: any[]) => Storage<K, V> & {
   clear(): void;
   entries(): Iterable<{ key: K; value: V }>;
 };
-
-/**
- * The path from the parent to the child.
- */
-export class ChildPath<K> {
-  /**
-   * Parent.
-   */
-  parent: Parent<K>;
-  /**
-   * The key under which the child is stored.
-   * If it's a `NO_VALUE`, then the child is stored under the key equal to itself.
-   */
-  key: K | AbsentValue;
-
-  constructor(parent: Parent<K>, key: K | AbsentValue) {
-    this.parent = parent;
-    this.key = key;
-  }
-}
 
 /**
  * Storage callbacks.

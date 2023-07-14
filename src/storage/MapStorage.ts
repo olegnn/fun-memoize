@@ -1,5 +1,6 @@
-import type { ChildPath, StorageParams } from "../base/Storage";
+import type { StorageParams } from "../base/Storage";
 import type { AbsentValue } from "../value";
+import type { ChildPath } from "../utils";
 
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";

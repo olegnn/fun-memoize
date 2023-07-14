@@ -1,9 +1,10 @@
-import type { ChildPath, StorageParams } from "../base/Storage";
+import type { StorageParams } from "../base/Storage";
 import { isPrimitiveValue, AbsentValue, Primitive } from "../value";
 
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
 import { map } from "../iterators";
+import type { ChildPath } from "../utils";
 
 /**
  * A key for the `ObjectStorage`.
@@ -42,7 +43,7 @@ export class Key<K extends Primitive> {
       case "boolean":
         return 5;
       default:
-        if (value == null) return 6;
+        if (value === null) return 6;
     }
 
     throw new TypeError(
@@ -74,6 +75,9 @@ export class Key<K extends Primitive> {
     throw new TypeError(`Invalid type ${type} of value ${value}`);
   }
 
+  /**
+   * Converts underlying value to the string representation.
+   */
   toString() {
     return `${this.type}${this.value}`;
   }

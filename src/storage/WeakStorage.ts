@@ -1,7 +1,8 @@
 import type { NonPrimitive, AbsentValue } from "../value";
 
 import "weakmap-polyfill";
-import { ChildPath, Storage, StorageParams } from "../base/Storage";
+import { Storage, StorageParams } from "../base/Storage";
+import { ChildPath } from "../utils";
 import { NO_VALUE } from "../value";
 import { empty } from "../iterators";
 

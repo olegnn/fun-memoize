@@ -47,7 +47,7 @@ export default function memoize<V>(
     };
   } else {
     const ctx = new StorageContext(params);
-    const root = new Root(length, ctx);
+    const root = new Root({ length, checkLast }, ctx);
 
     resultFunction = function cachedFunction() {
       const argsLength = arguments.length;
@@ -70,27 +70,6 @@ export default function memoize<V>(
       }
 
       return output;
-    };
-  }
-
-  if (checkLast) {
-    const fn = resultFunction;
-    let lastCache: V | AbsentValue = NO_VALUE;
-    let lastArgs: IArguments = [] as unknown as IArguments;
-
-    resultFunction = function cachedFunction(): V {
-      let i = arguments.length;
-      if (i === lastArgs.length)
-        if (i === 1) {
-          if (equals(arguments[0], lastArgs[0]) && lastCache !== NO_VALUE)
-            return lastCache as V;
-        } else {
-          while (i-- && equals(arguments[i], lastArgs[i]));
-          if (i === -1 && lastCache !== NO_VALUE) return lastCache as V;
-        }
-      lastArgs = arguments;
-
-      return (lastCache = fn.apply(null, arguments));
     };
   }
 

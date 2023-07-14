@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Root object workflow with last 1`] = `"Invalid path length"`;
+
+exports[`Root object workflow without last 1`] = `"Invalid path length"`;
+
+exports[`Root primitive with last 1`] = `"Invalid path length"`;
+
+exports[`Root primitive without last 1`] = `"Invalid path length"`;

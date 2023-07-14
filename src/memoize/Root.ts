@@ -1,9 +1,9 @@
 import { equals, AbsentValue, NO_VALUE } from "../value";
-import { ChildPath, Storage } from "../base/Storage";
+import { Storage } from "../base/Storage";
 import { append, double, once } from "../iterators";
-import { EMPTY_ARRAY } from "../utils";
+import { EMPTY_ARRAY, ChildPath } from "../utils";
 import { LeafStorage } from "./LeafStorage";
-import { StorageContext, NestedStorage } from "./StorageContext";
+import { StorageContext, NestedStorage, Params } from "./StorageContext";
 
 /**
  * Contains either a value or a pointer.
@@ -132,12 +132,28 @@ class Last<K, V> {
     this.path = path;
     this.value = value;
   }
+
+  /**
+   * Resets all underlying values.
+   */
+  reset() {
+    const length = this.storages.length;
+    this.storages.length = 1;
+    this.storages.length = length;
+    this.value = NO_VALUE;
+    this.path = EMPTY_ARRAY;
+  }
+}
+
+/** Cache depth and `checkLast` flag */
+export interface RootParams {
+  /** Cache depth */
+  length: number;
+  /** Store last arguments and check for equality */
+  checkLast: boolean;
 }
 
 export class Root<K, V> {
-  /**
-   * Cache depth.
-   */
   length: number;
   /**
    * Root node.
@@ -149,11 +165,11 @@ export class Root<K, V> {
   ctx: StorageContext<K, V>;
 
   /**
-   * Root storage strategy child path to pass to newly created nodes.
+   * Root storage strategy child path to be passed to newly created storage nodes.
    */
   rootPath: ChildPath<AbsentValue>;
   /**
-   * Root leaf storage strategy child path to pass to newly created leaf nodes.
+   * Root leaf storage strategy child path to be passed to newly created leaf storage nodes.
    */
   leafPath: ChildPath<AbsentValue>;
 
@@ -162,16 +178,20 @@ export class Root<K, V> {
    */
   last: Last<K, V>;
 
-  constructor(length: number, ctx: StorageContext<K, V>) {
-    this.length = length;
+  constructor(params: RootParams, ctx: StorageContext<K, V>) {
+    this.length = params.length;
     this.ctx = ctx;
     this.root = (
-      length > 1 ? ctx.createStorage() : ctx.createLeafStorage()
+      params.length > 1 ? ctx.createStorage() : ctx.createLeafStorage()
     ) as NestedStorage<K, V>;
-    this.last = new Last(length, this.root);
+    this.last = new Last(params.length, this.root);
 
     this.rootPath = new ChildPath(this.ctx.rootStorageStrategy, NO_VALUE);
     this.leafPath = new ChildPath(this.ctx.rootLeafStrategy, NO_VALUE);
+
+    this.getOrInsertWith = params.checkLast
+      ? this.checkLastThenGetOrInsertWith
+      : this.getOrInsertWith;
   }
 
   /**
@@ -184,14 +204,44 @@ export class Root<K, V> {
     const length = this.length;
     if (path.length !== length) throw new Error("Invalid path length");
 
-    let { result, ptr } = this.last.get(path);
+    const result = this.extractOrSetPath(path, calculate, 0);
+    this.last.reset();
+
+    return result as V;
+  }
+
+  /**
+   * - First, checks last arguments to be the same as the provided, and if so, returns cached value.
+   * - Second, attempts to retrieve the cached value, otherwise calls the supplied function with provided arguments and
+   * saves the result.
+   * @param path
+   * @param calculate
+   */
+  private checkLastThenGetOrInsertWith(
+    path: K[],
+    calculate: (args: K[]) => V
+  ): V {
+    const length = this.length;
+    if (path.length !== length) throw new Error("Invalid path length");
+    let result: V | AbsentValue = NO_VALUE,
+      ptr = 0;
+
+    ({ result, ptr } = this.last.get(path));
     if (result !== NO_VALUE) {
       this.readCache();
-
-      return result as V;
+    } else {
+      result = this.extractOrSetPath(path, calculate, ptr);
     }
 
-    ({ result, ptr } = this.extractPath(path, ptr));
+    return result as V;
+  }
+
+  private extractOrSetPath(
+    path: K[],
+    calculate: (args: K[]) => V,
+    from: number = 0
+  ): V {
+    let { result, ptr } = this.extractPath(path, from);
     if (result !== NO_VALUE) {
       this.last.update(path, result as V);
       this.readCache();
@@ -200,11 +250,11 @@ export class Root<K, V> {
     }
 
     result = calculate.apply(null, path);
-    const value = this.setPath(path, result as V, ptr);
-    this.last.update(path, value);
+    this.setPath(path, result as V, ptr);
+    this.last.update(path, result as V);
     this.writeCache();
 
-    return value;
+    return result as V;
   }
 
   private extractPath(path: K[], from: number = 0): ResultOrPointer<V, number> {
@@ -261,8 +311,6 @@ export class Root<K, V> {
     }
 
     cache.set(path[length - 1], value);
-
-    return value;
   }
 
   private readCache() {

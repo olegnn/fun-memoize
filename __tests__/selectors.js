@@ -6,7 +6,7 @@ const states = [];
 
 for (let i = 0; i < numOfStates; i++) states.push({ a: 1, b: 2 });
 
-describe("selectors:", () => {
+describe("selectors", () => {
   it("basic selector", () => {
     const selector = createMemoizedSelector(
       (state) => state.a,

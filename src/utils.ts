@@ -1,4 +1,5 @@
 import { EMPTY_ITER, chain, map } from "./iterators";
+import { AbsentValue } from "./value";
 
 /**
  * Does nothing.
@@ -117,6 +118,27 @@ export interface Parent<K> {
    * @param key
    */
   drop(key: K): void;
+}
+
+/**
+ * The path from the parent to the child.
+ * If the key is a `NO_VALUE`, then the child is stored under the key equal to itself.
+ */
+export class ChildPath<K> {
+  /**
+   * Parent.
+   */
+  parent: Parent<K>;
+  /**
+   * The key under which the child is stored.
+   * If it's a `NO_VALUE`, then the child is stored under the key identical to itself.
+   */
+  key: K | AbsentValue;
+
+  constructor(parent: Parent<K>, key: K | AbsentValue) {
+    this.parent = parent;
+    this.key = key;
+  }
 }
 
 /**

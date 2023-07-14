@@ -1,3 +1,8 @@
+/** Represents an absent value */
+declare const NO_VALUE: {};
+/** Absent value placeholder */
+type AbsentValue = typeof NO_VALUE;
+
 /**
  * Describes a container having a length.
  */
@@ -71,6 +76,22 @@ interface Parent<K> {
   drop(key: K): void;
 }
 /**
+ * The path from the parent to the child.
+ * If the key is a `NO_VALUE`, then the child is stored under the key equal to itself.
+ */
+declare class ChildPath<K> {
+  /**
+   * Parent.
+   */
+  parent: Parent<K>;
+  /**
+   * The key under which the child is stored.
+   * If it's a `NO_VALUE`, then the child is stored under the key identical to itself.
+   */
+  key: K | AbsentValue;
+  constructor(parent: Parent<K>, key: K | AbsentValue);
+}
+/**
  * Contains removed/added entities.
  */
 declare class Result<V> {
@@ -115,11 +136,6 @@ declare class Result<V> {
    */
   map<R>(fn: (value: V) => R): Result<R>;
 }
-
-/** Represents an absent value */
-declare const NO_VALUE: {};
-/** Absent value placeholder */
-type AbsentValue = typeof NO_VALUE;
 
 /**
  * Describes some strategy holding up to `capacity` items at the same moment.
@@ -257,21 +273,6 @@ declare abstract class Storage<K, V>
   }>;
 }
 /**
- * The path from the parent to the child.
- */
-declare class ChildPath<K> {
-  /**
-   * Parent.
-   */
-  parent: Parent<K>;
-  /**
-   * The key under which the child is stored.
-   * If it's a `NO_VALUE`, then the child is stored under the key equal to itself.
-   */
-  key: K | AbsentValue;
-  constructor(parent: Parent<K>, key: K | AbsentValue);
-}
-/**
  * Storage callbacks.
  */
 interface StorageParams<K, V> {
@@ -299,7 +300,7 @@ interface LeafStorageParams<K, V> extends StorageParams<K, V> {
 /**
  * Stores leaf key -> value pairs.
  */
-declare class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
+declare class LeafStorage<K, V> extends Storage<K, V> {
   params: LeafStorageParams<K, V>;
   storage: Storage<K, V>;
   strategy: CacheStrategy<K>;
@@ -339,12 +340,6 @@ declare class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
    *
    */
   take(): K | AbsentValue;
-  /**
-   * Calls a `destroy` implementations that will unlink given storage from all entities
-   * referencing it for both storage and cache strategy.
-   *
-   */
-  destroy(): void;
   /**
    * Removes all items from the storage and cache strategy.
    *
@@ -529,7 +524,7 @@ declare abstract class OrderedCollection<
  * @abstract
  * An indexed ordered collection of items.
  *
- * **Item `->` Key** relation may be either one-to-one or one-to-many.
+ * **Item `->` Key** relation can be either one-to-one or one-to-many.
  */
 declare abstract class IndexedOrderedCollection<
   Key,
@@ -562,7 +557,7 @@ declare abstract class IndexedOrderedCollection<
  * @abstract
  * An indexed collection of items with ordered keys.
  *
- * **Item `->` Key** relation may be either one-to-one or one-to-many.
+ * **Item `->` Key** relation can be either one-to-one or one-to-many.
  */
 declare abstract class IndexedOrderedCollectionWithOrderedKeys<
   Key,
