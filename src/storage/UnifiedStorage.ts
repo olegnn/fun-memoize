@@ -1,16 +1,11 @@
 import { isPrimitiveValue } from "../value";
-import {
-  ChildPath,
-  Storage,
-  StorageClass,
-  StorageParams,
-} from "../base/Storage";
+import { Storage, StorageClass, StorageParams } from "../base/Storage";
 import { WeakStorage } from "./WeakStorage";
 import { ObjectStorage } from "./ObjectStorage";
 import { MapStorage } from "./MapStorage";
 import type { AbsentValue, NonPrimitive, Primitive } from "../value";
 import { chain } from "../iterators";
-import { mapImplemented } from "../utils";
+import { mapImplemented, ChildPath } from "../utils";
 
 /** Parameters for the `UnifiedStorage` */
 export interface UnifiedStorageParams<K, V> extends StorageParams<K, V> {

@@ -11,7 +11,7 @@ const TRICKY_VALUES = [
   -Infinity,
   12e7,
   2.23123123,
-  2.23231233123123123123123123,
+  2.23123123123123123123123123,
   123125345423423424n,
   123123435n,
   ...FALSY_VALUES,
@@ -41,9 +41,14 @@ const expectResult = (result, removed, added) => {
   }
 };
 
-const createBasicStorageTests = (StorageType, keys, params, weak = false) => {
+const createBasicStorageTests = (
+  StorageType,
+  keys,
+  createParams = () => [{}],
+  weak = false
+) => {
   it("Checks basic workflow", () => {
-    const storage = new StorageType(params);
+    const storage = new StorageType(...createParams());
     const baseMap = new Map();
 
     const values = keys.map(() => Math.random());
@@ -80,6 +85,24 @@ const createBasicStorageTests = (StorageType, keys, params, weak = false) => {
     expect(storage.isEmpty()).toBe(true);
   });
 
+  if (!weak)
+    it("Checks `Clearable` implementation", () => {
+      const storage = new StorageType(...createParams());
+      const baseMap = new Map();
+
+      let value = 1;
+      for (const key of keys) {
+        baseMap.set(key, value);
+        storage.set(key, value);
+        expect(storage.get(key)).toBe(value);
+        value++;
+      }
+
+      expect(storage.len()).toBe(baseMap.size);
+      storage.clear();
+      expect(storage.isEmpty()).toBe(true);
+    });
+
   it("Checks `Destroyable` implementation", () => {
     const dropped = [];
     let rs = {
@@ -90,7 +113,7 @@ const createBasicStorageTests = (StorageType, keys, params, weak = false) => {
       },
       key: "abc",
     };
-    let storage = new StorageType(params, once(rs));
+    let storage = new StorageType(...[...createParams(), once(rs)]);
 
     storage.set("1", 2);
     storage.destroy();
@@ -105,7 +128,7 @@ const createBasicStorageTests = (StorageType, keys, params, weak = false) => {
         },
         key: i,
       };
-      storage = new StorageType(params, once(rs));
+      storage = new StorageType(...[...createParams(), once(rs)]);
       rs.key = i;
 
       storage.destroy();

@@ -30,18 +30,22 @@ describe("UnifiedStorage based on a WeakMap", () =>
   createBasicStorageTests(
     UnifiedStorage,
     keys,
-    { useWeakStorage: true },
+    () => [{ useWeakStorage: true }],
     true
   ));
 describe("UnifiedStorage based on a ObjectMap", () =>
-  createBasicStorageTests(UnifiedStorage, keys, { useObjectStorage: true }));
-describe("UnifiedStorage based on a ObjectMap", () =>
+  createBasicStorageTests(UnifiedStorage, keys, () => [
+    { useObjectStorage: true },
+  ]));
+describe("UnifiedStorage based on a ObjectMap and WeakMap", () =>
   createBasicStorageTests(
     UnifiedStorage,
     keys,
-    {
-      useWeakStorage: true,
-      useObjectStorage: true,
-    },
+    () => [
+      {
+        useWeakStorage: true,
+        useObjectStorage: true,
+      },
+    ],
     true
   ));

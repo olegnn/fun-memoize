@@ -1,9 +1,7 @@
 import { AbsentValue, NO_VALUE } from "../value";
-import { ChildPath, Storage, StorageParams } from "../base/Storage";
+import { Storage, StorageParams } from "../base/Storage";
 import { CacheStrategy } from "../base/CacheStrategy";
-import { Result } from "../utils";
-
-import { Destroyable } from "../utils";
+import { Result, ChildPath } from "../utils";
 
 /**
  * Leaf storage callbacks.
@@ -18,7 +16,7 @@ export interface LeafStorageParams<K, V> extends StorageParams<K, V> {
 /**
  * Stores leaf key -> value pairs.
  */
-export class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
+export class LeafStorage<K, V> extends Storage<K, V> {
   declare params: LeafStorageParams<K, V>;
   storage: Storage<K, V>;
   strategy: CacheStrategy<K>;
@@ -108,15 +106,6 @@ export class LeafStorage<K, V> extends Storage<K, V> implements Destroyable {
     }
 
     return key;
-  }
-
-  /**
-   * Calls a `destroy` implementations that will unlink given storage from all entities
-   * referencing it for both storage and cache strategy.
-   *
-   */
-  destroy(): void {
-    super.destroy();
   }
 
   /**
