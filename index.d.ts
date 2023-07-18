@@ -1300,6 +1300,7 @@ declare class FIFO<V> extends CacheStrategy<V> {
 declare const DEFAULT_MAX_ENTRIES_COUNT = 10000;
 
 export {
+  CacheStrategy,
   DEFAULT_MAX_ENTRIES_COUNT,
   FIFO,
   LFU,
