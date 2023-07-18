@@ -1,6 +1,6 @@
 import type { StorageParams } from "../base/Storage";
 import type { AbsentValue } from "../value";
-import type { ChildPath } from "../utils";
+import type { ParentPath } from "../utils";
 
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
@@ -12,7 +12,10 @@ import { map } from "../iterators";
 export class MapStorage<K, V> extends Storage<K, V> {
   map: Map<K, V>;
 
-  constructor(params?: StorageParams<K, V>, rootPath?: Iterable<ChildPath<K>>) {
+  constructor(
+    params?: StorageParams<K, V>,
+    rootPath?: Iterable<ParentPath<K>>
+  ) {
     super(params, rootPath);
     this.map = new Map();
   }

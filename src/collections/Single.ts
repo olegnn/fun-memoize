@@ -53,8 +53,14 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return false;
   }
 
-  dropKey(value: V): V | AbsentValue {
-    return this.has(value) ? this.takeFront() : NO_VALUE;
+  dropKey(value: V): boolean {
+    if (this.has(value)) {
+      this.takeFront();
+
+      return true;
+    } else {
+      return false;
+    }
   }
 
   get(value: V): V | AbsentValue {

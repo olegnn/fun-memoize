@@ -14,7 +14,7 @@ import {
 import { RootLeafStrategy } from "./RootLeafStrategy";
 import { LRU, Noop } from "../strategy";
 import { DEFAULT_MAX_ENTRIES_COUNT } from "../constants";
-import { noop, ChildPath } from "../utils";
+import { noop, ParentPath } from "../utils";
 
 /**
  * Either leaf storage or nested storage containing either nested storages or leaf storages.
@@ -28,7 +28,7 @@ export type NestedStorage<K, V> =
  */
 type NestedStorageClass<K, V> = new (
   params: StorageParams<K, V>,
-  parents: Iterable<ChildPath<K>>
+  parents: Iterable<ParentPath<K>>
 ) => NestedStorage<K, V>;
 
 /**
@@ -221,7 +221,7 @@ export class StorageContext<K, V> {
    * @param root
    */
   createStorage(
-    parents: Iterable<ChildPath<K>> = EMPTY_ITER
+    parents: Iterable<ParentPath<K>> = EMPTY_ITER
   ): NestedStorage<K, V> {
     return new this.storageClass(this.params, parents);
   }
@@ -231,7 +231,7 @@ export class StorageContext<K, V> {
    * @param root
    */
   createLeafStorage(
-    root: Iterable<ChildPath<K>> = EMPTY_ITER
+    root: Iterable<ParentPath<K>> = EMPTY_ITER
   ): LeafStorage<K, V> {
     return new LeafStorage(
       this.createStorage() as Storage<K, V>,

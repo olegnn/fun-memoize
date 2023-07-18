@@ -48,7 +48,11 @@ export class LFU<V> extends CacheStrategy<V> {
     if (maybeNoValueListNode !== NO_VALUE) {
       const listNode = maybeNoValueListNode as ListNode<LevelEntry<V>>;
       const { next } = listNode;
-      this.queue.dropKey(node);
+      if (!this.queue.dropKey(node)) {
+        throw new Error(
+          `\`LFU\`: failed to drop a key in the current cache level`
+        );
+      }
 
       const newLevel = listNode.value.level + 1;
 
@@ -126,7 +130,7 @@ export class LFU<V> extends CacheStrategy<V> {
    *
    */
   drop(node: V): boolean {
-    return this.queue.dropKey(node) !== NO_VALUE;
+    return this.queue.dropKey(node);
   }
 
   /**

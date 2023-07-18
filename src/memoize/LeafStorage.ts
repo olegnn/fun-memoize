@@ -1,7 +1,7 @@
 import { AbsentValue, NO_VALUE } from "../value";
 import { Storage, StorageParams } from "../base/Storage";
 import { CacheStrategy } from "../base/CacheStrategy";
-import { Result, ChildPath } from "../utils";
+import { Result, ParentPath } from "../utils";
 
 /**
  * Leaf storage callbacks.
@@ -26,12 +26,11 @@ export class LeafStorage<K, V> extends Storage<K, V> {
     storage: Storage<K, V>,
     strategy: CacheStrategy<K>,
     params: LeafStorageParams<K, V>,
-    rootPath?: Iterable<ChildPath<K>>
+    parentPaths?: Iterable<ParentPath<K>>
   ) {
-    super(params, rootPath);
+    super(params, parentPaths);
     this.storage = storage;
     this.strategy = strategy;
-    this.params = params;
     this.dropStorageValue = this.storage.drop.bind(this.storage);
   }
 

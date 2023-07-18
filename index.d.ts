@@ -79,7 +79,7 @@ interface Parent<K> {
  * The path from the parent to the child.
  * If the key is a `NO_VALUE`, then the child is stored under the key equal to itself.
  */
-declare class ChildPath<K> {
+declare class ParentPath<K> {
   /**
    * Parent.
    */
@@ -90,6 +90,7 @@ declare class ChildPath<K> {
    */
   key: K | AbsentValue;
   constructor(parent: Parent<K>, key: K | AbsentValue);
+  drop<C>(child: K | C): void;
 }
 /**
  * Contains removed/added entities.
@@ -212,7 +213,7 @@ declare abstract class Storage<K, V>
   /**
    * Paths from parents to the given storage.
    */
-  parentPaths: Iterable<ChildPath<K | Storage<K, V>>>;
+  parentPaths: Iterable<ParentPath<K | Storage<K, V>>>;
   /**
    * Parameters.
    */
@@ -220,7 +221,7 @@ declare abstract class Storage<K, V>
   destroyed: boolean;
   constructor(
     params?: StorageParams<K, V>,
-    parentPaths?: Iterable<ChildPath<K | Storage<K, V>>>
+    parentPaths?: Iterable<ParentPath<K | Storage<K, V>>>
   );
   /**
    * Calls a `destroy` implementation that will unlink given storage from all entities
@@ -309,7 +310,7 @@ declare class LeafStorage<K, V> extends Storage<K, V> {
     storage: Storage<K, V>,
     strategy: CacheStrategy<K>,
     params: LeafStorageParams<K, V>,
-    rootPath?: Iterable<ChildPath<K>>
+    parentPaths?: Iterable<ParentPath<K>>
   );
   /**
    * Returns amount of keys (references) stored in a map.
@@ -546,8 +547,9 @@ declare abstract class IndexedOrderedCollection<
   abstract drop(key: Key): Item | Absent;
   /**
    * Drops an item's key from the collection. If referenced item has no more keys, it will be dropped as well.
+   * Returns `true` in case of a successful removal or `false` if the value wasn't found.
    */
-  abstract dropKey(key: Key): Item | Absent;
+  abstract dropKey(key: Key): boolean;
   /**
    * An iterator over keys.
    */
@@ -791,11 +793,11 @@ declare class MultiKeyQueue<
   /**
    * Drops supplied key from the map.
    * Item belonging to this key will be deleted only if it has no more references in the map.
-   * Returns dropped value in case of a successful drop or `NO_VALUE` if the value wasn't found.
+   * Returns `true` in case of a successful removal or `false` if the value wasn't found.
    * @param key
    *
    */
-  dropKey(key: Key): Item | AbsentValue;
+  dropKey(key: Key): boolean;
   /**
    * Inserts given value after the supplied raw linked list node.
    * @param node
@@ -948,7 +950,7 @@ declare class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
   peekKeyBack(): V | AbsentValue;
   addKeyFront(_key: V, _item: V): boolean;
   addKeyBack(_key: V, _item: V): boolean;
-  dropKey(value: V): V | AbsentValue;
+  dropKey(value: V): boolean;
   get(value: V): V | AbsentValue;
   keysFront(): Iterable<V>;
   keysBack(): Iterable<V>;
@@ -1021,7 +1023,7 @@ declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param key
    *
    */
-  dropKey(key: V): AbsentValue | ListNode<Single<V>>;
+  dropKey(key: V): boolean;
   /**
    * Inserts given value after the supplied raw linked list node.
    * @param node
@@ -1275,12 +1277,6 @@ declare class FIFO<V> extends CacheStrategy<V> {
    *
    */
   drop(node: V): boolean;
-  /**
-   * Records read access of the supplied item.
-   * @param value
-   *
-   */
-  read(value: V): Result<V>;
   /**
    * Records write access of the supplied item.
    * @param value

@@ -48,21 +48,13 @@ export class FIFO<V> extends CacheStrategy<V> {
   }
 
   /**
-   * Records read access of the supplied item.
-   * @param value
-   *
-   */
-  read(value: V): Result<V> {
-    return super.read(value).chain(Result.empty());
-  }
-
-  /**
    * Records write access of the supplied item.
    * @param value
    *
    */
   write(value: V): Result<V> {
     const res = super.write(value);
+
     const item = this.queue.get(value);
     if (item !== NO_VALUE) {
       const moved = this.queue.moveBack(item as ListNode<Single<V>>);

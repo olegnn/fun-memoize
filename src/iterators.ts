@@ -8,6 +8,12 @@ export function chain<V>(
   firstIterable: Iterable<V>,
   secondIterable: Iterable<V>
 ): Iterable<V> {
+  if (firstIterable === EMPTY_ITER) {
+    return secondIterable;
+  } else if (secondIterable === EMPTY_ITER) {
+    return firstIterable;
+  }
+
   return {
     [Symbol.iterator]() {
       let iter = firstIterable[Symbol.iterator]();

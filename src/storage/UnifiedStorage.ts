@@ -5,7 +5,7 @@ import { ObjectStorage } from "./ObjectStorage";
 import { MapStorage } from "./MapStorage";
 import type { AbsentValue, NonPrimitive, Primitive } from "../value";
 import { chain } from "../iterators";
-import { mapImplemented, ChildPath } from "../utils";
+import { mapImplemented, ParentPath } from "../utils";
 
 /** Parameters for the `UnifiedStorage` */
 export interface UnifiedStorageParams<K, V> extends StorageParams<K, V> {
@@ -24,22 +24,23 @@ export class UnifiedStorage<
 > extends Storage<K, V> {
   nonPrimitiveStorage: Storage<NonPrimitive, V>;
   primitiveStorage: Storage<Primitive, V>;
-  droppedChilrenMask: number;
 
   constructor(
     params?: UnifiedStorageParams<K, V>,
-    rootPath?: Iterable<ChildPath<K>>
+    rootPath?: Iterable<ParentPath<K>>
   ) {
     super(params, rootPath);
+
     const isMapImplemented = mapImplemented();
-    const PrimitiveStorage =
-      params?.useObjectStorage || !isMapImplemented
-        ? (ObjectStorage as StorageClass<Primitive, V>)
-        : (MapStorage as StorageClass<Primitive, V>);
+
     const NonPrimitiveStorage =
       params?.useWeakStorage || !isMapImplemented
         ? (WeakStorage as StorageClass<NonPrimitive, V>)
         : (MapStorage as StorageClass<NonPrimitive, V>);
+    const PrimitiveStorage =
+      params?.useObjectStorage || !isMapImplemented
+        ? (ObjectStorage as StorageClass<Primitive, V>)
+        : (MapStorage as StorageClass<Primitive, V>);
 
     this.nonPrimitiveStorage = new NonPrimitiveStorage();
     this.primitiveStorage = new PrimitiveStorage();

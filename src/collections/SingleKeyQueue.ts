@@ -83,7 +83,7 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param key
    *
    */
-  dropKey(key: V): AbsentValue | ListNode<Single<V>> {
+  dropKey(key: V): boolean {
     return this.inner.dropKey(key);
   }
 
