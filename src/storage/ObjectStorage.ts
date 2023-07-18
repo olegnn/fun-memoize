@@ -4,7 +4,7 @@ import { isPrimitiveValue, AbsentValue, Primitive } from "../value";
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
 import { map } from "../iterators";
-import type { ChildPath } from "../utils";
+import type { ParentPath } from "../utils";
 
 /**
  * A key for the `ObjectStorage`.
@@ -99,7 +99,10 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
   map: { [key: string]: V };
   length: number;
 
-  constructor(params?: StorageParams<K, V>, rootPath?: Iterable<ChildPath<K>>) {
+  constructor(
+    params?: StorageParams<K, V>,
+    rootPath?: Iterable<ParentPath<K>>
+  ) {
     super(params, rootPath);
     this.length = 0;
     this.map = Object.create(null);

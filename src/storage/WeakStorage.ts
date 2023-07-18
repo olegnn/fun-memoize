@@ -2,7 +2,7 @@ import type { NonPrimitive, AbsentValue } from "../value";
 
 import "weakmap-polyfill";
 import { Storage, StorageParams } from "../base/Storage";
-import { ChildPath } from "../utils";
+import { ParentPath } from "../utils";
 import { NO_VALUE } from "../value";
 import { empty } from "../iterators";
 
@@ -13,7 +13,10 @@ export class WeakStorage<K extends NonPrimitive, V> extends Storage<K, V> {
   weakMap: WeakMap<NonPrimitive, V>;
   addedEntries: number;
 
-  constructor(params?: StorageParams<K, V>, rootPath?: Iterable<ChildPath<K>>) {
+  constructor(
+    params?: StorageParams<K, V>,
+    rootPath?: Iterable<ParentPath<K>>
+  ) {
     super(params, rootPath);
     this.weakMap = new WeakMap<NonPrimitive, V>();
     this.addedEntries = 0;

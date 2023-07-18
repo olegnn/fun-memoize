@@ -6,7 +6,7 @@ import {
   Parent,
   HasLength,
   Clearable,
-  ChildPath,
+  ParentPath,
 } from "../utils";
 import { EMPTY_ITER } from "../iterators";
 
@@ -20,7 +20,7 @@ export abstract class Storage<K, V>
   /**
    * Paths from parents to the given storage.
    */
-  parentPaths: Iterable<ChildPath<K | Storage<K, V>>>;
+  parentPaths: Iterable<ParentPath<K | Storage<K, V>>>;
   /**
    * Parameters.
    */
@@ -29,7 +29,7 @@ export abstract class Storage<K, V>
 
   constructor(
     params: StorageParams<K, V> = EMPTY_OBJECT as StorageParams<K, V>,
-    parentPaths: Iterable<ChildPath<K | Storage<K, V>>> = EMPTY_ITER
+    parentPaths: Iterable<ParentPath<K | Storage<K, V>>> = EMPTY_ITER
   ) {
     super();
     this.params = params;
@@ -48,8 +48,8 @@ export abstract class Storage<K, V>
     if (this.destroyed) return;
     this.destroyed = true;
 
-    for (const { parent, key } of this.parentPaths) {
-      parent.drop(key !== NO_VALUE ? (key as K) : this);
+    for (const path of this.parentPaths) {
+      path.drop(this);
     }
 
     if (this.params.onRemoveStorage != null) this.params.onRemoveStorage(this);

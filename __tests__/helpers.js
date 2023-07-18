@@ -1,8 +1,9 @@
 const { NO_VALUE, isPrimitiveValue } = require("../build/value");
 const { zip, once } = require("../build/iterators");
 const { default: memoize } = require("../build/index");
+const { ParentPath } = require("../build/utils");
 
-const FALSY_VALUES = [0, 0n, "", NaN, undefined, null].filter(
+const FALSY_VALUES = [0, false, 0n, "", NaN, undefined, null].filter(
   (value) => !(process.env.OMIT_BIGINT && value?.constructor === BigInt)
 );
 
@@ -105,14 +106,14 @@ const createBasicStorageTests = (
 
   it("Checks `Destroyable` implementation", () => {
     const dropped = [];
-    let rs = {
-      parent: {
+    let rs = new ParentPath(
+      {
         drop(key) {
           dropped.push(key);
         },
       },
-      key: "abc",
-    };
+      "abc"
+    );
     let storage = new StorageType(...[...createParams(), once(rs)]);
 
     storage.set("1", 2);
@@ -120,14 +121,14 @@ const createBasicStorageTests = (
     expect(dropped).toEqual(["abc"]);
 
     for (let i = 0; i < 5; i++) {
-      rs = {
-        parent: {
+      rs = new ParentPath(
+        {
           drop(key) {
             dropped.push(key);
           },
         },
-        key: i,
-      };
+        i
+      );
       storage = new StorageType(...[...createParams(), once(rs)]);
       rs.key = i;
 

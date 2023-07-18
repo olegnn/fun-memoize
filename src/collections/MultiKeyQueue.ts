@@ -104,19 +104,19 @@ export class MultiKeyQueue<
   /**
    * Drops supplied key from the map.
    * Item belonging to this key will be deleted only if it has no more references in the map.
-   * Returns dropped value in case of a successful drop or `NO_VALUE` if the value wasn't found.
+   * Returns `true` in case of a successful removal or `false` if the value wasn't found.
    * @param key
    *
    */
-  dropKey(key: Key): Item | AbsentValue {
+  dropKey(key: Key): boolean {
     const maybeNoValueListNode = this.map.get(key);
     if (maybeNoValueListNode === NO_VALUE) {
-      return NO_VALUE;
+      return false;
     }
     const listNode = maybeNoValueListNode as ListNode<Item>;
 
     this.map.drop(key);
-    if (listNode.value.dropKey(key) === NO_VALUE) {
+    if (!listNode.value.dropKey(key)) {
       throw new Error("Inconsistency");
     }
 
@@ -124,7 +124,7 @@ export class MultiKeyQueue<
       this.list.remove(listNode);
     }
 
-    return listNode.value;
+    return true;
   }
 
   /**
