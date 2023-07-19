@@ -7,6 +7,7 @@ const {
   memoryOverflowTests,
 } = require("./helpers");
 const { default: memoize } = require("../build/index");
+const { NO_VALUE } = require("../build/value");
 
 const DLRU = withDestroyable(LRU);
 
@@ -89,6 +90,36 @@ describe("Least recently used:", () => {
 
   it("Zero cap", () => {
     expect(() => new DLRU(0)).toThrowErrorMatchingSnapshot();
+  });
+
+  it("memoization: `totalLeavesLimit = 2`", () => {
+    const removed = [];
+    const fn = memoize((a, b, c, d, e) => Math.random(), {
+      strategy: LRU,
+      totalLeavesLimit: 2,
+      onRemoveStorage: (storage) => {
+        const key = [...storage.parentPaths]
+          .map(({ key }) => key)
+          .find((key) => key !== NO_VALUE);
+        removed.push(key);
+      },
+      onRemoveLeaf: (key) => {
+        removed.push(key);
+      },
+    });
+
+    const args = Array.from({ length: 100 }, (_, i) => [
+      `root`,
+      `${(i / 2) | 0}-0`,
+      `${(i / 2) | 0}-1`,
+      `${i}-2`,
+      `${i}-3`,
+    ]);
+
+    for (let i = 0; i < 10; i++) {
+      fn(...args[i]);
+      expect(removed).toMatchSnapshot();
+    }
   });
 
   it("memoization: `totalLeavesLimit`", () => {

@@ -14,7 +14,7 @@ import {
 import { RootLeafStrategy } from "./RootLeafStrategy";
 import { LRU, Noop } from "../strategy";
 import { DEFAULT_MAX_ENTRIES_COUNT } from "../constants";
-import { noop, ParentPath } from "../utils";
+import { EMPTY_OBJECT, noop, ParentPath } from "../utils";
 
 /**
  * Either leaf storage or nested storage containing either nested storages or leaf storages.
@@ -161,7 +161,7 @@ export class StorageContext<K, V> {
     onRemoveStorage = noop,
     onCreateLeaf = noop,
     onRemoveLeaf = noop,
-  }: Params<K, V>) {
+  }: Params<K, V> = EMPTY_OBJECT) {
     let leafStrategyClass: LeafCacheStrategyClass<K, V>,
       storageStrategyClass: StorageCacheStrategyClass<K, V>;
     if (extendsCacheStrategy(strategy)) {

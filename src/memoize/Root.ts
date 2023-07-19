@@ -1,9 +1,9 @@
 import { equals, AbsentValue, NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
 import { append, double, once } from "../iterators";
-import { EMPTY_ARRAY, ParentPath } from "../utils";
+import { DestroyableParentPath, EMPTY_ARRAY, ParentPath } from "../utils";
 import { LeafStorage } from "./LeafStorage";
-import { StorageContext, NestedStorage, Params } from "./StorageContext";
+import { StorageContext, NestedStorage } from "./StorageContext";
 
 /**
  * Contains either a value or a pointer.
@@ -294,13 +294,13 @@ export class Root<K, V> {
       const isWeak = cache.isWeak(current);
 
       if (next === NO_VALUE) {
-        const rootPath = isWeak
+        const parentPaths = isWeak
           ? once(this.rootPath)
-          : double(this.rootPath, new ParentPath(cache, current));
+          : double(this.rootPath, new DestroyableParentPath(cache, current));
         next =
           idx < length - 2
-            ? this.ctx.createStorage(rootPath)
-            : this.ctx.createLeafStorage(append(rootPath, this.leafPath));
+            ? this.ctx.createStorage(parentPaths)
+            : this.ctx.createLeafStorage(append(parentPaths, this.leafPath));
 
         cache.set(current, next as unknown as V);
       }

@@ -146,6 +146,25 @@ export class ParentPath<K> {
   }
 }
 
+export interface DestroyableParent<K>
+  extends Parent<K>,
+    HasLength,
+    Destroyable {}
+
+/** Same as `ParentPath` but will destroy the parent if it became empty. */
+export class DestroyableParentPath<K> extends ParentPath<K> {
+  declare parent: DestroyableParent<K>;
+
+  /// Enforces parent to drop the supplied child. Its value will be used only in case if key is absent.
+  drop<C>(child: K | C) {
+    super.drop(child);
+
+    if (this.parent.isEmpty()) {
+      this.parent.destroy();
+    }
+  }
+}
+
 /**
  * Contains removed/added entities.
  */
