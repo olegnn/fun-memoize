@@ -1,6 +1,6 @@
 {
   "name": "fun-memoize",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "author": "Oleg Nosov <olegnosov1@gmail.com>",
   "description": "Performant configurable memoization module for modern JavaScript applications",
   "dependencies": {

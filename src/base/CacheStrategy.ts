@@ -33,27 +33,27 @@ export abstract class CacheStrategy<V>
    * @param value
    *
    */
-  public abstract drop(value: V): boolean;
+  abstract drop(value: V): boolean;
 
   /**
    * Removes an item from the beginning of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
    */
-  public abstract take(): V | AbsentValue;
+  abstract take(): V | AbsentValue;
 
   /**
    * Peeks a value from the beginning of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
    *
    */
-  public abstract peek(): V | AbsentValue;
+  abstract peek(): V | AbsentValue;
 
   /**
    * Returns `true` if given item exists in the queue.
    * @param node
    *
    */
-  public abstract has(value: V): boolean;
+  abstract has(value: V): boolean;
 
   /**
    * Removes all items from the strategy.

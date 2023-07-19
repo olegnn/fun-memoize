@@ -1,5 +1,6 @@
 const { withDestroyable } = require("../build/base/CacheStrategy");
 const { FIFO } = require("../build/strategy/fifo");
+const { NO_VALUE } = require("../build/value");
 const {
   Destroyable,
   extractNMapKeys,
@@ -89,6 +90,36 @@ describe("First in first out:", () => {
 
   it("Zero cap", () => {
     expect(() => new DFIFO(0)).toThrowErrorMatchingSnapshot();
+  });
+
+  it("memoization: `totalLeavesLimit = 2`", () => {
+    const removed = [];
+    const fn = memoize((a, b, c, d, e) => Math.random(), {
+      strategy: FIFO,
+      totalLeavesLimit: 2,
+      onRemoveStorage: (storage) => {
+        const key = [...storage.parentPaths]
+          .map(({ key }) => key)
+          .find((key) => key !== NO_VALUE);
+        removed.push(key);
+      },
+      onRemoveLeaf: (key) => {
+        removed.push(key);
+      },
+    });
+
+    const args = Array.from({ length: 100 }, (_, i) => [
+      `root`,
+      `${(i / 2) | 0}-0`,
+      `${(i / 2) | 0}-1`,
+      `${i}-2`,
+      `${i}-3`,
+    ]);
+
+    for (let i = 0; i < 10; i++) {
+      fn(...args[i]);
+      expect(removed).toMatchSnapshot();
+    }
   });
 
   it("memoization: `totalLeavesLimit`", () => {

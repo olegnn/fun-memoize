@@ -1,6 +1,7 @@
 const { LeafStorage } = require("../build/memoize/LeafStorage");
 const { withDestroyable } = require("../build/base/CacheStrategy");
 const { LFU } = require("../build/strategy/lfu");
+const { NO_VALUE } = require("../build/value");
 const {
   Destroyable,
   expectResult,
@@ -11,7 +12,7 @@ const { default: memoize } = require("../build/index");
 
 const DLFU = withDestroyable(LFU);
 
-describe("selectors:", () => {
+describe("Least frequently used:", () => {
   it("basic workflow", () => {
     let destroyed = [];
     const lfu = new DLFU(10);
@@ -90,6 +91,36 @@ describe("selectors:", () => {
 
   it("Zero cap", () => {
     expect(() => new DLFU(0)).toThrowErrorMatchingSnapshot();
+  });
+
+  it("memoization: `totalLeavesLimit = 2`", () => {
+    const removed = [];
+    const fn = memoize((a, b, c, d, e) => Math.random(), {
+      strategy: LFU,
+      totalLeavesLimit: 2,
+      onRemoveStorage: (storage) => {
+        const key = [...storage.parentPaths]
+          .map(({ key }) => key)
+          .find((key) => key !== NO_VALUE);
+        removed.push(key);
+      },
+      onRemoveLeaf: (key) => {
+        removed.push(key);
+      },
+    });
+
+    const args = Array.from({ length: 100 }, (_, i) => [
+      `root`,
+      `${(i / 2) | 0}-0`,
+      `${(i / 2) | 0}-1`,
+      `${i}-2`,
+      `${i}-3`,
+    ]);
+
+    for (let i = 0; i < 10; i++) {
+      fn(...args[i]);
+      expect(removed).toMatchSnapshot();
+    }
   });
 
   it("memoization: `totalLeavesLimit`", () => {
