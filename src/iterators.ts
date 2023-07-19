@@ -2,7 +2,6 @@
  * Chains two iterables.
  * @param firstIterable
  * @param secondIterable
- * @returns {Iterable<V>}
  */
 export function chain<V>(
   firstIterable: Iterable<V>,
@@ -45,7 +44,6 @@ export function chain<V>(
  * Creates an iterable that then iterates over supplied iterable and then emits one item.
  * @param value
  * @param iterable
- * @returns {Iterable<V>}
  */
 export function append<V>(iterable: Iterable<V>, value: V): Iterable<V> {
   return {
@@ -81,7 +79,6 @@ export function append<V>(iterable: Iterable<V>, value: V): Iterable<V> {
  * Zips two iterables together.
  * @param leftIterable
  * @param rightIterable
- * @returns {Iterable<{ left: L; right: R }>}
  */
 export function zip<L, R>(
   leftIterable: Iterable<L>,
@@ -113,7 +110,6 @@ export function zip<L, R>(
  * Maps supplied iterable using given function.
  * @param fn
  * @param iterable
- * @returns {Iterable<R>}
  */
 export function map<V, R>(
   fn: (item: V) => R,
@@ -138,7 +134,6 @@ export function map<V, R>(
  * Flattens iterable mapped with supplied function.
  * @param iterable
  * @param map
- * @returns {Iterable<R>}
  */
 export function flatMap<V, R>(
   map: (item: V) => Iterable<R>,
@@ -180,7 +175,6 @@ export function flatMap<V, R>(
 
 /**
  * Creates an iterable which emits no items.
- * @returns {Iterable<V>}
  */
 export function empty<V>(): Iterable<V> {
   return EMPTY_ITERABLE;
@@ -189,7 +183,6 @@ export function empty<V>(): Iterable<V> {
 /**
  * Creates an iterable which emits one item.
  * @param value
- * @returns {Iterable<V>}
  */
 export function once<V>(value: V): Iterable<V> {
   return {
@@ -214,7 +207,6 @@ export function once<V>(value: V): Iterable<V> {
 /**
  * Creates an iterable that endlessly repeats supplied iterable.
  * @param iter
- * @returns {Iterable<V>}
  */
 export function cycle<V>(iter: Iterable<V>): Iterable<V> {
   return {
@@ -256,7 +248,6 @@ export function forEach<V>(fn: (value: V) => void, iterable: Iterable<V>) {
  * Creates an iterable which emits two items.
  * @param first
  * @param second
- * @returns {Iterable<V>}
  */
 export function double<V>(first: V, second: V): Iterable<V> {
   return {

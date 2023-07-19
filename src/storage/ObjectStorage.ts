@@ -116,7 +116,6 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
   /**
    * Converts provided raw key to the object key.
    * @param key
-   * @returns
    */
   private objectKeyFromRawKey(key: K): string | symbol {
     const type = typeof key;
