@@ -1,8 +1,8 @@
 {
   "name": "fun-memoize",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "author": "Oleg Nosov <olegnosov1@gmail.com>",
-  "description": "Configurable memoization module for modern JavaScript applications",
+  "description": "Performant configurable memoization module for modern JavaScript applications",
   "dependencies": {
     "mimic-fn": "^1.1.0",
     "weakmap-polyfill": "^2.0.4"
@@ -47,9 +47,9 @@
   "scripts": {
     "prepublish": "yarn build",
     "build": "rm -rf dist build && NODE_ENV=release rollup -c rollup.config.mjs && tsc --moduleResolution node --downlevelIteration --outDir build --sourceMap true ./src/index.ts",
-    "benchmark": "node ./benchmark/index.js",
+    "benchmark": "node ./benchmarks/index.js",
     "test": "jest .",
-    "lint": "prettier '(src/**/*.ts)|(__tests__/**/**.js)|(benchmark/*.js)' --check",
-    "fmt": "prettier 'index.d.ts|(src/**/*.ts)|(__tests__/**/**.js)|(benchmark/*.js)' --write"
+    "lint": "prettier '(src/**/*.ts)|(__tests__/**/**.js)|(benchmarks/*.js)' --check",
+    "fmt": "prettier 'index.d.ts|(src/**/*.ts)|(__tests__/**/**.js)|(benchmarks/*.js)' --write"
   }
 }
