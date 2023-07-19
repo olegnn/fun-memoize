@@ -81,7 +81,7 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
     this.head = null;
     this.tail = null;
 
-    forEach(this.pushBack.bind(this), values);
+    forEach((value) => this.pushBack(value), values);
   }
 
   /**
