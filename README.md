@@ -5,7 +5,7 @@
 
 **Have fun! 😏**
 
-Configurable memoization module with fully controllable cache for modern JavaScript applications.
+Performant configurable memoization module with fully controllable cache for modern JavaScript applications.
 
 Provides fast memoization using **Same-value-zero** equality check for **non-variadic** functions [with **fixed argument length**].
 
@@ -209,6 +209,48 @@ const memo = memoize(fn, {
   leavesPerStorageLimit: 1000,
   strategy: { leafStrategyClass: LRU, storageStrategyClass: LFU },
 });
+```
+
+## Benchmarks
+
+
+`node v18.12.1`:
+
+```
+fun-memoize#strings x 4,991,846 ops/sec ±0.33% (96 runs sampled)
+lru-memoize#strings x 418 ops/sec ±0.69% (91 runs sampled)
+fast-memoize#strings x 66,578 ops/sec ±0.35% (99 runs sampled)
+moize#strings x 2,389,621 ops/sec ±0.17% (97 runs sampled)
+Fastest is fun-memoize#strings
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+fun-memoize#numbers x 4,789,282 ops/sec ±0.43% (97 runs sampled)
+lru-memoize#numbers x 206,804 ops/sec ±0.29% (99 runs sampled)
+fast-memoize#numbers x 1,223,078 ops/sec ±0.35% (92 runs sampled)
+moize#numbers x 1,651,064 ops/sec ±0.27% (100 runs sampled)
+Fastest is fun-memoize#numbers
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+fun-memoize#mixed x 5,374,839 ops/sec ±0.58% (93 runs sampled)
+lru-memoize#mixed x 7,603,573 ops/sec ±0.18% (98 runs sampled)
+fast-memoize#mixed x 17,907 ops/sec ±0.68% (98 runs sampled)
+moize#mixed x 2,503,442 ops/sec ±0.07% (101 runs sampled)
+Fastest is lru-memoize#mixed
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+fun-memoize#fib x 6,697,478 ops/sec ±0.16% (95 runs sampled)
+lru-memoize#fib x 1,146,090 ops/sec ±0.14% (99 runs sampled)
+fast-memoize#fib x 97,381 ops/sec ±0.16% (65 runs sampled)
+moize#fib x 5,342,408 ops/sec ±0.37% (98 runs sampled)
+Fastest is fun-memoize#fib
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+reselect#selectors - different states x 203,160 ops/sec ±0.25% (99 runs sampled)
+re-reselect#selectors - different states x 195,782 ops/sec ±0.27% (99 runs sampled)
+fun-memoize#selectors - different states x 3,373,974 ops/sec ±0.38% (92 runs sampled)
+Fastest is fun-memoize#selectors - different states
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+reselect#selectors - same state x 32,517,937 ops/sec ±0.68% (97 runs sampled)
+re-reselect#selectors - same state x 5,029,092 ops/sec ±0.24% (101 runs sampled)
+fun-memoize#selectors - same state x 6,677,330 ops/sec ±0.47% (98 runs sampled)
+Fastest is reselect#selectors - same state
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ```
 
 ## Development

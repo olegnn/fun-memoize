@@ -16,7 +16,7 @@ export interface UnifiedStorageParams<K, V> extends StorageParams<K, V> {
 }
 
 /**
- * Storage for both primitive and non-primitives.
+ * Storage for values with both primitive and non-primitive keys.
  */
 export class UnifiedStorage<
   K extends Primitive | NonPrimitive,
