@@ -553,7 +553,7 @@ declare abstract class IndexedOrderedCollection<
    * Drops an item associated with the provided key returning it.
    * Returns `NO_VALUE` if the item with the given key didn't exist.
    */
-  abstract dropItem(key: Key): Item | Absent;
+  abstract drop(key: Key): Value | Absent;
   /**
    * Drops an item's key from the collection. If referenced item has no more keys, it will be dropped as well.
    * Returns `true` in case of a successful removal or `false` if the value wasn't found.
@@ -785,7 +785,7 @@ declare class MultiKeyQueue<
    * @param key
    *
    */
-  dropItem(key: Key): Value | AbsentValue;
+  drop(key: Key): Value | AbsentValue;
   /**
    * Moves node to the front of the queue.
    * Returns `true` in case of success.
@@ -999,7 +999,7 @@ declare class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
   insertBefore(_item: V, _value: V): V | AbsentValue;
   contains(item: V): boolean;
   has(value: V): boolean;
-  dropItem(value: V): V | AbsentValue;
+  drop(value: V): V | AbsentValue;
   peekFront(): {} | V;
   peekBack(): {} | V;
   moveFront(item: V): boolean;
@@ -1031,7 +1031,7 @@ declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param key
    *
    */
-  dropItem(key: V): V | AbsentValue;
+  drop(key: V): V | AbsentValue;
   /**
    * Moves node to the front of the queue.
    * Returns `true` in case of success.

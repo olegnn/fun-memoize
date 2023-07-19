@@ -109,7 +109,7 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return equals(value, this.value);
   }
 
-  dropItem(value: V): V | AbsentValue {
+  drop(value: V): V | AbsentValue {
     return this.has(value) ? this.takeFront() : NO_VALUE;
   }
 
@@ -130,7 +130,7 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
   }
 
   remove(item: V) {
-    return this.dropItem(item) !== NO_VALUE;
+    return this.drop(item) !== NO_VALUE;
   }
 
   valuesFront(): Iterable<V> {

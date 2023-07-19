@@ -41,7 +41,7 @@ export class FIFO<V> extends CacheStrategy<V> {
   drop(node: V): boolean {
     const has = this.queue.has(node);
     if (has) {
-      this.queue.dropItem(node);
+      this.queue.drop(node);
     }
 
     return has;

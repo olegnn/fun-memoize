@@ -37,8 +37,8 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * @param key
    *
    */
-  dropItem(key: V): V | AbsentValue {
-    return this.inner.dropItem(key);
+  drop(key: V): V | AbsentValue {
+    return this.inner.drop(key);
   }
 
   /**

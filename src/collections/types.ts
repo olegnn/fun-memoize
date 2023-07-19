@@ -137,7 +137,7 @@ export abstract class IndexedOrderedCollection<
    * Drops an item associated with the provided key returning it.
    * Returns `NO_VALUE` if the item with the given key didn't exist.
    */
-  abstract dropItem(key: Key): Item | Absent;
+  abstract drop(key: Key): Value | Absent;
 
   /**
    * Drops an item's key from the collection. If referenced item has no more keys, it will be dropped as well.

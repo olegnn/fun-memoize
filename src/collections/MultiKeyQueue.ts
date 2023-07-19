@@ -42,7 +42,7 @@ export class MultiKeyQueue<
    * @param key
    *
    */
-  dropItem(key: Key): Value | AbsentValue {
+  drop(key: Key): Value | AbsentValue {
     const maybeNoValueListNode = this.map.get(key);
     if (maybeNoValueListNode === NO_VALUE) {
       return NO_VALUE;

@@ -39,7 +39,7 @@ export class LRU<V> extends CacheStrategy<V> {
    *
    */
   drop(node: V): boolean {
-    return this.queue.dropItem(node) !== NO_VALUE;
+    return this.queue.drop(node) !== NO_VALUE;
   }
 
   /**
