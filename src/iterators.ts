@@ -2,15 +2,14 @@
  * Chains two iterables.
  * @param firstIterable
  * @param secondIterable
- * @returns {Iterable<V>}
  */
 export function chain<V>(
   firstIterable: Iterable<V>,
   secondIterable: Iterable<V>
 ): Iterable<V> {
-  if (firstIterable === EMPTY_ITER) {
+  if (firstIterable === EMPTY_ITERABLE) {
     return secondIterable;
-  } else if (secondIterable === EMPTY_ITER) {
+  } else if (secondIterable === EMPTY_ITERABLE) {
     return firstIterable;
   }
 
@@ -45,7 +44,6 @@ export function chain<V>(
  * Creates an iterable that then iterates over supplied iterable and then emits one item.
  * @param value
  * @param iterable
- * @returns {Iterable<V>}
  */
 export function append<V>(iterable: Iterable<V>, value: V): Iterable<V> {
   return {
@@ -81,7 +79,6 @@ export function append<V>(iterable: Iterable<V>, value: V): Iterable<V> {
  * Zips two iterables together.
  * @param leftIterable
  * @param rightIterable
- * @returns {Iterable<{ left: L; right: R }>}
  */
 export function zip<L, R>(
   leftIterable: Iterable<L>,
@@ -94,19 +91,15 @@ export function zip<L, R>(
 
       return {
         next() {
-          for (;;) {
-            const left = leftIter.next();
-            const right = rightIter.next();
+          const left = leftIter.next();
+          const right = rightIter.next();
 
-            if (left.done || right.done) {
-              return ITER_DONE_VALUE;
-            } else {
-              return {
+          return left.done || right.done
+            ? ITER_DONE_VALUE
+            : {
                 value: { left: left.value, right: right.value },
                 done: false,
               };
-            }
-          }
         },
       };
     },
@@ -117,7 +110,6 @@ export function zip<L, R>(
  * Maps supplied iterable using given function.
  * @param fn
  * @param iterable
- * @returns {Iterable<R>}
  */
 export function map<V, R>(
   fn: (item: V) => R,
@@ -142,7 +134,6 @@ export function map<V, R>(
  * Flattens iterable mapped with supplied function.
  * @param iterable
  * @param map
- * @returns {Iterable<R>}
  */
 export function flatMap<V, R>(
   map: (item: V) => Iterable<R>,
@@ -184,16 +175,14 @@ export function flatMap<V, R>(
 
 /**
  * Creates an iterable which emits no items.
- * @returns {Iterable<V>}
  */
 export function empty<V>(): Iterable<V> {
-  return EMPTY_ITER;
+  return EMPTY_ITERABLE;
 }
 
 /**
  * Creates an iterable which emits one item.
  * @param value
- * @returns {Iterable<V>}
  */
 export function once<V>(value: V): Iterable<V> {
   return {
@@ -218,7 +207,6 @@ export function once<V>(value: V): Iterable<V> {
 /**
  * Creates an iterable that endlessly repeats supplied iterable.
  * @param iter
- * @returns {Iterable<V>}
  */
 export function cycle<V>(iter: Iterable<V>): Iterable<V> {
   return {
@@ -245,10 +233,21 @@ export function cycle<V>(iter: Iterable<V>): Iterable<V> {
 }
 
 /**
+ * Executes supplied `fn` on each item produced by the iterable.
+ * @param fn
+ * @param iterable
+ */
+export function forEach<V>(fn: (value: V) => void, iterable: Iterable<V>) {
+  if (iterable === EMPTY_ITERABLE) return;
+  const iter = iterable[Symbol.iterator]();
+
+  for (let item = iter.next(); !item.done; fn(item.value), item = iter.next());
+}
+
+/**
  * Creates an iterable which emits two items.
  * @param first
  * @param second
- * @returns {Iterable<V>}
  */
 export function double<V>(first: V, second: V): Iterable<V> {
   return {
@@ -275,19 +274,28 @@ export function double<V>(first: V, second: V): Iterable<V> {
   };
 }
 
+/**
+ * Ending value of an iterator.
+ * MUST NOT BE MODIFIED.
+ */
 export const ITER_DONE_VALUE = { value: undefined, done: true };
 
-export const EMPTY_ITER_NEXT = {
+/**
+ * An iterator producing no values.
+ * MUST NOT BE MODIFIED.
+ */
+export const EMPTY_ITERATOR = {
   next() {
     return ITER_DONE_VALUE;
   },
 };
 
 /**
- * An iterator producing no values.
+ * An iteratable producing no values.
+ * MUST NOT BE MODIFIED.
  */
-export const EMPTY_ITER = {
+export const EMPTY_ITERABLE = {
   [Symbol.iterator]() {
-    return EMPTY_ITER_NEXT;
+    return EMPTY_ITERATOR;
   },
 };

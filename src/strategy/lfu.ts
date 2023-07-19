@@ -29,8 +29,36 @@ export class LFU<V> extends CacheStrategy<V> {
    * @param value
    *
    */
-  read(value: V): Result<V> {
-    return super.read(value).chain(this.touch(value));
+  write(value: V): Result<V> {
+    if (!this.has(value)) {
+      const res = this.reservePlace();
+      const head = this.queue.peekItemFront();
+
+      if (head !== NO_VALUE) {
+        const isFirstLevel =
+          (head as ListNode<LevelEntry<V>>).value.level === 1;
+
+        if (isFirstLevel) {
+          const addedHead = this.queue.addKeyBack(
+            value,
+            head as ListNode<LevelEntry<V>>
+          );
+          if (!addedHead) {
+            throw new Error(`\`LFU\`: failed to modify cache head`);
+          }
+
+          return res.chain(Result.added(once(value)));
+        }
+      }
+      const pushed = this.queue.pushFront(new LevelEntry(1, value));
+      if (pushed === NO_VALUE) {
+        throw new Error(`\`LFU\`: failed to create the cache head`);
+      }
+
+      return res.chain(Result.added(once(value)));
+    } else {
+      return this.read(value);
+    }
   }
 
   /**
@@ -38,99 +66,65 @@ export class LFU<V> extends CacheStrategy<V> {
    * @param value
    *
    */
-  write(value: V): Result<V> {
-    return super.write(value).chain(this.touch(value));
-  }
+  read(value: V): Result<V> {
+    const maybeNoValueListNode = this.queue.get(value);
 
-  private touch(node: V): Result<V> {
-    const maybeNoValueListNode = this.queue.get(node);
+    if (maybeNoValueListNode === NO_VALUE) {
+      throw new Error("`LFU`: cache entry doesn't exist");
+    }
+    const listNode = maybeNoValueListNode as ListNode<LevelEntry<V>>;
+    const { next } = listNode;
+    if (!this.queue.dropKey(value)) {
+      throw new Error(
+        `\`LFU\`: failed to drop a key in the current cache level`
+      );
+    }
 
-    if (maybeNoValueListNode !== NO_VALUE) {
-      const listNode = maybeNoValueListNode as ListNode<LevelEntry<V>>;
-      const { next } = listNode;
-      if (!this.queue.dropKey(node)) {
-        throw new Error(
-          `\`LFU\`: failed to drop a key in the current cache level`
-        );
-      }
+    const newLevel = listNode.value.level + 1;
 
-      const newLevel = listNode.value.level + 1;
-
-      if (next) {
-        if (next.value.level === newLevel) {
-          const added = this.queue.addKeyBack(node, next);
-          if (!added) {
-            throw new Error(
-              `\`LFU\`: failed to move cache node to the next cache level`
-            );
-          }
-        } else {
-          const inserted = this.queue.insertBefore(
-            next,
-            new LevelEntry(newLevel, node)
+    if (next) {
+      if (next.value.level === newLevel) {
+        const added = this.queue.addKeyBack(value, next);
+        if (!added) {
+          throw new Error(
+            `\`LFU\`: failed to move cache value to the next cache level`
           );
-          if (inserted === NO_VALUE) {
-            throw new Error(`\`LFU\`: failed to insert a new level of cache`);
-          }
         }
       } else {
-        const pushed = this.queue.pushBack(new LevelEntry(newLevel, node));
-        if (pushed === NO_VALUE) {
-          throw new Error(`\`LFU\`: failed to push a new cache level`);
+        const inserted = this.queue.insertBefore(
+          next,
+          new LevelEntry(newLevel, value)
+        );
+        if (inserted === NO_VALUE) {
+          throw new Error(`\`LFU\`: failed to insert a new level of cache`);
         }
       }
-
-      return Result.empty();
     } else {
-      const added = Result.added(once(node));
-      const headKey = this.queue.peekKeyFront();
-
-      if (headKey !== NO_VALUE) {
-        const head = this.queue.get(headKey as V);
-        if (head === NO_VALUE) {
-          throw new Error("Inconsistency");
-        }
-
-        const isFirstLevel =
-          (head as ListNode<LevelEntry<V>>).value.level === 1;
-
-        if (isFirstLevel) {
-          const addedHead = this.queue.addKeyBack(
-            node,
-            head as ListNode<LevelEntry<V>>
-          );
-          if (!addedHead) {
-            throw new Error(`\`LFU\`: failed to modify the first cache level`);
-          }
-
-          return added;
-        }
-      }
-      const pushed = this.queue.pushFront(new LevelEntry(1, node));
+      const pushed = this.queue.pushBack(new LevelEntry(newLevel, value));
       if (pushed === NO_VALUE) {
-        throw new Error(`\`LFU\`: failed to create the first cache level`);
+        throw new Error(`\`LFU\`: failed to push a new cache level`);
       }
-
-      return added;
     }
+
+    return Result.empty();
   }
 
   /**
    * Returns `true` if given item exists in the queue.
-   * @param node
+   * @param value
    *
    */
-  has(node: V): boolean {
-    return this.queue.has(node);
+  has(value: V): boolean {
+    return this.queue.has(value);
   }
 
   /**
    * Removes supplied item from the queue.
-   * @param node
+   * @param value
    *
    */
-  drop(node: V): boolean {
-    return this.queue.dropKey(node);
+  drop(value: V): boolean {
+    return this.queue.dropKey(value);
   }
 
   /**

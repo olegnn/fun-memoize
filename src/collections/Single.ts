@@ -45,6 +45,14 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return this.peekBack();
   }
 
+  peekItemFront(): V | AbsentValue {
+    return this.peekFront();
+  }
+
+  peekItemBack(): V | AbsentValue {
+    return this.peekBack();
+  }
+
   addKeyFront(_key: V, _item: V): boolean {
     return false;
   }
@@ -85,16 +93,16 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return this.takeFront();
   }
 
-  insertAfter(_element: V, _value: V): V | AbsentValue {
+  insertAfter(_item: V, _value: V): V | AbsentValue {
     return NO_VALUE;
   }
 
-  insertBefore(_element: V, _value: V): V | AbsentValue {
+  insertBefore(_item: V, _value: V): V | AbsentValue {
     return NO_VALUE;
   }
 
-  contains(element: V): boolean {
-    return equals(element, this.value);
+  contains(item: V): boolean {
+    return equals(item, this.value);
   }
 
   has(value: V): boolean {
@@ -113,16 +121,16 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return this.value;
   }
 
-  moveFront(element: V): boolean {
-    return this.contains(element);
+  moveFront(item: V): boolean {
+    return this.contains(item);
   }
 
-  moveBack(element: V): boolean {
-    return this.contains(element);
+  moveBack(item: V): boolean {
+    return this.contains(item);
   }
 
-  remove(element: V) {
-    return this.drop(element) !== NO_VALUE;
+  remove(item: V) {
+    return this.drop(item) !== NO_VALUE;
   }
 
   valuesFront(): Iterable<V> {

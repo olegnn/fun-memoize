@@ -48,7 +48,17 @@ export class LRU<V> extends CacheStrategy<V> {
    *
    */
   read(value: V): Result<V> {
-    return super.read(value).chain(this.touch(value));
+    const item = this.queue.get(value);
+    if (item === NO_VALUE) {
+      throw new Error("`LRU`: cache entry doesn't exist");
+    }
+
+    const moved = this.queue.moveBack(item as ListNode<Single<V>>);
+    if (!moved) {
+      throw new Error(`\`LRU\`: failed to move the cache entry`);
+    }
+
+    return Result.empty();
   }
 
   /**
@@ -57,25 +67,16 @@ export class LRU<V> extends CacheStrategy<V> {
    *
    */
   write(value: V): Result<V> {
-    return super.write(value).chain(this.touch(value));
-  }
-
-  private touch(value: V): Result<V> {
-    const item = this.queue.get(value);
-    if (item !== NO_VALUE) {
-      const moved = this.queue.moveBack(item as ListNode<Single<V>>);
-      if (!moved) {
-        throw new Error(`\`LRU\`: failed to move the cache entry`);
-      }
-
-      return Result.empty();
-    } else {
+    if (!this.has(value)) {
+      const res = this.reservePlace();
       const pushed = this.queue.pushBack(value);
       if (pushed === NO_VALUE) {
         throw new Error(`\`LRU\`: failed to push a new cache entry`);
       }
 
-      return Result.added(once(value));
+      return res.chain(Result.added(once(value)));
+    } else {
+      return this.read(value);
     }
   }
 

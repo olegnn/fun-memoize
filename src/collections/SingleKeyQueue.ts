@@ -2,7 +2,7 @@ import { ListNode } from "../collections/LinkedList";
 import { MultiKeyQueue } from "../collections/MultiKeyQueue";
 import { Single } from "../collections/Single";
 import { IndexedOrderedCollectionWithOrderedKeys } from "../collections/types";
-import { EMPTY_ITER, map } from "../iterators";
+import { EMPTY_ITERABLE, map } from "../iterators";
 import { AbsentValue } from "../value";
 
 /**
@@ -15,7 +15,7 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
 > {
   inner: MultiKeyQueue<V, Single<V>>;
 
-  constructor(values: Iterable<V> = EMPTY_ITER as Iterable<V>) {
+  constructor(values: Iterable<V> = EMPTY_ITERABLE as Iterable<V>) {
     super();
 
     this.inner = new MultiKeyQueue<V, Single<V>>(
@@ -44,36 +44,36 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   /**
    * Moves node to the front of the queue.
    * Returns `true` in case of success.
-   * @param element
+   * @param item
    *
    */
-  moveFront(element: ListNode<Single<V>>): boolean {
-    return this.inner.moveFront(element);
+  moveFront(item: ListNode<Single<V>>): boolean {
+    return this.inner.moveFront(item);
   }
 
   /**
    * Moves node to the back of the queue.
    * Returns `true` in case of success.
-   * @param element
+   * @param item
    *
    */
-  moveBack(element: ListNode<Single<V>>): boolean {
-    return this.inner.moveBack(element);
+  moveBack(item: ListNode<Single<V>>): boolean {
+    return this.inner.moveBack(item);
   }
 
   /**
    * Removes an item from the queue.
    * Returns `true` in case of success.
    */
-  remove(element: ListNode<Single<V>>): boolean {
-    return this.inner.remove(element);
+  remove(item: ListNode<Single<V>>): boolean {
+    return this.inner.remove(item);
   }
 
   /**
-   * Returns `true` if supplied element belongs to the collection.
+   * Returns `true` if supplied item belongs to the collection.
    */
-  contains(element: ListNode<Single<V>>): boolean {
-    return this.inner.contains(element);
+  contains(item: ListNode<Single<V>>): boolean {
+    return this.inner.contains(item);
   }
 
   /**
@@ -132,9 +132,9 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   }
 
   /**
-   * Adds a key for the supplied element to the beginning of its queue.
+   * Adds a key for the supplied item to the beginning of its queue.
    * @param key
-   * @param element
+   * @param item
    *
    */
   addKeyFront(key: V, item: ListNode<Single<V>>): boolean {
@@ -142,9 +142,9 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   }
 
   /**
-   * Adds a key for the supplied element to the end of its queue.
+   * Adds a key for the supplied item to the end of its queue.
    * @param key
-   * @param element
+   * @param item
    *
    */
   addKeyBack(key: V, item: ListNode<Single<V>>): boolean {
@@ -183,6 +183,22 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    */
   peekBack(): AbsentValue | V {
     return this.inner.peekKeyBack();
+  }
+
+  /**
+   * Peeks an item from the beginning of the collection.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   */
+  peekItemFront(): {} | ListNode<Single<V>> {
+    return this.inner.peekItemFront();
+  }
+
+  /**
+   * Peeks an item from the end of the collection.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   */
+  peekItemBack(): {} | ListNode<Single<V>> {
+    return this.inner.peekItemBack();
   }
 
   /**

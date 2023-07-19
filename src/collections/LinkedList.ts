@@ -1,6 +1,6 @@
 import { OrderedCollection } from "./types";
 import { equals } from "../value";
-import { EMPTY_ITER, ITER_DONE_VALUE } from "../iterators";
+import { EMPTY_ITERABLE, ITER_DONE_VALUE, forEach } from "../iterators";
 import { Destroyable } from "../utils";
 
 /**
@@ -75,15 +75,13 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
   head: ListNode<T> | null;
   tail: ListNode<T> | null;
 
-  constructor(values: Iterable<T> = EMPTY_ITER) {
+  constructor(values: Iterable<T> = EMPTY_ITERABLE) {
     super();
     this.length = 0;
     this.head = null;
     this.tail = null;
 
-    for (const value of values) {
-      this.pushBack(value);
-    }
+    forEach((value) => this.pushBack(value), values);
   }
 
   /**
@@ -182,6 +180,24 @@ export class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
    */
   peekBack(): T | null {
     return this.tail && this.tail.value;
+  }
+
+  /**
+   * Peeks an item from the front of the queue.
+   * Returns either item or `null` if queue is empty.
+   *
+   */
+  peekItemFront(): ListNode<T> | null {
+    return this.head;
+  }
+
+  /**
+   * Peeks an item from the end of the queue.
+   * Returns either item or `null` if queue is empty.
+   *
+   */
+  peekItemBack(): ListNode<T> | null {
+    return this.tail;
   }
 
   /**

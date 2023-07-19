@@ -8,7 +8,7 @@ import {
   Clearable,
   ParentPath,
 } from "../utils";
-import { EMPTY_ITER } from "../iterators";
+import { EMPTY_ITERABLE, forEach } from "../iterators";
 
 /**
  * Key-value storage.
@@ -29,7 +29,7 @@ export abstract class Storage<K, V>
 
   constructor(
     params: StorageParams<K, V> = EMPTY_OBJECT as StorageParams<K, V>,
-    parentPaths: Iterable<ParentPath<K | Storage<K, V>>> = EMPTY_ITER
+    parentPaths: Iterable<ParentPath<K | Storage<K, V>>> = EMPTY_ITERABLE
   ) {
     super();
     this.params = params;
@@ -48,9 +48,7 @@ export abstract class Storage<K, V>
     if (this.destroyed) return;
     this.destroyed = true;
 
-    for (const path of this.parentPaths) {
-      path.drop(this);
-    }
+    forEach((path) => path.drop(this), this.parentPaths);
 
     if (this.params.onRemoveStorage != null) this.params.onRemoveStorage(this);
   }

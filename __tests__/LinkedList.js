@@ -28,11 +28,13 @@ describe("MultiKeyQueue", () => {
     const items = [1, 2, 3, 4];
 
     expect(list.peekBack()).toBe(null);
+    expect(list.peekItemBack()).toBe(null);
     for (let i = 0; i < items.length; ++i) {
       list.pushBack(items[i]);
       expect(list.len()).toBe(items[i]);
       expect(list.isEmpty()).toBe(false);
       expect(list.peekBack()).toBe(items[i]);
+      expect(list.peekItemBack()).toBe(list.tail);
     }
 
     expect([...list.valuesBack()]).toEqual([...items].reverse());
@@ -59,11 +61,13 @@ describe("MultiKeyQueue", () => {
     const items = [1, 2, 3, 4];
 
     expect(list.peekFront()).toBe(null);
+    expect(list.peekItemFront()).toBe(null);
     for (let i = 0; i < items.length; ++i) {
       list.pushFront(items[i]);
       expect(list.len()).toBe(items[i]);
       expect(list.isEmpty()).toBe(false);
       expect(list.peekFront()).toBe(items[i]);
+      expect(list.peekItemFront()).toBe(list.head);
     }
 
     expect([...list.valuesFront()]).toEqual([...items].reverse());

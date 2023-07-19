@@ -1,5 +1,5 @@
 import { CacheStrategy } from "../base/CacheStrategy";
-import { once } from "../iterators";
+import { forEach, once } from "../iterators";
 import { Result } from "../utils";
 import { AbsentValue, NO_VALUE } from "../value";
 import { LeafStorage } from "./LeafStorage";
@@ -24,40 +24,23 @@ export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
    * Records a read access of the supplied value.
    */
   read(value: LeafStorage<K, V>): Result<LeafStorage<K, V>> {
-    return super
-      .read(value)
-      .chain(
-        this.handleInnerStrategyResult(this._leafStorageStrategy.read(value))
-      );
+    return this.handleInnerStrategyResult(
+      this._leafStorageStrategy.read(value)
+    );
   }
 
   /**
    * Records a write access of the supplied value.
    */
   write(value: LeafStorage<K, V>): Result<LeafStorage<K, V>> {
+    const res = !this.has(value)
+      ? this.reservePlace()
+      : (Result.empty() as Result<LeafStorage<K, V>>);
     this._leaves++;
 
-    return super
-      .write(value)
-      .chain(
-        this.handleInnerStrategyResult(this._leafStorageStrategy.write(value))
-      );
-  }
-
-  /**
-   * Reserves place for an item.
-   * @param value
-   */
-  protected reservePlace(_: LeafStorage<K, V>): Result<LeafStorage<K, V>> {
-    if (this.isFull()) {
-      const removedItem = this.take();
-
-      if (removedItem !== NO_VALUE) {
-        return Result.removed(once(removedItem as LeafStorage<K, V>));
-      }
-    }
-
-    return Result.empty();
+    return res.chain(
+      this.handleInnerStrategyResult(this._leafStorageStrategy.write(value))
+    );
   }
 
   /**
@@ -121,9 +104,7 @@ export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
    * Handles a result produced by calling one of the inner strategy methods.
    */
   private handleInnerStrategyResult(result: Result<LeafStorage<K, V>>) {
-    for (const removed of result.removed) {
-      this._leaves -= removed.len();
-    }
+    forEach((removed) => (this._leaves -= removed.len()), result.removed);
 
     return result;
   }

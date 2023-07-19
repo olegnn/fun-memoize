@@ -23,6 +23,7 @@ describe("MultiKeyQueue", () => {
     queue = new MultiKeyQueue([inner]);
 
     expect(queue.peekFront()).toEqual(inner);
+    expect(queue.peekItemFront()).toEqual(queue.list.head);
     expect(queue.takeFront()).toEqual(inner);
     expect(queue.takeFront()).toEqual(NO_VALUE);
 
@@ -57,6 +58,7 @@ describe("MultiKeyQueue", () => {
     queue = new MultiKeyQueue([inner]);
 
     expect(queue.peekBack()).toEqual(inner);
+    expect(queue.peekItemBack()).toEqual(queue.list.tail);
     expect(queue.takeBack()).toEqual(inner);
     expect(queue.takeBack()).toEqual(NO_VALUE);
 

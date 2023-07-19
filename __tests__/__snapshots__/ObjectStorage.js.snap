@@ -1,36 +1,36 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ObjectStorage checks non-primitive errors 1`] = `"Invalid value: [object Object], expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 1`] = `"Invalid value [object Object] with type object, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 2`] = `"Invalid value: [object Object], expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 2`] = `"Invalid value [object Object] with type object, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 3`] = `"Invalid value: [object Object], expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 3`] = `"Invalid value [object Object] with type object, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 4`] = `"Invalid value: [object Object], expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 4`] = `"Invalid value [object Object] with type object, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 5`] = `"Invalid value: () => {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 5`] = `"Invalid value () => {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 6`] = `"Invalid value: () => {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 6`] = `"Invalid value () => {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 7`] = `"Invalid value: () => {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 7`] = `"Invalid value () => {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 8`] = `"Invalid value: () => {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 8`] = `"Invalid value () => {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 9`] = `"Invalid value: function () {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 9`] = `"Invalid value function () {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 10`] = `"Invalid value: function () {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 10`] = `"Invalid value function () {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 11`] = `"Invalid value: function () {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 11`] = `"Invalid value function () {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 12`] = `"Invalid value: function () {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 12`] = `"Invalid value function () {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 13`] = `"Invalid value: function* () {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 13`] = `"Invalid value function* () {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 14`] = `"Invalid value: function* () {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 14`] = `"Invalid value function* () {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 15`] = `"Invalid value: function* () {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 15`] = `"Invalid value function* () {} with type function, expected primitive"`;
 
-exports[`ObjectStorage checks non-primitive errors 16`] = `"Invalid value: function* () {}, expected primitive"`;
+exports[`ObjectStorage checks non-primitive errors 16`] = `"Invalid value function* () {} with type function, expected primitive"`;
 
 exports[`ObjectStorage checks non-primitive errors 17`] = `"Cannot convert object to primitive value"`;
 

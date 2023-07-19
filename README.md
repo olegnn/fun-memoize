@@ -177,10 +177,12 @@ interface ParamsWithLength<K, V> extends Params<K, V> {
  * @param func
  * @param params
  */
-declare function memoize<K extends unknown, V>(
-  func: (...args: K[]) => V,
-  { length, checkLast, ...params }?: ParamsWithLength<K, V>
-): typeof func;
+declare function memoize<V>(
+  func: (...args: any[]) => V,
+  { length, checkLast, ...params }?: ParamsWithLength<any, V>
+): typeof func & {
+  recomputations: number;
+};
 ```
 
 ## Available cache strategies

@@ -4,7 +4,7 @@ import {
   IndexedOrderedCollectionWithOrderedKeys,
 } from "./types";
 import { AbsentValue, NO_VALUE } from "../value";
-import { EMPTY_ITER, flatMap } from "../iterators";
+import { EMPTY_ITERABLE, flatMap, forEach } from "../iterators";
 import { SafeMapStorage } from "../storage";
 import { Storage, StorageClass } from "../base";
 
@@ -14,20 +14,18 @@ import { Storage, StorageClass } from "../base";
  */
 export class MultiKeyQueue<
   Key,
-  Item extends IndexedOrderedCollection<Key, Key, InnerItem>,
+  Value extends IndexedOrderedCollection<Key, Key, InnerItem>,
   InnerItem = Key
-> extends IndexedOrderedCollectionWithOrderedKeys<Key, Item, ListNode<Item>> {
-  list: LinkedList<Item>;
-  map: Storage<Key, ListNode<Item>>;
+> extends IndexedOrderedCollectionWithOrderedKeys<Key, Value, ListNode<Value>> {
+  list: LinkedList<Value>;
+  map: Storage<Key, ListNode<Value>>;
 
-  constructor(values: Iterable<Item> = EMPTY_ITER as Iterable<Item>) {
+  constructor(values: Iterable<Value> = EMPTY_ITERABLE as Iterable<Value>) {
     super();
     this.list = new LinkedList();
-    this.map = new (SafeMapStorage as StorageClass<Key, ListNode<Item>>)();
+    this.map = new (SafeMapStorage as StorageClass<Key, ListNode<Value>>)();
 
-    for (const value of values) {
-      this.pushBack(value);
-    }
+    forEach((value) => this.pushBack(value), values);
   }
 
   /**
@@ -44,12 +42,12 @@ export class MultiKeyQueue<
    * @param key
    *
    */
-  drop(key: Key): Item | AbsentValue {
+  drop(key: Key): Value | AbsentValue {
     const maybeNoValueListNode = this.map.get(key);
     if (maybeNoValueListNode === NO_VALUE) {
       return NO_VALUE;
     }
-    const listNode = maybeNoValueListNode as ListNode<Item>;
+    const listNode = maybeNoValueListNode as ListNode<Value>;
 
     if (!this.remove(listNode)) {
       throw new Error("Inconsistency");
@@ -64,7 +62,7 @@ export class MultiKeyQueue<
    * @param listNode
    *
    */
-  moveFront(listNode: ListNode<Item>): boolean {
+  moveFront(listNode: ListNode<Value>): boolean {
     return this.list.moveFront(listNode);
   }
 
@@ -74,7 +72,7 @@ export class MultiKeyQueue<
    * @param listNode
    *
    */
-  moveBack(listNode: ListNode<Item>): boolean {
+  moveBack(listNode: ListNode<Value>): boolean {
     return this.list.moveBack(listNode);
   }
 
@@ -84,7 +82,7 @@ export class MultiKeyQueue<
    * @param listNode
    *
    */
-  remove(listNode: ListNode<Item>): boolean {
+  remove(listNode: ListNode<Value>): boolean {
     const removed = this.list.remove(listNode);
 
     if (removed) {
@@ -95,9 +93,9 @@ export class MultiKeyQueue<
   }
 
   /**
-   * Returns `true` if supplied element belongs to the collection.
+   * Returns `true` if supplied item belongs to the collection.
    */
-  contains(listNode: ListNode<Item>): boolean {
+  contains(listNode: ListNode<Value>): boolean {
     return this.list.contains(listNode);
   }
 
@@ -113,7 +111,7 @@ export class MultiKeyQueue<
     if (maybeNoValueListNode === NO_VALUE) {
       return false;
     }
-    const listNode = maybeNoValueListNode as ListNode<Item>;
+    const listNode = maybeNoValueListNode as ListNode<Value>;
 
     this.map.drop(key);
     if (!listNode.value.dropKey(key)) {
@@ -133,7 +131,10 @@ export class MultiKeyQueue<
    * @param key
    *
    */
-  insertAfter(node: ListNode<Item>, value: Item): ListNode<Item> | AbsentValue {
+  insertAfter(
+    node: ListNode<Value>,
+    value: Value
+  ): ListNode<Value> | AbsentValue {
     const listNode = this.list.insertAfter(node, value);
     if (listNode == null) {
       return NO_VALUE;
@@ -150,9 +151,9 @@ export class MultiKeyQueue<
    *
    */
   insertBefore(
-    node: ListNode<Item>,
-    value: Item
-  ): ListNode<Item> | AbsentValue {
+    node: ListNode<Value>,
+    value: Value
+  ): ListNode<Value> | AbsentValue {
     const listNode = this.list.insertBefore(node, value);
     if (listNode == null) {
       return NO_VALUE;
@@ -167,7 +168,7 @@ export class MultiKeyQueue<
    * @param key
    *
    */
-  get(key: Key): ListNode<Item> | AbsentValue {
+  get(key: Key): ListNode<Value> | AbsentValue {
     return this.map.get(key);
   }
 
@@ -181,12 +182,12 @@ export class MultiKeyQueue<
   }
 
   /**
-   * Adds a key for the supplied element to the beginning of its queue.
+   * Adds a key for the supplied item to the beginning of its queue.
    * @param key
    * @param listNode
    *
    */
-  addKeyFront(key: Key, item: ListNode<Item>): boolean {
+  addKeyFront(key: Key, item: ListNode<Value>): boolean {
     if (this.map.has(key)) {
       throw new Error("Key already exists");
     } else if (!this.contains(item)) {
@@ -204,12 +205,12 @@ export class MultiKeyQueue<
   }
 
   /**
-   * Adds a key for the supplied element to the end of its queue.
+   * Adds a key for the supplied item to the end of its queue.
    * @param key
    * @param listNode
    *
    */
-  addKeyBack(key: Key, item: ListNode<Item>): boolean {
+  addKeyBack(key: Key, item: ListNode<Value>): boolean {
     if (this.map.has(key)) {
       throw new Error("Key already exists");
     } else if (!this.contains(item)) {
@@ -230,7 +231,7 @@ export class MultiKeyQueue<
    * Takes a value from the beginning of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
    */
-  takeFront(): Item | AbsentValue {
+  takeFront(): Value | AbsentValue {
     const item = this.list.takeFront();
 
     if (item != null) {
@@ -244,7 +245,7 @@ export class MultiKeyQueue<
    * Takes a value from the end of the queue.
    * Returns either item or `NO_VALUE` if queue is empty.
    */
-  takeBack(): Item | AbsentValue {
+  takeBack(): Value | AbsentValue {
     const item = this.list.takeBack();
 
     if (item != null) {
@@ -259,7 +260,7 @@ export class MultiKeyQueue<
    * Returns either item or `NO_VALUE` if queue is empty.
    *
    */
-  peekFront(): Item | AbsentValue {
+  peekFront(): Value | AbsentValue {
     const item = this.list.peekFront();
 
     return item == null ? NO_VALUE : item;
@@ -270,8 +271,28 @@ export class MultiKeyQueue<
    * Returns either item or `NO_VALUE` if queue is empty.
    *
    */
-  peekBack(): Item | AbsentValue {
+  peekBack(): Value | AbsentValue {
     const item = this.list.peekBack();
+
+    return item == null ? NO_VALUE : item;
+  }
+
+  /**
+   * Peeks an item from the beginning of the collection.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   */
+  peekItemFront(): AbsentValue | ListNode<Value> {
+    const item = this.list.peekItemFront();
+
+    return item == null ? NO_VALUE : item;
+  }
+
+  /**
+   * Peeks an item from the end of the collection.
+   * Returns either item or `NO_VALUE` if queue is empty.
+   */
+  peekItemBack(): AbsentValue | ListNode<Value> {
+    const item = this.list.peekItemBack();
 
     return item == null ? NO_VALUE : item;
   }
@@ -312,22 +333,18 @@ export class MultiKeyQueue<
    *
    */
   takeKeyFront(): Key | AbsentValue {
-    while (!this.isEmpty()) {
-      const first = this.list.peekFront();
+    const first = this.list.peekFront();
 
-      if (first != null) {
-        const key = first.takeFront();
-        if (first.isEmpty()) {
-          this.list.takeFront();
-        }
+    if (first != null) {
+      const key = first.takeFront();
+      if (first.isEmpty()) {
+        this.list.takeFront();
+      }
 
-        if (key !== NO_VALUE) {
-          this.map.drop(key as Key);
+      if (key !== NO_VALUE) {
+        this.map.drop(key as Key);
 
-          return key;
-        }
-      } else {
-        break;
+        return key;
       }
     }
 
@@ -340,22 +357,18 @@ export class MultiKeyQueue<
    *
    */
   takeKeyBack(): Key | AbsentValue {
-    while (!this.isEmpty()) {
-      const last = this.list.peekBack();
+    const last = this.list.peekBack();
 
-      if (last != null) {
-        const key = last.takeBack();
-        if (last.isEmpty()) {
-          this.list.takeBack();
-        }
+    if (last != null) {
+      const key = last.takeBack();
+      if (last.isEmpty()) {
+        this.list.takeBack();
+      }
 
-        if (key !== NO_VALUE) {
-          this.map.drop(key as Key);
+      if (key !== NO_VALUE) {
+        this.map.drop(key as Key);
 
-          return key;
-        }
-      } else {
-        break;
+        return key;
       }
     }
 
@@ -366,7 +379,7 @@ export class MultiKeyQueue<
    * Returns an iterator over values.
    *
    */
-  valuesFront(): Iterable<Item> {
+  valuesFront(): Iterable<Value> {
     return this.list.valuesFront();
   }
 
@@ -374,7 +387,7 @@ export class MultiKeyQueue<
    * Returns an iterator over values.
    *
    */
-  valuesBack(): Iterable<Item> {
+  valuesBack(): Iterable<Value> {
     return this.list.valuesBack();
   }
 
@@ -402,7 +415,7 @@ export class MultiKeyQueue<
    * @param value
    *
    */
-  pushBack(value: Item): ListNode<Item> {
+  pushBack(value: Value): ListNode<Value> {
     const listNode = this.list.pushBack(value);
     this.assocKeys(value, listNode);
 
@@ -414,7 +427,7 @@ export class MultiKeyQueue<
    * @param value
    *
    */
-  pushFront(value: Item): ListNode<Item> {
+  pushFront(value: Value): ListNode<Value> {
     const listNode = this.list.pushFront(value);
     this.assocKeys(value, listNode);
 
@@ -427,14 +440,14 @@ export class MultiKeyQueue<
    * @param node
    *
    */
-  private assocKeys(value: Item, node: ListNode<Item>): void {
-    for (const key of value.keys()) {
+  private assocKeys(value: Value, node: ListNode<Value>): void {
+    forEach((key) => {
       if (this.map.has(key)) {
         throw new Error("Key already exists");
       }
 
       this.map.set(key, node);
-    }
+    }, value.keys());
   }
 
   /**
@@ -443,11 +456,11 @@ export class MultiKeyQueue<
    * @param node
    *
    */
-  private dissocKeys(value: Item): void {
-    for (const key of value.keys()) {
+  private dissocKeys(value: Value): void {
+    forEach((key) => {
       if (!this.map.drop(key)) {
         throw new Error("Key doesn't exist");
       }
-    }
+    }, value.keys());
   }
 }

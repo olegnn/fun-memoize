@@ -48,28 +48,41 @@ export class FIFO<V> extends CacheStrategy<V> {
   }
 
   /**
+   * Records read access of the supplied item.
+   * @param value
+   *
+   */
+  read(_value: V): Result<V> {
+    return Result.empty();
+  }
+
+  /**
    * Records write access of the supplied item.
    * @param value
    *
    */
   write(value: V): Result<V> {
-    const res = super.write(value);
+    if (!this.has(value)) {
+      const res = this.reservePlace();
 
-    const item = this.queue.get(value);
-    if (item !== NO_VALUE) {
-      const moved = this.queue.moveBack(item as ListNode<Single<V>>);
-      if (!moved) {
-        throw new Error(`\`FIFO\`: failed to move the cache entry`);
-      }
-
-      return res;
-    } else {
       const pushed = this.queue.pushBack(value);
       if (pushed === NO_VALUE) {
         throw new Error(`\`FIFO\`: failed to push a new cache entry`);
       }
 
       return res.chain(Result.added(once(value)));
+    } else {
+      const item = this.queue.get(value);
+      if (item === NO_VALUE) {
+        throw new Error(`\`FIFO\`: cache entry doesn't exist`);
+      }
+
+      const moved = this.queue.moveBack(item as ListNode<Single<V>>);
+      if (!moved) {
+        throw new Error(`\`FIFO\`: failed to move the cache entry`);
+      }
+
+      return Result.empty();
     }
   }
 

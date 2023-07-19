@@ -1,5 +1,5 @@
 const { MapStorage } = require("../build/storage/MapStorage");
-const { TRICKY_VALUES, createBasicStorageTests } = require("./helpers");
+const { TEST_VALUES, createBasicStorageTests } = require("./helpers");
 
 const obj1 = {};
 const obj2 = {};
@@ -21,7 +21,7 @@ const keys = [
   obj5,
   obj6,
   obj1,
-  ...TRICKY_VALUES,
+  ...TEST_VALUES,
 ];
 
 describe("MapStorage", () => createBasicStorageTests(MapStorage, keys));

@@ -13,7 +13,7 @@ export abstract class OrderedCollection<
 > extends HasLength {
   /**
    * Adds an item to the end of the collection.
-   * Returns either created element or absent value in case value can't be added.
+   * Returns either created item or absent value in case value can't be added.
    * @param value
    *
    */
@@ -21,71 +21,83 @@ export abstract class OrderedCollection<
 
   /**
    * Pushes an item to the beginning of the collection.
-   * Returns either created element or absent value in case value can't be added.
+   * Returns either created item or absent value in case value can't be added.
    * @param value
    *
    */
   abstract pushFront(value: Value): Item | Absent;
 
   /**
-   * Moves an element to the beginning of the collection.
+   * Moves an item to the beginning of the collection.
    * Returns `true` in case of success.
-   * @param element
+   * @param item
    *
    */
-  abstract moveFront(element: Item): boolean;
+  abstract moveFront(item: Item): boolean;
 
   /**
-   * Moves an element to the back.
+   * Moves an item to the back.
    * Returns `true` in case of success.
-   * @param element
+   * @param item
    *
    */
-  abstract moveBack(element: Item): boolean;
+  abstract moveBack(item: Item): boolean;
 
   /**
-   * Removes an element from the collection.
+   * Removes an item from the collection.
    * Returns `true` in case of success.
    */
-  abstract remove(element: Item): boolean;
+  abstract remove(item: Item): boolean;
 
   /**
-   * Returns `true` if supplied element belongs to the collection.
+   * Returns `true` if supplied item belongs to the collection.
    */
-  abstract contains(element: Item): boolean;
+  abstract contains(item: Item): boolean;
 
   /**
-   * Takes an element from the end of the collection.
+   * Takes a value from the end of the collection.
    */
   abstract takeBack(): Value | Absent;
 
   /**
-   * Takes an element from the beginning of the collection.
+   * Takes a value from the beginning of the collection.
    */
   abstract takeFront(): Value | Absent;
 
   /**
-   * Inserts given value after the supplied element returning new element.
-   * Returns `Absent` in case supplied element doesn't belong to this list.
+   * Inserts given value after the supplied item returning new item.
+   * Returns `Absent` in case supplied item doesn't belong to this list.
    */
-  abstract insertAfter(element: Item, value: Value): Item | Absent;
+  abstract insertAfter(item: Item, value: Value): Item | Absent;
 
   /**
-   * Inserts given value before the supplied element returning new element.
-   * Returns `Absent` in case supplied element doesn't belong to this list.
+   * Inserts given value before the supplied item returning new item.
+   * Returns `Absent` in case supplied item doesn't belong to this list.
    *
    */
-  abstract insertBefore(element: Item, value: Value): Item | Absent;
+  abstract insertBefore(item: Item, value: Value): Item | Absent;
 
   /**
-   * Peeks an element from the end of the collection.
+   * Peeks a value from the end of the collection.
    */
   abstract peekBack(): Value | Absent;
 
   /**
-   * Peeks an element from the beginning of the collection.
+   * Peeks a value from the beginning of the collection.
    */
   abstract peekFront(): Value | Absent;
+
+  /**
+   * Peeks an item from the beginning of the collection.
+   * Returns either item or `NO_VALUE` if collection is empty.
+   */
+  abstract peekItemFront(): Item | Absent;
+
+  /**
+   * Peeks an item from the end of the collection.
+   * Returns either item or `NO_VALUE` if collection is empty.
+   */
+  abstract peekItemBack(): Item | Absent;
 
   /**
    * Returns an iterator over collection values starting from the end.
@@ -112,6 +124,7 @@ export abstract class IndexedOrderedCollection<
 > extends OrderedCollection<Value, Item, Absent> {
   /**
    * Retrieves an item associated with the provided key returning it.
+   * Returns `NO_VALUE` if the item with the given key didn't exist.
    */
   abstract get(key: Key): Item | Absent;
 
@@ -122,8 +135,9 @@ export abstract class IndexedOrderedCollection<
 
   /**
    * Drops an item associated with the provided key returning it.
+   * Returns `NO_VALUE` if the item with the given key didn't exist.
    */
-  abstract drop(key: Key): Item | Absent;
+  abstract drop(key: Key): Value | Absent;
 
   /**
    * Drops an item's key from the collection. If referenced item has no more keys, it will be dropped as well.

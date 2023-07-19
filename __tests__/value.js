@@ -10,5 +10,8 @@ describe("value", () => {
     expect(isPrimitiveValue(2)).toBe(true);
     expect(isPrimitiveValue({})).toBe(false);
     expect(isPrimitiveValue(() => {})).toBe(false);
+    expect(isPrimitiveValue(Symbol("123"))).toBe(true);
+    expect(isPrimitiveValue(123n)).toBe(true);
+    expect(isPrimitiveValue(Infinity)).toBe(true);
   });
 });
