@@ -128,7 +128,7 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
       case "boolean":
         return `2${key as boolean}`;
       case "bigint":
-        return `3${key as BigInt}`;
+        return `3${key as bigint}`;
       case "undefined":
         return "4";
       case "symbol":

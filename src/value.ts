@@ -9,7 +9,7 @@ export const equals = <V>(v1: V, v2: V): boolean =>
 export type AbsentValue = typeof NO_VALUE;
 /** Type of the non-primitive value - either object or function */
 export type NonPrimitive = Object | Function;
-/** Type of the primitive value - boolean, string, number, null, void, symbol or BigInt */
+/** Type of the primitive value - boolean, string, number, null, void, symbol or bigint */
 export type Primitive =
   | boolean
   | string
