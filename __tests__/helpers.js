@@ -7,7 +7,7 @@ const FALSY_VALUES = [0, false, 0n, "", NaN, undefined, null].filter(
   (value) => !(process.env.OMIT_BIGINT && value?.constructor === BigInt)
 );
 
-const TRICKY_VALUES = [
+const TEST_VALUES = [
   Infinity,
   -Infinity,
   12e7,
@@ -15,6 +15,10 @@ const TRICKY_VALUES = [
   2.23123123123123123123123123,
   123125345423423424n,
   123123435n,
+  Symbol.for("123"),
+  Symbol("12345"),
+  "12345",
+  Symbol("12345"),
   ...FALSY_VALUES,
 ].filter(
   (value) => !(process.env.OMIT_BIGINT && value?.constructor === BigInt)
@@ -25,7 +29,7 @@ const assertWithTrickyValues = (fn, assert) =>
 
 const assertWithNTrickyValues = (fn, n, assert, args = []) =>
   n > 0
-    ? TRICKY_VALUES.forEach((value) =>
+    ? TEST_VALUES.forEach((value) =>
         assertWithNTrickyValues(fn, n - 1, assert, [...args, value])
       )
     : assert(fn(args));
@@ -228,7 +232,7 @@ class Destroyable {
 module.exports = {
   Destroyable,
   FALSY_VALUES,
-  TRICKY_VALUES,
+  TEST_VALUES: TEST_VALUES,
   extractNMapKeys,
   expectResult,
   memoryOverflow,

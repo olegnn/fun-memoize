@@ -1,4 +1,4 @@
-import { EMPTY_ITER, chain, map } from "./iterators";
+import { EMPTY_ITERABLE, chain, forEach, map } from "./iterators";
 import { AbsentValue, NO_VALUE } from "./value";
 
 /**
@@ -156,8 +156,8 @@ export class Result<V> {
   static EMPTY_RESULT = new Result();
 
   private constructor(
-    removed: Iterable<V> = EMPTY_ITER,
-    added: Iterable<V> = EMPTY_ITER
+    removed: Iterable<V> = EMPTY_ITERABLE,
+    added: Iterable<V> = EMPTY_ITERABLE
   ) {
     this.removed = removed;
     this.added = added;
@@ -212,7 +212,7 @@ export class Result<V> {
    *
    */
   forEachAdded(fn: (added: V) => void): this {
-    for (const added of this.added) fn(added);
+    forEach(fn, this.added);
 
     return this;
   }
@@ -223,16 +223,8 @@ export class Result<V> {
    *
    */
   forEachRemoved(fn: (removed: V) => void): this {
-    for (const removed of this.removed) fn(removed);
+    forEach(fn, this.removed);
 
     return this;
-  }
-
-  /**
-   * Maps given result over removed and added items.
-   * @param fn
-   */
-  map<R>(fn: (value: V) => R): Result<R> {
-    return new Result(map(fn, this.removed), map(fn, this.added));
   }
 }

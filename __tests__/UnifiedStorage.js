@@ -1,5 +1,5 @@
 const { UnifiedStorage } = require("../build/storage/UnifiedStorage");
-const { TRICKY_VALUES, createBasicStorageTests } = require("./helpers");
+const { TEST_VALUES, createBasicStorageTests } = require("./helpers");
 
 const obj1 = {};
 const obj2 = {};
@@ -21,7 +21,7 @@ const keys = [
   obj5,
   obj1,
   obj6,
-  ...TRICKY_VALUES,
+  ...TEST_VALUES,
 ];
 
 describe("UnifiedStorage based on a Map", () =>

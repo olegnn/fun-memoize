@@ -78,7 +78,7 @@ export class UnifiedStorage<
    * @param key
    *
    */
-  get(key: Primitive | NonPrimitive): V | AbsentValue {
+  get(key: K): V | AbsentValue {
     return isPrimitiveValue(key)
       ? this.primitiveStorage.get(key as Primitive)
       : this.nonPrimitiveStorage.get(key as NonPrimitive);
@@ -89,7 +89,7 @@ export class UnifiedStorage<
    * @param key
    *
    */
-  drop(key: Primitive | NonPrimitive): V | AbsentValue {
+  drop(key: K): V | AbsentValue {
     return isPrimitiveValue(key)
       ? this.primitiveStorage.drop(key as Primitive)
       : this.nonPrimitiveStorage.drop(key as NonPrimitive);
@@ -101,7 +101,7 @@ export class UnifiedStorage<
    * @param value
    *
    */
-  set(key: Primitive | NonPrimitive, value: V): void {
+  set(key: K, value: V): void {
     if (isPrimitiveValue(key)) {
       this.primitiveStorage.set(key as Primitive, value);
     } else {

@@ -201,10 +201,9 @@ export class Root<K, V> {
    * @param calculate
    */
   getOrInsertWith(path: K[], calculate: (args: K[]) => V): V {
-    const length = this.length;
-    if (path.length !== length) throw new Error("Invalid path length");
+    if (path.length !== this.length) throw new Error("Invalid path length");
 
-    const result = this.extractOrSetPath(path, calculate, 0);
+    const result = this.extractOrSetPath(path, calculate);
     this.last.reset();
 
     return result as V;

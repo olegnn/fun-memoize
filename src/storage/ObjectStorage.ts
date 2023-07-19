@@ -1,5 +1,5 @@
 import type { StorageParams } from "../base/Storage";
-import { isPrimitiveValue, AbsentValue, Primitive } from "../value";
+import { AbsentValue, Primitive } from "../value";
 
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
@@ -7,96 +7,10 @@ import { map } from "../iterators";
 import type { ParentPath } from "../utils";
 
 /**
- * A key for the `ObjectStorage`.
- */
-export class Key<K extends Primitive> {
-  type: number;
-  value: K;
-
-  constructor(value: K) {
-    if (!isPrimitiveValue(value)) {
-      throw new TypeError(`Invalid value: ${value}, expected primitive`);
-    }
-    const type = Key.valueType(value);
-
-    this.type = type;
-    this.value = value;
-  }
-
-  /**
-   * Returns type index for the provided value.
-   */
-  static valueType<K>(value: K): number {
-    const type = typeof value;
-
-    switch (type) {
-      case "number":
-        return 0;
-      case "bigint":
-        return 1;
-      case "string":
-        return 2;
-      case "undefined":
-        return 3;
-      case "symbol":
-        return 4;
-      case "boolean":
-        return 5;
-      default:
-        if (value === null) return 6;
-    }
-
-    throw new TypeError(
-      `Invalid value ${value} with type ${type}, expected primitive`
-    );
-  }
-
-  /**
-   * Creates new value using the provided type index and stringified representation.
-   */
-  static valueFromStringified(type: number, value: string) {
-    switch (type) {
-      case 0:
-        return new Key(Number(value));
-      case 1:
-        return new Key(BigInt(value));
-      case 2:
-        return new Key(value);
-      case 3:
-        return new Key(undefined);
-      case 4:
-        return new Key(Symbol(value));
-      case 5:
-        return new Key(value === "true");
-      case 6:
-        return new Key(null);
-    }
-
-    throw new TypeError(`Invalid type ${type} of value ${value}`);
-  }
-
-  /**
-   * Converts underlying value to the string representation.
-   */
-  toString() {
-    return `${this.type}${this.value}`;
-  }
-
-  /**
-   * Instantiates value from string.
-   */
-  static fromString(stringified: string) {
-    const type = +stringified[0];
-
-    return Key.valueFromStringified(type, stringified.slice(1));
-  }
-}
-
-/**
  * Key-value storage for values with primitive keys based on an `Object`.
  */
 export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
-  map: { [key: string]: V };
+  map: { [key: string | symbol]: V };
   length: number;
 
   constructor(
@@ -122,9 +36,9 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
    *
    */
   has(rawKey: K): boolean {
-    const keyStr = new Key(rawKey).toString();
+    const objKey = this.objectKeyFromRawKey(rawKey);
 
-    return keyStr in this.map;
+    return objKey in this.map;
   }
 
   /**
@@ -133,10 +47,10 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
    *
    */
   get(rawKey: K): V | AbsentValue {
-    const keyStr = new Key(rawKey).toString();
+    const objKey = this.objectKeyFromRawKey(rawKey);
 
-    if (keyStr in this.map) {
-      return this.map[keyStr];
+    if (objKey in this.map) {
+      return this.map[objKey];
     } else {
       return NO_VALUE;
     }
@@ -148,13 +62,13 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
    *
    */
   drop(rawKey: K): V | AbsentValue {
-    const keyStr = new Key(rawKey).toString();
+    const objKey = this.objectKeyFromRawKey(rawKey);
     let value = NO_VALUE;
 
-    if (keyStr in this.map) {
+    if (objKey in this.map) {
       this.length--;
-      value = this.map[keyStr];
-      delete this.map[keyStr];
+      value = this.map[objKey];
+      delete this.map[objKey];
     }
 
     return value;
@@ -167,12 +81,12 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
    *
    */
   set(rawKey: K, value: V): void {
-    const keyStr = new Key(rawKey).toString();
-    const has = keyStr in this.map;
+    const objKey = this.objectKeyFromRawKey(rawKey);
+    const has = objKey in this.map;
 
     if (!has) {
       this.length++;
-      this.map[keyStr.toString()] = value;
+      this.map[objKey] = value;
     }
   }
 
@@ -191,11 +105,72 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
    */
   entries(): Iterable<{ key: K; value: V }> {
     return map(
-      ([key, value]) => ({
-        key: Key.fromString(key).value,
-        value,
+      (key) => ({
+        key: this.rawKeyFromObjectKey(key),
+        value: this.map[key],
       }),
-      Object.entries(this.map)
+      Reflect.ownKeys(this.map)
     );
+  }
+
+  /**
+   * Converts provided raw key to the object key.
+   * @param key
+   * @returns
+   */
+  private objectKeyFromRawKey(key: K): string | symbol {
+    const type = typeof key;
+
+    switch (type) {
+      case "number":
+        return `0${key as number}`;
+      case "string":
+        return `1${key as string}`;
+      case "boolean":
+        return `2${key as boolean}`;
+      case "bigint":
+        return `3${key as BigInt}`;
+      case "undefined":
+        return "4";
+      case "symbol":
+        return key as symbol;
+      default:
+        if (key === null) return "5";
+
+        throw new TypeError(
+          `Invalid value ${String(key)} with type ${type}, expected primitive`
+        );
+    }
+  }
+
+  /**
+   * Instantiates a raw key from the provided object key.
+   */
+  private rawKeyFromObjectKey(key: string | symbol): K {
+    switch (typeof key) {
+      case "symbol":
+        return key as K;
+      case "string":
+        const type = +key[0];
+
+        switch (type) {
+          case 0:
+            return Number(key.slice(1)) as K;
+          case 1:
+            return key.slice(1) as K;
+          case 2:
+            return (key.slice(1) === "true") as K;
+          case 3:
+            return BigInt(key.slice(1) as string) as K;
+          case 4:
+            return undefined;
+          case 5:
+            return null;
+          default:
+            throw new TypeError(`Invalid type ${type} of key ${key}`);
+        }
+      default:
+        throw new TypeError(`Invalid key ${key}, expected string or symbol`);
+    }
   }
 }

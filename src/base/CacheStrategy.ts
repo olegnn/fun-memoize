@@ -15,32 +15,18 @@ export abstract class CacheStrategy<V>
   }
 
   /**
-   * Records read access of the supplied item.
-   * @param value
-   *
-   */
-  public read(value: V): Result<V> {
-    return this.reservePlace(value);
-  }
-
-  /**
    * Records write access of the supplied item.
    * @param value
    *
    */
-  public write(value: V): Result<V> {
-    return this.reservePlace(value);
-  }
+  abstract write(value: V): Result<V>;
 
   /**
-   * Removes all items from the strategy.
+   * Records read access of the supplied item. Throws an error if an item doesn't exist.
+   * @param value
    *
    */
-  public clear(): void {
-    while (!this.isEmpty()) {
-      this.take();
-    }
-  }
+  abstract read(value: V): Result<V>;
 
   /**
    * Removes supplied item from the queue.
@@ -70,11 +56,21 @@ export abstract class CacheStrategy<V>
   public abstract has(value: V): boolean;
 
   /**
-   * Reserves place for an item.
+   * Removes all items from the strategy.
+   *
+   */
+  public clear(): void {
+    while (!this.isEmpty()) {
+      this.take();
+    }
+  }
+
+  /**
+   * Reserves place for a new item.
    * @param value
    */
-  protected reservePlace(value: V): Result<V> {
-    if (this.isFull() || (this.willBeFull() && !this.has(value))) {
+  protected reservePlace(): Result<V> {
+    if (this.willBeFull()) {
       const removedItem = this.take();
 
       if (removedItem !== NO_VALUE) {
@@ -91,6 +87,8 @@ export abstract class CacheStrategy<V>
  */
 export type CacheStrategyClass<V> = new (...args: any[]) => CacheStrategy<V> & {
   len(): number;
+  write(value: V): Result<V>;
+  read(value: V): Result<V>;
   drop(value: V): boolean;
   take(): V | AbsentValue;
   peek(): V | AbsentValue;

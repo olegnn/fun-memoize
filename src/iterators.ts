@@ -8,9 +8,9 @@ export function chain<V>(
   firstIterable: Iterable<V>,
   secondIterable: Iterable<V>
 ): Iterable<V> {
-  if (firstIterable === EMPTY_ITER) {
+  if (firstIterable === EMPTY_ITERABLE) {
     return secondIterable;
-  } else if (secondIterable === EMPTY_ITER) {
+  } else if (secondIterable === EMPTY_ITERABLE) {
     return firstIterable;
   }
 
@@ -94,19 +94,15 @@ export function zip<L, R>(
 
       return {
         next() {
-          for (;;) {
-            const left = leftIter.next();
-            const right = rightIter.next();
+          const left = leftIter.next();
+          const right = rightIter.next();
 
-            if (left.done || right.done) {
-              return ITER_DONE_VALUE;
-            } else {
-              return {
+          return left.done || right.done
+            ? ITER_DONE_VALUE
+            : {
                 value: { left: left.value, right: right.value },
                 done: false,
               };
-            }
-          }
         },
       };
     },
@@ -187,7 +183,7 @@ export function flatMap<V, R>(
  * @returns {Iterable<V>}
  */
 export function empty<V>(): Iterable<V> {
-  return EMPTY_ITER;
+  return EMPTY_ITERABLE;
 }
 
 /**
@@ -245,6 +241,18 @@ export function cycle<V>(iter: Iterable<V>): Iterable<V> {
 }
 
 /**
+ * Executes supplied `fn` on each item produced by the iterable.
+ * @param fn
+ * @param iterable
+ */
+export function forEach<V>(fn: (value: V) => void, iterable: Iterable<V>) {
+  if (iterable === EMPTY_ITERABLE) return;
+  const iter = iterable[Symbol.iterator]();
+
+  for (let item = iter.next(); !item.done; fn(item.value), item = iter.next());
+}
+
+/**
  * Creates an iterable which emits two items.
  * @param first
  * @param second
@@ -275,19 +283,28 @@ export function double<V>(first: V, second: V): Iterable<V> {
   };
 }
 
+/**
+ * Ending value of an iterator.
+ * MUST NOT BE MODIFIED.
+ */
 export const ITER_DONE_VALUE = { value: undefined, done: true };
 
-export const EMPTY_ITER_NEXT = {
+/**
+ * An iterator producing no values.
+ * MUST NOT BE MODIFIED.
+ */
+export const EMPTY_ITERATOR = {
   next() {
     return ITER_DONE_VALUE;
   },
 };
 
 /**
- * An iterator producing no values.
+ * An iteratable producing no values.
+ * MUST NOT BE MODIFIED.
  */
-export const EMPTY_ITER = {
+export const EMPTY_ITERABLE = {
   [Symbol.iterator]() {
-    return EMPTY_ITER_NEXT;
+    return EMPTY_ITERATOR;
   },
 };
