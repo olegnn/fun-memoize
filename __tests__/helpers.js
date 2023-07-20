@@ -1,5 +1,5 @@
 const { NO_VALUE, isPrimitiveValue } = require("../build/value");
-const { zip, once } = require("../build/iterators");
+const { zip, once } = require("../build/iterables");
 const { default: memoize } = require("../build/index");
 const { ParentPath } = require("../build/utils");
 

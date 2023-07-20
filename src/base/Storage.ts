@@ -8,7 +8,7 @@ import {
   Clearable,
   ParentPath,
 } from "../utils";
-import { EMPTY_ITERABLE, forEach } from "../iterators";
+import { EMPTY_ITERABLE, forEach } from "../iterables";
 
 /**
  * Key-value storage.

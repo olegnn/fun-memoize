@@ -2,7 +2,7 @@ import { ListNode } from "../collections/LinkedList";
 import { MultiKeyQueue } from "../collections/MultiKeyQueue";
 import { Single } from "../collections/Single";
 import { IndexedOrderedCollectionWithOrderedKeys } from "../collections/types";
-import { EMPTY_ITERABLE, map } from "../iterators";
+import { EMPTY_ITERABLE, map } from "../iterables";
 import { AbsentValue } from "../value";
 
 /**

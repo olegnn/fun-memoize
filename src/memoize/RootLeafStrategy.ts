@@ -1,5 +1,5 @@
 import { CacheStrategy } from "../base/CacheStrategy";
-import { forEach, once } from "../iterators";
+import { forEach, once } from "../iterables";
 import { Result } from "../utils";
 import { AbsentValue, NO_VALUE } from "../value";
 import { LeafStorage } from "./LeafStorage";

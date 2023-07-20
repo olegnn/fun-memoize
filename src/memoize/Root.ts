@@ -1,6 +1,6 @@
 import { equals, AbsentValue, NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
-import { append, double, once } from "../iterators";
+import { values } from "../iterables";
 import { DestroyableParentPath, EMPTY_ARRAY, ParentPath } from "../utils";
 import { LeafStorage } from "./LeafStorage";
 import { StorageContext, NestedStorage } from "./StorageContext";
@@ -154,6 +154,9 @@ export interface RootParams {
 }
 
 export class Root<K, V> {
+  /**
+   * Cache depth.
+   */
   length: number;
   /**
    * Root node.
@@ -163,20 +166,19 @@ export class Root<K, V> {
    * Storage context used to create new storages.
    */
   ctx: StorageContext<K, V>;
-
-  /**
-   * Root storage strategy child path to be passed to newly created storage nodes.
-   */
-  rootPath: ParentPath<AbsentValue>;
-  /**
-   * Root leaf storage strategy child path to be passed to newly created leaf storage nodes.
-   */
-  leafPath: ParentPath<AbsentValue>;
-
   /**
    * Last path, storage path, and value are stored to reduce the amount of access operations for keys having common prefixes.
    */
   last: Last<K, V>;
+
+  /**
+   * Root storage strategy child path to be passed to newly created storage nodes.
+   */
+  rootStoragesStrategyPath: ParentPath<AbsentValue>;
+  /**
+   * Root leaf storage strategy child path to be passed to newly created leaf storage nodes.
+   */
+  rootLeafStoragesStrategyPath: ParentPath<AbsentValue>;
 
   constructor(params: RootParams, ctx: StorageContext<K, V>) {
     this.length = params.length;
@@ -186,8 +188,14 @@ export class Root<K, V> {
     ) as NestedStorage<K, V>;
     this.last = new Last(params.length, this.root);
 
-    this.rootPath = new ParentPath(this.ctx.rootStorageStrategy, NO_VALUE);
-    this.leafPath = new ParentPath(this.ctx.rootLeafStrategy, NO_VALUE);
+    this.rootStoragesStrategyPath = new ParentPath(
+      this.ctx.rootStorageStrategy,
+      NO_VALUE
+    );
+    this.rootLeafStoragesStrategyPath = new ParentPath(
+      this.ctx.rootLeafStrategy,
+      NO_VALUE
+    );
 
     this.getOrInsertWith = params.checkLast
       ? this.checkLastThenGetOrInsertWith
@@ -220,8 +228,7 @@ export class Root<K, V> {
     path: K[],
     calculate: (args: K[]) => V
   ): V {
-    const length = this.length;
-    if (path.length !== length) throw new Error("Invalid path length");
+    if (path.length !== this.length) throw new Error("Invalid path length");
     let result: V | AbsentValue = NO_VALUE,
       ptr = 0;
 
@@ -294,15 +301,25 @@ export class Root<K, V> {
       const isWeak = cache.isWeak(current);
 
       if (next === NO_VALUE) {
+        const isLeafStorage = idx > length - 3;
         const parentPaths = isWeak
-          ? once(this.rootPath)
-          : double(this.rootPath, new DestroyableParentPath(cache, current));
-        next =
-          idx < length - 2
-            ? this.ctx.createStorage(parentPaths)
-            : this.ctx.createLeafStorage(append(parentPaths, this.leafPath));
+          ? void 0
+          : isLeafStorage
+          ? values(
+              new DestroyableParentPath(cache, current),
+              this.rootStoragesStrategyPath,
+              this.rootLeafStoragesStrategyPath
+            )
+          : values(
+              new DestroyableParentPath(cache, current),
+              this.rootStoragesStrategyPath
+            );
 
-        cache.set(current, next as unknown as V);
+        next = isLeafStorage
+          ? this.ctx.createLeafStorage(parentPaths)
+          : this.ctx.createStorage(parentPaths);
+
+        cache.set(current, next as V);
       }
 
       cache = next as NestedStorage<K, V>;

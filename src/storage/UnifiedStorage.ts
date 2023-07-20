@@ -4,7 +4,7 @@ import { WeakStorage } from "./WeakStorage";
 import { ObjectStorage } from "./ObjectStorage";
 import { MapStorage } from "./MapStorage";
 import type { AbsentValue, NonPrimitive, Primitive } from "../value";
-import { chain } from "../iterators";
+import { chain } from "../iterables";
 import { mapImplemented, ParentPath } from "../utils";
 
 /** Parameters for the `UnifiedStorage` */

@@ -90,7 +90,7 @@ declare class ParentPath<K> {
    */
   key: K | AbsentValue;
   constructor(parent: Parent<K>, key: K | AbsentValue);
-  drop<C>(child: K | C): void;
+  drop(child: K): void;
 }
 /**
  * Contains removed/added entities.
@@ -764,7 +764,7 @@ declare class LinkedList<T> extends OrderedCollection<T, ListNode<T>, null> {
 
 /**
  * An indexed queue where each item is an indexed queue of keys.
- * An item itself should implement `IndexedOrderedCollection`.
+ * A value itself should implement `IndexedOrderedCollection`.
  */
 declare class MultiKeyQueue<
   Key,

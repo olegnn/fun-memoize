@@ -1,4 +1,4 @@
-import { EMPTY_ITERABLE, chain, forEach, map } from "./iterators";
+import { EMPTY_ITERABLE, chain, forEach, map } from "./iterables";
 import { AbsentValue, NO_VALUE } from "./value";
 
 /**
@@ -141,8 +141,8 @@ export class ParentPath<K> {
   }
 
   /// Enforces parent to drop the supplied child. Its value will be used only in case if key is absent.
-  drop<C>(child: K | C) {
-    this.parent.drop(this.key === NO_VALUE ? (child as K) : (this.key as K));
+  drop(child: K) {
+    this.parent.drop(this.key === NO_VALUE ? child : (this.key as K));
   }
 }
 
@@ -156,7 +156,7 @@ export class DestroyableParentPath<K> extends ParentPath<K> {
   declare parent: DestroyableParent<K>;
 
   /// Enforces parent to drop the supplied child. Its value will be used only in case if key is absent.
-  drop<C>(child: K | C) {
+  drop(child: K) {
     super.drop(child);
 
     if (this.parent.isEmpty()) {

@@ -4,8 +4,8 @@ const { createSelector } = require("reselect");
 const fastMemoize = require("fast-memoize");
 const lruMemoize = require("lru-memoize");
 const { default: createCachedSelector } = require("re-reselect");
-const { default: memoize, createMemoizedSelector } = require("../build");
-const { cycle, zip } = require("../build/iterators");
+const { default: memoize, createMemoizedSelector } = require("../dist");
+const { cycle, zip } = require("../build/iterables");
 
 const strA = "hello world!".repeat(2);
 const strB = "c".repeat(10);
@@ -54,10 +54,10 @@ for (let i = 0; i < 999; i++) {
   o[i] = i;
 }
 
-const strPermutations = Array.from({ length: 30 }, () => [
+const strPermutations = Array.from({ length: 30 }, (_, i) => [
   strA,
-  strB.repeat(Math.random() * 5e2),
-  strC.repeat(Math.random() * 100),
+  strB.repeat(((30 - i) / 30) * 5e2),
+  strC.repeat(((30 - i) / 30) * 100),
 ]);
 
 const assertEq = (param1, param2) => {
