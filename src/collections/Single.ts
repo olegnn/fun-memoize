@@ -1,4 +1,4 @@
-import { empty, once } from "../iterators";
+import { empty, once } from "../iterables";
 import { AbsentValue, NO_VALUE, equals } from "../value";
 import { IndexedOrderedCollectionWithOrderedKeys } from "./types";
 

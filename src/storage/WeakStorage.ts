@@ -4,7 +4,7 @@ import "weakmap-polyfill";
 import { Storage, StorageParams } from "../base/Storage";
 import { ParentPath } from "../utils";
 import { NO_VALUE } from "../value";
-import { empty } from "../iterators";
+import { empty } from "../iterables";
 
 /**
  * Weak storage for values with non-primitive keys.

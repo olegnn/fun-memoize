@@ -3,7 +3,7 @@ import { ListNode } from "../collections/LinkedList";
 import { Single, SingleKeyQueue } from "../collections";
 import { AbsentValue, NO_VALUE } from "../value";
 import { Result } from "../utils";
-import { once } from "../iterators";
+import { once } from "../iterables";
 
 /**
  * `FIFO` - `F`irst `I`n - `F`irst `O`ut cache replacement policy.

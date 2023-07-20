@@ -2,7 +2,7 @@ import { CacheStrategy } from "../base/CacheStrategy";
 import { MultiKeyQueue, Single, SingleKeyQueue } from "../collections";
 import { AbsentValue, NO_VALUE } from "../value";
 import { Result } from "../utils";
-import { once } from "../iterators";
+import { once } from "../iterables";
 import { ListNode } from "../collections/LinkedList";
 
 /**

@@ -4,7 +4,7 @@ import type { ParentPath } from "../utils";
 
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
-import { map } from "../iterators";
+import { map } from "../iterables";
 
 /**
  * Key-value storage based on a `Map`.

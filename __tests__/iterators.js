@@ -1,14 +1,13 @@
 const {
   zip,
   chain,
-  append,
+  values,
   cycle,
   flatMap,
   map,
   empty,
   once,
-  double,
-} = require("../build/iterators");
+} = require("../build/iterables");
 
 describe("Iterators", () => {
   it("Checks `zip`", () => {
@@ -35,9 +34,9 @@ describe("Iterators", () => {
     expect([...chain([], [1, 2, 3])]).toEqual([1, 2, 3]);
   });
 
-  it("Checks `append`", () => {
-    expect([...append([1, 2], 3)]).toEqual([1, 2, 3]);
-    expect([...append([], 1)]).toEqual([1]);
+  it("Checks `values`", () => {
+    expect([...values(1, 2, 3)]).toEqual([1, 2, 3]);
+    expect([...values()]).toEqual([]);
   });
 
   it("Checks `cycle`", () => {
@@ -66,10 +65,6 @@ describe("Iterators", () => {
 
   it("Checks `once`", () => {
     expect([...once(2)]).toEqual([2]);
-  });
-
-  it("Checks `double`", () => {
-    expect([...double(1, 2)]).toEqual([1, 2]);
   });
 
   it("Checks `empty`", () => {

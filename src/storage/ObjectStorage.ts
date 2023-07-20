@@ -3,7 +3,7 @@ import { AbsentValue, Primitive } from "../value";
 
 import { NO_VALUE } from "../value";
 import { Storage } from "../base/Storage";
-import { map } from "../iterators";
+import { map } from "../iterables";
 import type { ParentPath } from "../utils";
 
 /**

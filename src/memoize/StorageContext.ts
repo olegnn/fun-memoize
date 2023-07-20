@@ -3,7 +3,7 @@ import {
   CacheStrategyClass,
   withDestroyable,
 } from "../base/CacheStrategy";
-import { EMPTY_ITERABLE } from "../iterators";
+import { EMPTY_ITERABLE } from "../iterables";
 import { LeafStorage, LeafStorageParams } from "./LeafStorage";
 import { Storage, StorageParams } from "../base/Storage";
 import {
@@ -221,9 +221,9 @@ export class StorageContext<K, V> {
    * @param root
    */
   createStorage(
-    parents: Iterable<ParentPath<K>> = EMPTY_ITERABLE
+    parentPaths: Iterable<ParentPath<K>> = EMPTY_ITERABLE
   ): NestedStorage<K, V> {
-    return new this.storageClass(this.params, parents);
+    return new this.storageClass(this.params, parentPaths);
   }
 
   /**
@@ -231,13 +231,13 @@ export class StorageContext<K, V> {
    * @param root
    */
   createLeafStorage(
-    root: Iterable<ParentPath<K>> = EMPTY_ITERABLE
+    parentPaths: Iterable<ParentPath<K>> = EMPTY_ITERABLE
   ): LeafStorage<K, V> {
     return new LeafStorage(
       this.createStorage() as Storage<K, V>,
       new this.leafStrategyClass(this.leavesPerStorageLimit),
       this.params,
-      root
+      parentPaths
     );
   }
 }

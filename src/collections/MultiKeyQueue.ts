@@ -4,13 +4,13 @@ import {
   IndexedOrderedCollectionWithOrderedKeys,
 } from "./types";
 import { AbsentValue, NO_VALUE } from "../value";
-import { EMPTY_ITERABLE, flatMap, forEach } from "../iterators";
+import { EMPTY_ITERABLE, flatMap, forEach } from "../iterables";
 import { SafeMapStorage } from "../storage";
 import { Storage, StorageClass } from "../base";
 
 /**
  * An indexed queue where each item is an indexed queue of keys.
- * An item itself should implement `IndexedOrderedCollection`.
+ * A value itself should implement `IndexedOrderedCollection`.
  */
 export class MultiKeyQueue<
   Key,
@@ -396,7 +396,7 @@ export class MultiKeyQueue<
    *
    */
   keysFront(): Iterable<Key> {
-    return flatMap((iter) => iter.keys(), this.list.valuesFront());
+    return flatMap((item) => item.keys(), this.list.valuesFront());
   }
 
   /**
@@ -405,7 +405,7 @@ export class MultiKeyQueue<
    */
   keysBack(): Iterable<Key> {
     return flatMap(
-      (iter) => [...iter.keys()].reverse(),
+      (item) => [...item.keys()].reverse(),
       this.list.valuesBack()
     );
   }

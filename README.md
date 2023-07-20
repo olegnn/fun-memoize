@@ -214,41 +214,41 @@ const memo = memoize(fn, {
 ## Benchmarks
 
 
-`node v18.12.1`:
+`node v20.4.0`:
 
 ```
-fun-memoize#strings x 4,991,846 ops/sec ±0.33% (96 runs sampled)
-lru-memoize#strings x 418 ops/sec ±0.69% (91 runs sampled)
-fast-memoize#strings x 66,578 ops/sec ±0.35% (99 runs sampled)
-moize#strings x 2,389,621 ops/sec ±0.17% (97 runs sampled)
+fun-memoize#strings x 5,817,657 ops/sec ±0.26% (100 runs sampled)
+lru-memoize#strings x 355 ops/sec ±0.55% (65 runs sampled)
+fast-memoize#strings x 57,652 ops/sec ±0.23% (96 runs sampled)
+moize#strings x 2,467,840 ops/sec ±0.38% (92 runs sampled)
 Fastest is fun-memoize#strings
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-fun-memoize#numbers x 4,789,282 ops/sec ±0.43% (97 runs sampled)
-lru-memoize#numbers x 206,804 ops/sec ±0.29% (99 runs sampled)
-fast-memoize#numbers x 1,223,078 ops/sec ±0.35% (92 runs sampled)
-moize#numbers x 1,651,064 ops/sec ±0.27% (100 runs sampled)
+fun-memoize#numbers x 5,201,960 ops/sec ±0.33% (96 runs sampled)
+lru-memoize#numbers x 202,971 ops/sec ±0.84% (95 runs sampled)
+fast-memoize#numbers x 1,222,582 ops/sec ±0.24% (99 runs sampled)
+moize#numbers x 2,018,862 ops/sec ±0.42% (94 runs sampled)
 Fastest is fun-memoize#numbers
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-fun-memoize#mixed x 5,374,839 ops/sec ±0.58% (93 runs sampled)
-lru-memoize#mixed x 7,603,573 ops/sec ±0.18% (98 runs sampled)
-fast-memoize#mixed x 17,907 ops/sec ±0.68% (98 runs sampled)
-moize#mixed x 2,503,442 ops/sec ±0.07% (101 runs sampled)
+fun-memoize#mixed x 5,855,585 ops/sec ±0.48% (96 runs sampled)
+lru-memoize#mixed x 8,653,453 ops/sec ±0.38% (95 runs sampled)
+fast-memoize#mixed x 17,929 ops/sec ±0.31% (98 runs sampled)
+moize#mixed x 3,179,285 ops/sec ±0.20% (96 runs sampled)
 Fastest is lru-memoize#mixed
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-fun-memoize#fib x 6,697,478 ops/sec ±0.16% (95 runs sampled)
-lru-memoize#fib x 1,146,090 ops/sec ±0.14% (99 runs sampled)
-fast-memoize#fib x 97,381 ops/sec ±0.16% (65 runs sampled)
-moize#fib x 5,342,408 ops/sec ±0.37% (98 runs sampled)
+fun-memoize#fib x 6,734,379 ops/sec ±0.29% (96 runs sampled)
+lru-memoize#fib x 1,283,189 ops/sec ±0.36% (99 runs sampled)
+fast-memoize#fib x 91,083 ops/sec ±0.35% (64 runs sampled)
+moize#fib x 6,612,544 ops/sec ±0.26% (98 runs sampled)
 Fastest is fun-memoize#fib
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-reselect#selectors - different states x 203,160 ops/sec ±0.25% (99 runs sampled)
-re-reselect#selectors - different states x 195,782 ops/sec ±0.27% (99 runs sampled)
-fun-memoize#selectors - different states x 3,373,974 ops/sec ±0.38% (92 runs sampled)
+reselect#selectors - different states x 203,851 ops/sec ±0.24% (96 runs sampled)
+re-reselect#selectors - different states x 195,621 ops/sec ±0.24% (96 runs sampled)
+fun-memoize#selectors - different states x 3,691,027 ops/sec ±0.35% (94 runs sampled)
 Fastest is fun-memoize#selectors - different states
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-reselect#selectors - same state x 32,517,937 ops/sec ±0.68% (97 runs sampled)
-re-reselect#selectors - same state x 5,029,092 ops/sec ±0.24% (101 runs sampled)
-fun-memoize#selectors - same state x 6,677,330 ops/sec ±0.47% (98 runs sampled)
+reselect#selectors - same state x 35,904,329 ops/sec ±0.41% (96 runs sampled)
+re-reselect#selectors - same state x 5,126,921 ops/sec ±0.32% (94 runs sampled)
+fun-memoize#selectors - same state x 7,222,886 ops/sec ±0.39% (97 runs sampled)
 Fastest is reselect#selectors - same state
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ```
