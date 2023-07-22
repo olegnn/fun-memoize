@@ -14,7 +14,7 @@ import {
 import { RootLeafStrategy } from "./RootLeafStrategy";
 import { LRU, Noop } from "../strategy";
 import { DEFAULT_MAX_ENTRIES_COUNT } from "../constants";
-import { EMPTY_OBJECT, noop, ParentPath } from "../utils";
+import { noop, ParentPath } from "../utils";
 
 /**
  * Either leaf storage or nested storage containing either nested storages or leaf storages.
@@ -91,10 +91,14 @@ const limitIsValid = (limit: number) =>
  * Ensures that the provided limit is a valid number.
  * @param name
  * @param value
+ * @param min
  */
-const ensureLimitIsValid = (name: string, value: number) => {
+const ensureLimitIsValid = (name: string, value: number, min: number) => {
   if (!limitIsValid(value)) {
     throw new Error(`\`${name}\` is invalid: ${value}`);
+  }
+  if (value < min) {
+    throw new Error(`${value} is too small, expected ${min} at least`);
   }
 };
 
@@ -126,11 +130,11 @@ export class StorageContext<K, V> {
   /**
    * Strategy containing all storage nodes.
    */
-  rootStorageStrategy: CacheStrategy<NestedStorage<K, V>>;
+  rootStoragesStrategy: CacheStrategy<NestedStorage<K, V>>;
   /**
    * Strategy containing all leaf storages.
    */
-  rootLeafStrategy: CacheStrategy<LeafStorage<K, V>>;
+  rootLeafStoragesStrategy: CacheStrategy<LeafStorage<K, V>>;
   /**
    * Params for all storages.
    */
@@ -150,6 +154,7 @@ export class StorageContext<K, V> {
   leafStrategyClass: CacheStrategyClass<K>;
 
   constructor({
+    depth,
     strategy = LRU,
     totalLeavesLimit = DEFAULT_MAX_ENTRIES_COUNT,
     totalStoragesLimit = Infinity,
@@ -161,7 +166,17 @@ export class StorageContext<K, V> {
     onRemoveStorage = noop,
     onCreateLeaf = noop,
     onRemoveLeaf = noop,
-  }: Params<K, V> = EMPTY_OBJECT) {
+  }: Params<K, V> & {
+    /**
+     * Cache depth.
+     */
+    depth: number;
+  }) {
+    if (!Number.isSafeInteger(depth) || depth <= 0) {
+      throw new TypeError(
+        `Invalid depth, an expected natural number which is a safe integer`
+      );
+    }
     let leafStrategyClass: LeafCacheStrategyClass<K, V>,
       storageStrategyClass: StorageCacheStrategyClass<K, V>;
     if (extendsCacheStrategy(strategy)) {
@@ -183,10 +198,10 @@ export class StorageContext<K, V> {
     if (!extendsCacheStrategy(storageStrategyClass)) {
       throw new Error("Invalid `storageStrategyClass`");
     }
-    ensureLimitIsValid("totalLeavesLimit", totalLeavesLimit);
-    ensureLimitIsValid("totalStoragesLimit", totalStoragesLimit);
-    ensureLimitIsValid("totalLeafStoragesLimit", totalLeafStoragesLimit);
-    ensureLimitIsValid("leavesPerStorageLimit", leavesPerStorageLimit);
+    ensureLimitIsValid("totalLeavesLimit", totalLeavesLimit, 1);
+    ensureLimitIsValid("totalStoragesLimit", totalStoragesLimit, depth);
+    ensureLimitIsValid("totalLeafStoragesLimit", totalLeafStoragesLimit, 1);
+    ensureLimitIsValid("leavesPerStorageLimit", leavesPerStorageLimit, 1);
 
     storageStrategyClass = withDestroyable(
       pickNoopIfNoLimit(storageStrategyClass, totalStoragesLimit)
@@ -197,8 +212,10 @@ export class StorageContext<K, V> {
         ? pickNoopIfNoLimit(leafStrategyClass, totalLeavesLimit)
         : leafStrategyClass;
 
-    this.rootStorageStrategy = new storageStrategyClass(totalStoragesLimit);
-    this.rootLeafStrategy = new RootLeafStrategy(
+    this.rootStoragesStrategy = new storageStrategyClass(
+      totalStoragesLimit - 1
+    );
+    this.rootLeafStoragesStrategy = new RootLeafStrategy(
       totalLeavesLimit,
       new (withDestroyable(leafStrategyClass))(totalLeafStoragesLimit)
     );

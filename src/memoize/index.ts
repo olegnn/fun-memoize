@@ -24,7 +24,7 @@ const { slice } = Array.prototype;
 export default function memoize<V>(
   func: (...args: any[]) => V,
   {
-    length = func.length,
+    length: depth = func.length,
     checkLast = true,
     ...params
   }: ParamsWithLength<any, V> = EMPTY_OBJECT as ParamsWithLength<any, V>
@@ -35,7 +35,7 @@ export default function memoize<V>(
   };
 
   let resultFunction: typeof func & { recomputations?: number };
-  if (length === 0) {
+  if (depth === 0) {
     let value = NO_VALUE;
 
     resultFunction = function cachedFunction() {
@@ -46,22 +46,22 @@ export default function memoize<V>(
       }
     };
   } else {
-    const ctx = new StorageContext(params);
-    const root = new Root({ length, checkLast }, ctx);
+    const ctx = new StorageContext({ ...params, depth });
+    const root = new Root({ depth, checkLast }, ctx);
 
     resultFunction = function cachedFunction() {
       const argsLength = arguments.length;
       let output: V;
 
-      if (argsLength === length) {
+      if (argsLength === depth) {
         output = root.getOrInsertWith(
           arguments as unknown as any[],
           recomputate
         );
         // If we received a greater amount of arguments, slice it
-      } else if (argsLength > length) {
+      } else if (argsLength > depth) {
         output = root.getOrInsertWith(
-          slice.call(arguments, 0, length) as any[],
+          slice.call(arguments, 0, depth) as any[],
           recomputate
         );
         // Otherwise don't use cache

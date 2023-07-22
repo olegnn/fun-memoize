@@ -1,5 +1,47 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Root input validation 1`] = `"5 is too small, expected 6 at least"`;
+
+exports[`Root input validation 2`] = `"\`totalLeavesLimit\` is invalid: 1.3"`;
+
+exports[`Root input validation 3`] = `"\`totalStoragesLimit\` is invalid: 1.3"`;
+
+exports[`Root input validation 4`] = `"\`totalLeafStoragesLimit\` is invalid: 1.3"`;
+
+exports[`Root input validation 5`] = `"\`leavesPerStorageLimit\` is invalid: 1.3"`;
+
+exports[`Root input validation 6`] = `"Invalid depth, an expected natural number which is a safe integer"`;
+
+exports[`Root input validation 7`] = `"\`totalLeavesLimit\` is invalid: -1"`;
+
+exports[`Root input validation 8`] = `"\`totalStoragesLimit\` is invalid: -1"`;
+
+exports[`Root input validation 9`] = `"\`totalLeafStoragesLimit\` is invalid: -1"`;
+
+exports[`Root input validation 10`] = `"\`leavesPerStorageLimit\` is invalid: -1"`;
+
+exports[`Root input validation 11`] = `"Invalid depth, an expected natural number which is a safe integer"`;
+
+exports[`Root input validation 12`] = `"\`totalLeavesLimit\` is invalid: -Infinity"`;
+
+exports[`Root input validation 13`] = `"\`totalStoragesLimit\` is invalid: -Infinity"`;
+
+exports[`Root input validation 14`] = `"\`totalLeafStoragesLimit\` is invalid: -Infinity"`;
+
+exports[`Root input validation 15`] = `"\`leavesPerStorageLimit\` is invalid: -Infinity"`;
+
+exports[`Root input validation 16`] = `"Invalid depth, an expected natural number which is a safe integer"`;
+
+exports[`Root input validation 17`] = `"\`totalLeavesLimit\` is invalid: 131232312313123110000"`;
+
+exports[`Root input validation 18`] = `"\`totalStoragesLimit\` is invalid: 131232312313123110000"`;
+
+exports[`Root input validation 19`] = `"\`totalLeafStoragesLimit\` is invalid: 131232312313123110000"`;
+
+exports[`Root input validation 20`] = `"\`leavesPerStorageLimit\` is invalid: 131232312313123110000"`;
+
+exports[`Root input validation 21`] = `"Invalid depth, an expected natural number which is a safe integer"`;
+
 exports[`Root object workflow with last 1`] = `"Invalid path length"`;
 
 exports[`Root object workflow without last 1`] = `"Invalid path length"`;

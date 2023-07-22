@@ -1,6 +1,71 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Least recently used: Least recently updated 1`] = `
+[
+  0,
+  1,
+  2,
+  3,
+  4,
+  50,
+  51,
+  52,
+  53,
+  54,
+  5,
+  6,
+  7,
+  8,
+  9,
+  25,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+]
+`;
+
 exports[`Least recently used: Zero cap 1`] = `"Capacity can't be equal to zero"`;
+
+exports[`Least recently used: basic workflow 1`] = `
+[
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+]
+`;
+
+exports[`Least recently used: memoization: \`leavesPerStorageLimit\` 1`] = `[]`;
+
+exports[`Least recently used: memoization: \`leavesPerStorageLimit\` 2`] = `
+[
+  0,
+  10,
+  4,
+  3,
+  2,
+  1,
+  0,
+]
+`;
 
 exports[`Least recently used: memoization: \`totalLeavesLimit = 2\` 1`] = `[]`;
 
@@ -147,5 +212,56 @@ exports[`Least recently used: memoization: \`totalLeavesLimit = 2\` 10`] = `
   "3-0",
   "3-1",
   "7-2",
+]
+`;
+
+exports[`Least recently used: memoization: \`totalLeavesLimit\` 1`] = `[]`;
+
+exports[`Least recently used: memoization: \`totalLeavesLimit\` 2`] = `
+[
+  0,
+  10,
+]
+`;
+
+exports[`Least recently used: memoization: \`totalLeavesLimit\` 3`] = `
+[
+  0,
+  10,
+  4,
+  3,
+  2,
+  1,
+  0,
+]
+`;
+
+exports[`Least recently used: memoization: \`totalStoragesLimit\` 1`] = `
+[
+  0,
+]
+`;
+
+exports[`Least recently used: memoization: \`totalStoragesLimit\` 2`] = `
+[
+  0,
+  1,
+  10,
+  9,
+]
+`;
+
+exports[`Least recently used: memoization: \`totalStoragesLimit\` 3`] = `
+[
+  0,
+  1,
+  10,
+  9,
+  4,
+  3,
+  2,
+  1,
+  0,
+  5,
 ]
 `;

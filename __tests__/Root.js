@@ -1,16 +1,13 @@
-const { LeafStorage } = require("../build/memoize/LeafStorage");
 const { Root } = require("../build/memoize/Root");
 const { StorageContext } = require("../build/memoize/StorageContext");
-const { MapStorage } = require("../build/storage/MapStorage");
-const { Noop } = require("../build/strategy/noop");
 const { NO_VALUE } = require("../build/value");
 const { assertWithNTrickyValues } = require("./helpers");
 
 describe("Root", () => {
   for (const checkLast of [false, true]) {
     it(`object workflow ${checkLast ? "with" : "without"} last`, () => {
-      const ctx = new StorageContext();
-      const storage = new Root({ length: 4, checkLast }, ctx);
+      const ctx = new StorageContext({ depth: 4 });
+      const storage = new Root({ depth: 4, checkLast }, ctx);
 
       const obj1 = {};
       const obj2 = {};
@@ -36,24 +33,25 @@ describe("Root", () => {
 
     it(`storage removal ${checkLast ? "with" : "without"} last`, () => {
       const ctx = new StorageContext({
+        depth: 3,
         totalLeavesLimit: 1,
         totalStoragesLimit: 5,
       });
-      const storage = new Root({ length: 3, checkLast }, ctx);
+      const storage = new Root({ depth: 3, checkLast }, ctx);
 
       storage.getOrInsertWith([1, 2, 3], Math.random);
       storage.getOrInsertWith([1, 3, 4], Math.random);
       storage.getOrInsertWith([1, 4, 5], Math.random);
       storage.getOrInsertWith([2, 5, 5], Math.random);
       storage.getOrInsertWith([2, 6, 6], Math.random);
-      expect(ctx.rootLeafStrategy.len()).toBe(1);
-      expect(ctx.rootStorageStrategy.len()).toBe(3);
-      expect(ctx.rootLeafStrategy.peek().len()).toBe(1);
+      expect(ctx.rootLeafStoragesStrategy.len()).toBe(1);
+      expect(ctx.rootStoragesStrategy.len()).toBe(2);
+      expect(ctx.rootLeafStoragesStrategy.peek().len()).toBe(1);
     });
 
     it(`primitive ${checkLast ? "with" : "without"} last`, () => {
-      const ctx = new StorageContext();
-      const storage = new Root({ length: 4, checkLast }, ctx);
+      const ctx = new StorageContext({ depth: 4 });
+      const storage = new Root({ depth: 4, checkLast }, ctx);
 
       storage.setPath(["", NaN, 1, 2], 3);
       assertWithNTrickyValues(storage.extractPath.bind(storage), 4, (value) =>
@@ -69,4 +67,31 @@ describe("Root", () => {
       ).toThrowErrorMatchingSnapshot();
     });
   }
+
+  it(`input validation`, () => {
+    expect(
+      () =>
+        new StorageContext({
+          depth: 6,
+          totalStoragesLimit: 5,
+        })
+    ).toThrowErrorMatchingSnapshot();
+
+    for (const value of [1.3, -1, -Infinity, 131232312313123112312]) {
+      for (const key of [
+        "totalLeavesLimit",
+        "totalStoragesLimit",
+        "totalLeafStoragesLimit",
+        "leavesPerStorageLimit",
+        "depth",
+      ]) {
+        expect(() => {
+          new StorageContext({
+            depth: 1,
+            [key]: value,
+          });
+        }).toThrowErrorMatchingSnapshot();
+      }
+    }
+  });
 });
