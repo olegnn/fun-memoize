@@ -43,12 +43,10 @@ describe("Least frequently used:", () => {
       expect(lfu.isFull()).toBe(false);
     }
 
-    expect(destroyed).toEqual([
-      0, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-    ]);
+    expect(destroyed).toMatchSnapshot();
   });
 
-  it("Least frequently used", () => {
+  it("`Destroyable` implementation", () => {
     let destroyed = [];
     const lfu = new DLFU(10);
     class Destroyable {
@@ -83,10 +81,7 @@ describe("Least frequently used:", () => {
       expect(lfu.len()).toBe(10);
     }
 
-    expect(destroyed).toEqual([
-      0, 1, 2, 3, 4, 50, 51, 52, 53, 54, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34,
-      35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
-    ]);
+    expect(destroyed).toMatchSnapshot();
   });
 
   it("Zero cap", () => {
@@ -95,7 +90,7 @@ describe("Least frequently used:", () => {
 
   it("memoization: `totalLeavesLimit = 2`", () => {
     const removed = [];
-    const fn = memoize((a, b, c, d, e) => Math.random(), {
+    const fn = memoize((_a, _b, _c, _d, _e) => Math.random(), {
       strategy: LFU,
       totalLeavesLimit: 2,
       onRemoveStorage: (storage) => {
@@ -124,7 +119,7 @@ describe("Least frequently used:", () => {
   });
 
   it("memoization: `totalLeavesLimit`", () => {
-    const fn = memoize((a, b) => Math.random(), {
+    const fn = memoize((_a, _b) => Math.random(), {
       strategy: LFU,
       onRemoveLeaf: (key) => {
         destroyed.push(key);
@@ -139,23 +134,23 @@ describe("Least frequently used:", () => {
       fn(...args[i]);
     }
 
-    expect(destroyed).toEqual([]);
+    expect(destroyed).toMatchSnapshot();
 
     for (let i = 10; i > -1; --i) {
       fn(...args[i]);
     }
 
-    expect(destroyed).toEqual([0, 10]);
+    expect(destroyed).toMatchSnapshot();
 
     for (let i = 5; i < 15; i++) {
       fn(...args[i]);
     }
 
-    expect(destroyed).toEqual([0, 10, 0, 10, 11, 12, 13]);
+    expect(destroyed).toMatchSnapshot();
   });
 
   it("memoization: `totalStoragesLimit`", () => {
-    const fn = memoize((a, b) => Math.random(), {
+    const fn = memoize((_a, _b) => Math.random(), {
       strategy: LFU,
       onRemoveStorage: (storage) => {
         removed.push(storage);
@@ -171,23 +166,23 @@ describe("Least frequently used:", () => {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toEqual([0]);
+    expect(extractNMapKeys(removed)).toMatchSnapshot();
 
     for (let i = 10; i > -1; --i) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toEqual([0, 1, 10, 1]);
+    expect(extractNMapKeys(removed)).toMatchSnapshot();
 
     for (let i = 5; i < 15; i++) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toEqual([0, 1, 10, 1, 0, 10, 11, 12, 13]);
+    expect(extractNMapKeys(removed)).toMatchSnapshot();
   });
 
   it("memoization: `leavesPerStorageLimit`", () => {
-    const fn = memoize((a, b) => Math.random(), {
+    const fn = memoize((_a, _b) => Math.random(), {
       strategy: LFU,
       onRemoveLeaf: (key) => {
         removed.push(key);
@@ -196,7 +191,7 @@ describe("Least frequently used:", () => {
     });
     const removed = [];
 
-    const args = Array.from({ length: 100 }, (_, i) => [0, i]);
+    const args = Array.from({ length: 100 }, (_, i) => [String(i), i]);
 
     for (let i = 0; i < 10; i++) {
       fn(...args[i]);
@@ -212,7 +207,7 @@ describe("Least frequently used:", () => {
       fn(...args[i]);
     }
 
-    expect(removed).toEqual([0, 10, 0, 10, 11, 12, 13]);
+    expect(removed).toMatchSnapshot();
   });
 
   memoryOverflowTests(LFU);

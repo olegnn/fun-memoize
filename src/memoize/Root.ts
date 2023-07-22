@@ -148,7 +148,7 @@ class Last<K, V> {
 /** Cache depth and `checkLast` flag */
 export interface RootParams {
   /** Cache depth */
-  length: number;
+  depth: number;
   /** Store last arguments and check for equality */
   checkLast: boolean;
 }
@@ -157,7 +157,7 @@ export class Root<K, V> {
   /**
    * Cache depth.
    */
-  length: number;
+  depth: number;
   /**
    * Root node.
    */
@@ -181,19 +181,19 @@ export class Root<K, V> {
   rootLeafStoragesStrategyPath: ParentPath<AbsentValue>;
 
   constructor(params: RootParams, ctx: StorageContext<K, V>) {
-    this.length = params.length;
+    this.depth = params.depth;
     this.ctx = ctx;
     this.root = (
-      params.length > 1 ? ctx.createStorage() : ctx.createLeafStorage()
+      params.depth > 1 ? ctx.createStorage() : ctx.createLeafStorage()
     ) as NestedStorage<K, V>;
-    this.last = new Last(params.length, this.root);
+    this.last = new Last(params.depth, this.root);
 
     this.rootStoragesStrategyPath = new ParentPath(
-      this.ctx.rootStorageStrategy,
+      this.ctx.rootStoragesStrategy,
       NO_VALUE
     );
     this.rootLeafStoragesStrategyPath = new ParentPath(
-      this.ctx.rootLeafStrategy,
+      this.ctx.rootLeafStoragesStrategy,
       NO_VALUE
     );
 
@@ -209,7 +209,7 @@ export class Root<K, V> {
    * @param calculate
    */
   getOrInsertWith(path: K[], calculate: (args: K[]) => V): V {
-    if (path.length !== this.length) throw new Error("Invalid path length");
+    if (path.length !== this.depth) throw new Error("Invalid path length");
 
     const result = this.extractOrSetPath(path, calculate);
     this.last.reset();
@@ -228,7 +228,7 @@ export class Root<K, V> {
     path: K[],
     calculate: (args: K[]) => V
   ): V {
-    if (path.length !== this.length) throw new Error("Invalid path length");
+    if (path.length !== this.depth) throw new Error("Invalid path length");
     let result: V | AbsentValue = NO_VALUE,
       ptr = 0;
 
@@ -264,7 +264,7 @@ export class Root<K, V> {
   }
 
   private extractPath(path: K[], from: number = 0): ResultOrPointer<V, number> {
-    const length = this.length;
+    const length = this.depth;
     const node = this.last.storage(from);
     let idx = from,
       lessThanPath = true,
@@ -291,7 +291,7 @@ export class Root<K, V> {
   }
 
   private setPath(path: Array<K>, value: V, from: number = 0) {
-    const length = this.length;
+    const length = this.depth;
     let idx = from,
       cache: NestedStorage<K, V> = this.last.storage(from).value;
 
@@ -330,26 +330,34 @@ export class Root<K, V> {
   }
 
   private readCache() {
-    for (let i = this.length; i-- > 0; ) {
+    for (let i = 0; ++i < this.depth; ) {
       const node = this.last.storage(i);
-      if (!node.weak) this.ctx.rootStorageStrategy.read(node.value);
+      if (!node.weak) this.ctx.rootStoragesStrategy.read(node.value);
     }
 
-    const leafNode = this.last.storage(this.length - 1);
-    if (!leafNode.weak) {
-      this.ctx.rootLeafStrategy.read(leafNode.value as LeafStorage<K, V>);
+    if (this.depth > 1) {
+      const leafNode = this.last.storage(this.depth - 1);
+      if (!leafNode.weak) {
+        this.ctx.rootLeafStoragesStrategy.read(
+          leafNode.value as LeafStorage<K, V>
+        );
+      }
     }
   }
 
   private writeCache() {
-    for (let i = this.length; i-- > 0; ) {
+    for (let i = 0; ++i < this.depth; ) {
       const node = this.last.storage(i);
-      if (!node.weak) this.ctx.rootStorageStrategy.write(node.value);
+      if (!node.weak) this.ctx.rootStoragesStrategy.write(node.value);
     }
 
-    const leafNode = this.last.storage(this.length - 1);
-    if (!leafNode.weak) {
-      this.ctx.rootLeafStrategy.write(leafNode.value as LeafStorage<K, V>);
+    if (this.depth > 1) {
+      const leafNode = this.last.storage(this.depth - 1);
+      if (!leafNode.weak) {
+        this.ctx.rootLeafStoragesStrategy.write(
+          leafNode.value as LeafStorage<K, V>
+        );
+      }
     }
   }
 }

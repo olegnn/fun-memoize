@@ -1,5 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`First in first out: FIFO 1`] = `
+[
+  0,
+  1,
+  2,
+  3,
+  4,
+  50,
+  51,
+  52,
+  53,
+  54,
+  5,
+  6,
+  7,
+  8,
+  9,
+  25,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+]
+`;
+
 exports[`First in first out: Zero cap 1`] = `"Capacity can't be equal to zero"`;
 
 exports[`First in first out: memoization: \`totalLeavesLimit = 2\` 1`] = `[]`;
@@ -147,5 +182,33 @@ exports[`First in first out: memoization: \`totalLeavesLimit = 2\` 10`] = `
   "3-0",
   "3-1",
   "7-2",
+]
+`;
+
+exports[`First in first out: memoization: \`totalStoragesLimit\` 1`] = `
+[
+  0,
+]
+`;
+
+exports[`First in first out: memoization: \`totalStoragesLimit\` 2`] = `
+[
+  0,
+  1,
+  2,
+  3,
+]
+`;
+
+exports[`First in first out: memoization: \`totalStoragesLimit\` 3`] = `
+[
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
 ]
 `;

@@ -88,8 +88,8 @@ export function map<V, R>(
 
 /**
  * Flattens iterable mapped with supplied function.
- * @param iterable
  * @param map
+ * @param iterable
  */
 export function flatMap<V, R>(
   map: (item: V) => Iterable<R>,

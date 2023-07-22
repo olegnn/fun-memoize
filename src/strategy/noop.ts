@@ -30,7 +30,7 @@ export class Noop<V> extends CacheStrategy<V> {
 
   /**
    * Does nothing and always returns empty result.
-   * @param node
+   * @param value
    *
    */
   drop(_: V): boolean {
@@ -47,7 +47,7 @@ export class Noop<V> extends CacheStrategy<V> {
 
   /**
    * Always returns `false`.
-   * @param node
+   * @param value
    *
    */
   has(_: V): boolean {

@@ -426,7 +426,7 @@ interface ParamsWithLength<K, V> extends Params<K, V> {
  */
 declare function memoize<V>(
   func: (...args: any[]) => V,
-  { length, checkLast, ...params }?: ParamsWithLength<any, V>
+  { length: depth, checkLast, ...params }?: ParamsWithLength<any, V>
 ): typeof func & {
   recomputations: number;
 };

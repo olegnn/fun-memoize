@@ -82,10 +82,7 @@ describe("First in first out:", () => {
       expect(fifo.len()).toBe(10);
     }
 
-    expect(removed).toEqual([
-      0, 1, 2, 3, 4, 50, 51, 52, 53, 54, 5, 6, 7, 8, 9, 25, 26, 27, 28, 29, 30,
-      31, 32, 33, 34, 35, 36, 37, 38, 39,
-    ]);
+    expect(removed).toMatchSnapshot();
   });
 
   it("Zero cap", () => {
@@ -94,7 +91,7 @@ describe("First in first out:", () => {
 
   it("memoization: `totalLeavesLimit = 2`", () => {
     const removed = [];
-    const fn = memoize((a, b, c, d, e) => Math.random(), {
+    const fn = memoize((_a, _b, _c, _d, _e) => Math.random(), {
       strategy: FIFO,
       totalLeavesLimit: 2,
       onRemoveStorage: (storage) => {
@@ -123,7 +120,7 @@ describe("First in first out:", () => {
   });
 
   it("memoization: `totalLeavesLimit`", () => {
-    const fn = memoize((a, b) => Math.random(), {
+    const fn = memoize((_a, _b) => Math.random(), {
       strategy: FIFO,
       totalLeavesLimit: 10,
       onRemoveLeaf: (key) => {
@@ -154,7 +151,7 @@ describe("First in first out:", () => {
   });
 
   it("memoization: `totalStoragesLimit`", () => {
-    const fn = memoize((a, b) => Math.random(), {
+    const fn = memoize((_a, _b) => Math.random(), {
       strategy: FIFO,
       totalStoragesLimit: 10,
       checkLast: false,
@@ -170,23 +167,23 @@ describe("First in first out:", () => {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toEqual([0]);
+    expect(extractNMapKeys(removed)).toMatchSnapshot();
 
     for (let i = 10; i > -1; --i) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toEqual([0, 1, 2, 3]);
+    expect(extractNMapKeys(removed)).toMatchSnapshot();
 
     for (let i = 5; i < 15; i++) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+    expect(extractNMapKeys(removed)).toMatchSnapshot();
   });
 
   it("memoization: `leavesPerStorageLimit`", () => {
-    const fn = memoize((a, b) => Math.random(), {
+    const fn = memoize((_a, _b) => Math.random(), {
       strategy: FIFO,
       leavesPerStorageLimit: 10,
       onRemoveLeaf: (key) => {
