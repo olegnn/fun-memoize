@@ -83,13 +83,13 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return this.valuesBack();
   }
 
-  takeFront() {
+  takeFront(): V | AbsentValue {
     const value = this.value;
     this.value = NO_VALUE;
     return value;
   }
 
-  takeBack() {
+  takeBack(): V | AbsentValue {
     return this.takeFront();
   }
 
@@ -113,11 +113,11 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return this.has(value) ? this.takeFront() : NO_VALUE;
   }
 
-  peekFront() {
+  peekFront(): V | AbsentValue {
     return this.value;
   }
 
-  peekBack() {
+  peekBack(): V | AbsentValue {
     return this.value;
   }
 
@@ -129,7 +129,7 @@ export class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
     return this.contains(item);
   }
 
-  remove(item: V) {
+  remove(item: V): boolean {
     return this.drop(item) !== NO_VALUE;
   }
 

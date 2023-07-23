@@ -1,12 +1,12 @@
 const { Root } = require("../build/memoize/Root");
-const { StorageContext } = require("../build/memoize/StorageContext");
+const { Context } = require("../build/memoize/Context");
 const { NO_VALUE } = require("../build/value");
 const { assertWithNTrickyValues } = require("./helpers");
 
 describe("Root", () => {
   for (const checkLast of [false, true]) {
     it(`object workflow ${checkLast ? "with" : "without"} last`, () => {
-      const ctx = new StorageContext({ depth: 4 });
+      const ctx = new Context({ depth: 4 });
       const storage = new Root({ depth: 4, checkLast }, ctx);
 
       const obj1 = {};
@@ -32,7 +32,7 @@ describe("Root", () => {
     });
 
     it(`storage removal ${checkLast ? "with" : "without"} last`, () => {
-      const ctx = new StorageContext({
+      const ctx = new Context({
         depth: 3,
         totalLeavesLimit: 1,
         totalStoragesLimit: 5,
@@ -50,7 +50,7 @@ describe("Root", () => {
     });
 
     it(`primitive ${checkLast ? "with" : "without"} last`, () => {
-      const ctx = new StorageContext({ depth: 4 });
+      const ctx = new Context({ depth: 4 });
       const storage = new Root({ depth: 4, checkLast }, ctx);
 
       storage.setPath(["", NaN, 1, 2], 3);
@@ -71,7 +71,7 @@ describe("Root", () => {
   it(`input validation`, () => {
     expect(
       () =>
-        new StorageContext({
+        new Context({
           depth: 6,
           totalStoragesLimit: 5,
         })
@@ -86,7 +86,7 @@ describe("Root", () => {
         "depth",
       ]) {
         expect(() => {
-          new StorageContext({
+          new Context({
             depth: 1,
             [key]: value,
           });
