@@ -1,5 +1,5 @@
 import mimic from "mimic-fn";
-import { Params, StorageContext } from "./StorageContext";
+import { Params, Context } from "./Context";
 import { Root } from "./Root";
 import { equals, AbsentValue, NO_VALUE } from "../value";
 import { EMPTY_OBJECT } from "../utils";
@@ -46,7 +46,7 @@ export default function memoize<V>(
       }
     };
   } else {
-    const ctx = new StorageContext({ ...params, depth });
+    const ctx = new Context({ ...params, depth });
     const root = new Root({ depth, checkLast }, ctx);
 
     resultFunction = function cachedFunction() {

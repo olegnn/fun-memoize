@@ -63,7 +63,7 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
    */
   drop(rawKey: K): V | AbsentValue {
     const objKey = this.objectKeyFromRawKey(rawKey);
-    let value = NO_VALUE;
+    let value: V | AbsentValue = NO_VALUE;
 
     if (objKey in this.map) {
       this.length--;

@@ -3,7 +3,7 @@ import { Storage } from "../base/Storage";
 import { values } from "../iterables";
 import { DestroyableParentPath, EMPTY_ARRAY, ParentPath } from "../utils";
 import { LeafStorage } from "./LeafStorage";
-import { StorageContext, NestedStorage } from "./StorageContext";
+import { Context, NestedStorage } from "./Context";
 
 /**
  * Contains either a value or a pointer.
@@ -21,8 +21,8 @@ class ResultOrPointer<R, P> {
    * Produces a result.
    * @param result
    */
-  static fromResult<R>(result: R | AbsentValue): ResultOrPointer<R, unknown> {
-    const that = new ResultOrPointer();
+  static fromResult<R>(result: R): ResultOrPointer<R, unknown> {
+    const that = new ResultOrPointer<R, unknown>();
     that.result = result;
 
     return that;
@@ -117,9 +117,11 @@ class Last<K, V> {
         >;
       }
 
-      return ResultOrPointer.fromPointer(idx === -1 ? 0 : idx);
+      return ResultOrPointer.fromPointer(
+        idx === -1 ? 0 : idx
+      ) as ResultOrPointer<V, number>;
     } else {
-      return ResultOrPointer.fromPointer(0);
+      return ResultOrPointer.fromPointer(0) as ResultOrPointer<V, number>;
     }
   }
 
@@ -165,7 +167,7 @@ export class Root<K, V> {
   /**
    * Storage context used to create new storages.
    */
-  ctx: StorageContext<K, V>;
+  ctx: Context<K, V>;
   /**
    * Last path, storage path, and value are stored to reduce the amount of access operations for keys having common prefixes.
    */
@@ -174,13 +176,13 @@ export class Root<K, V> {
   /**
    * Root storage strategy child path to be passed to newly created storage nodes.
    */
-  rootStoragesStrategyPath: ParentPath<AbsentValue>;
+  rootStoragesStrategyPath: ParentPath<NestedStorage<K, V>>;
   /**
    * Root leaf storage strategy child path to be passed to newly created leaf storage nodes.
    */
-  rootLeafStoragesStrategyPath: ParentPath<AbsentValue>;
+  rootLeafStoragesStrategyPath: ParentPath<LeafStorage<K, V>>;
 
-  constructor(params: RootParams, ctx: StorageContext<K, V>) {
+  constructor(params: RootParams, ctx: Context<K, V>) {
     this.depth = params.depth;
     this.ctx = ctx;
     this.root = (
@@ -284,7 +286,9 @@ export class Root<K, V> {
     } while (lessThanPath && res !== NO_VALUE);
 
     if (lessThanPath || res === NO_VALUE) {
-      return ResultOrPointer.fromPointer(Math.max(0, idx - 1));
+      return ResultOrPointer.fromPointer(
+        Math.max(0, idx - 1)
+      ) as ResultOrPointer<V, number>;
     }
 
     return ResultOrPointer.fromResult(res) as ResultOrPointer<V, number>;
@@ -307,17 +311,25 @@ export class Root<K, V> {
           : isLeafStorage
           ? values(
               new DestroyableParentPath(cache, current),
-              this.rootStoragesStrategyPath,
+              this.rootStoragesStrategyPath as ParentPath<
+                K | LeafStorage<K, V>
+              >,
               this.rootLeafStoragesStrategyPath
             )
           : values(
               new DestroyableParentPath(cache, current),
-              this.rootStoragesStrategyPath
+              this.rootStoragesStrategyPath as ParentPath<
+                K | NestedStorage<K, V>
+              >
             );
 
         next = isLeafStorage
-          ? this.ctx.createLeafStorage(parentPaths)
-          : this.ctx.createStorage(parentPaths);
+          ? this.ctx.createLeafStorage(
+              parentPaths as Iterable<ParentPath<K | LeafStorage<K, V>>>
+            )
+          : this.ctx.createStorage(
+              parentPaths as Iterable<ParentPath<K | NestedStorage<K, V>>>
+            );
 
         cache.set(current, next as V);
       }
@@ -330,7 +342,7 @@ export class Root<K, V> {
   }
 
   private readCache() {
-    for (let i = 0; ++i < this.depth; ) {
+    for (let i = this.depth; --i; ) {
       const node = this.last.storage(i);
       if (!node.weak) this.ctx.rootStoragesStrategy.read(node.value);
     }
@@ -346,7 +358,7 @@ export class Root<K, V> {
   }
 
   private writeCache() {
-    for (let i = 0; ++i < this.depth; ) {
+    for (let i = this.depth; --i; ) {
       const node = this.last.storage(i);
       if (!node.weak) this.ctx.rootStoragesStrategy.write(node.value);
     }

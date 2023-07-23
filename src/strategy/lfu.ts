@@ -51,9 +51,6 @@ export class LFU<V> extends CacheStrategy<V> {
         }
       }
       const pushed = this.queue.pushFront(new LevelEntry(1, value));
-      if (pushed === NO_VALUE) {
-        throw new Error(`\`LFU\`: failed to create the cache head`);
-      }
 
       return res.chain(Result.added(once(value)));
     } else {
@@ -100,10 +97,7 @@ export class LFU<V> extends CacheStrategy<V> {
         }
       }
     } else {
-      const pushed = this.queue.pushBack(new LevelEntry(newLevel, value));
-      if (pushed === NO_VALUE) {
-        throw new Error(`\`LFU\`: failed to push a new cache level`);
-      }
+      this.queue.pushBack(new LevelEntry(newLevel, value));
     }
 
     return Result.empty();

@@ -55,17 +55,7 @@ exports[`Least recently used: basic workflow 1`] = `
 
 exports[`Least recently used: memoization: \`leavesPerStorageLimit\` 1`] = `[]`;
 
-exports[`Least recently used: memoization: \`leavesPerStorageLimit\` 2`] = `
-[
-  0,
-  10,
-  4,
-  3,
-  2,
-  1,
-  0,
-]
-`;
+exports[`Least recently used: memoization: \`leavesPerStorageLimit\` 2`] = `[]`;
 
 exports[`Least recently used: memoization: \`totalLeavesLimit = 2\` 1`] = `[]`;
 
@@ -238,30 +228,103 @@ exports[`Least recently used: memoization: \`totalLeavesLimit\` 3`] = `
 
 exports[`Least recently used: memoization: \`totalStoragesLimit\` 1`] = `
 [
-  0,
+  "root-0",
+  "0",
+  "root-1",
+  "1",
+  "root-2",
+  "2",
+  "root-3",
+  "3",
+  "root-4",
+  "4",
+  "root-5",
+  "5",
 ]
 `;
 
 exports[`Least recently used: memoization: \`totalStoragesLimit\` 2`] = `
 [
-  0,
-  1,
-  10,
-  9,
+  "root-0",
+  "0",
+  "root-1",
+  "1",
+  "root-2",
+  "2",
+  "root-3",
+  "3",
+  "root-4",
+  "4",
+  "root-5",
+  "5",
+  "root-6",
+  "6",
+  "root-10",
+  "10",
+  "root-9",
+  "9",
+  "root-8",
+  "8",
+  "root-7",
+  "7",
+  "root-6",
+  "6",
+  "root-5",
+  "5",
+  "root-4",
+  "4",
 ]
 `;
 
 exports[`Least recently used: memoization: \`totalStoragesLimit\` 3`] = `
 [
-  0,
-  1,
-  10,
-  9,
-  4,
-  3,
-  2,
-  1,
-  0,
-  5,
+  "root-0",
+  "0",
+  "root-1",
+  "1",
+  "root-2",
+  "2",
+  "root-3",
+  "3",
+  "root-4",
+  "4",
+  "root-5",
+  "5",
+  "root-6",
+  "6",
+  "root-10",
+  "10",
+  "root-9",
+  "9",
+  "root-8",
+  "8",
+  "root-7",
+  "7",
+  "root-6",
+  "6",
+  "root-5",
+  "5",
+  "root-4",
+  "4",
+  "root-3",
+  "3",
+  "root-2",
+  "2",
+  "root-1",
+  "1",
+  "root-0",
+  "0",
+  "root-5",
+  "5",
+  "root-6",
+  "6",
+  "root-7",
+  "7",
+  "root-8",
+  "8",
+  "root-9",
+  "9",
+  "root-10",
+  "10",
 ]
 `;

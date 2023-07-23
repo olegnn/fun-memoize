@@ -3,7 +3,7 @@ import { MultiKeyQueue } from "../collections/MultiKeyQueue";
 import { Single } from "../collections/Single";
 import { IndexedOrderedCollectionWithOrderedKeys } from "../collections/types";
 import { EMPTY_ITERABLE, map } from "../iterables";
-import { AbsentValue } from "../value";
+import { AbsentValue, NO_VALUE } from "../value";
 
 /**
  * An indexed queue of items where each item has a single key.
@@ -24,6 +24,24 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
   }
 
   /**
+   * Pushes an item to the end of the queue.
+   * @param value
+   *
+   */
+  pushBack(value: V): ListNode<Single<V>> | AbsentValue {
+    return this.inner.pushBack(new Single(value));
+  }
+
+  /**
+   * Pushes an item to the beginning of the queue.
+   * @param value
+   *
+   */
+  pushFront(value: V): ListNode<Single<V>> | AbsentValue {
+    return this.inner.pushFront(new Single(value));
+  }
+
+  /**
    * Returns amount of keys (references) stored in a map.
    *
    */
@@ -38,7 +56,12 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    *
    */
   drop(key: V): V | AbsentValue {
-    return this.inner.drop(key);
+    const dropped = this.inner.drop(key);
+    if (dropped !== NO_VALUE) {
+      return (dropped as Single<V>).takeFront();
+    } else {
+      return NO_VALUE;
+    }
   }
 
   /**
@@ -189,7 +212,7 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * Peeks an item from the beginning of the collection.
    * Returns either item or `NO_VALUE` if queue is empty.
    */
-  peekItemFront(): {} | ListNode<Single<V>> {
+  peekItemFront(): AbsentValue | ListNode<Single<V>> {
     return this.inner.peekItemFront();
   }
 
@@ -197,7 +220,7 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * Peeks an item from the end of the collection.
    * Returns either item or `NO_VALUE` if queue is empty.
    */
-  peekItemBack(): {} | ListNode<Single<V>> {
+  peekItemBack(): AbsentValue | ListNode<Single<V>> {
     return this.inner.peekItemBack();
   }
 
@@ -267,23 +290,5 @@ export class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    */
   keysBack(): Iterable<V> {
     return this.inner.keysBack();
-  }
-
-  /**
-   * Pushes an item to the end of the queue.
-   * @param value
-   *
-   */
-  pushBack(value: V): ListNode<Single<V>> | AbsentValue {
-    return this.inner.pushBack(new Single(value));
-  }
-
-  /**
-   * Pushes an item to the beginning of the queue.
-   * @param value
-   *
-   */
-  pushFront(value: V): ListNode<Single<V>> | AbsentValue {
-    return this.inner.pushFront(new Single(value));
   }
 }

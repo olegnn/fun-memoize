@@ -226,31 +226,8 @@ exports[`Least frequently used: memoization: \`totalLeavesLimit\` 3`] = `
 ]
 `;
 
-exports[`Least frequently used: memoization: \`totalStoragesLimit\` 1`] = `
-[
-  0,
-]
-`;
+exports[`Least frequently used: memoization: \`totalStoragesLimit\` 1`] = `[]`;
 
-exports[`Least frequently used: memoization: \`totalStoragesLimit\` 2`] = `
-[
-  0,
-  1,
-  10,
-  1,
-]
-`;
+exports[`Least frequently used: memoization: \`totalStoragesLimit\` 2`] = `[]`;
 
-exports[`Least frequently used: memoization: \`totalStoragesLimit\` 3`] = `
-[
-  0,
-  1,
-  10,
-  1,
-  0,
-  10,
-  11,
-  12,
-  13,
-]
-`;
+exports[`Least frequently used: memoization: \`totalStoragesLimit\` 3`] = `[]`;

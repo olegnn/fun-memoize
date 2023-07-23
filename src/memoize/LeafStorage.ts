@@ -26,7 +26,7 @@ export class LeafStorage<K, V> extends Storage<K, V> {
     storage: Storage<K, V>,
     strategy: CacheStrategy<K>,
     params: LeafStorageParams<K, V>,
-    parentPaths?: Iterable<ParentPath<K>>
+    parentPaths?: Iterable<ParentPath<K | LeafStorage<K, V>>>
   ) {
     super(params, parentPaths);
     this.storage = storage;

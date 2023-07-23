@@ -48,8 +48,15 @@ describe("Single", () => {
     value.dropKey(1);
     expectValues(value, []);
     value.pushBack(1);
-    value.dropKey(3);
+    expect(value.peekItemBack()).toBe(1);
+    expect(value.peekItemFront()).toBe(1);
+    expect(value.peekKeyBack()).toBe(1);
+    expect(value.moveBack(1)).toBe(true);
+    expect(value.moveBack(2)).toBe(false);
+    expect(value.moveFront(1)).toBe(true);
+    expect(value.moveFront(2)).toBe(false);
     expectValues(value, [1]);
+    expect(value.peekBack()).toBe(1);
     value.dropKey(1);
     expectValues(value, []);
     value.pushBack(1);

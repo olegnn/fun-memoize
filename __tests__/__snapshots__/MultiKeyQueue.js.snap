@@ -3,3 +3,5 @@
 exports[`MultiKeyQueue basic workflow back 1`] = `"Key already exists"`;
 
 exports[`MultiKeyQueue basic workflow front 1`] = `"Key already exists"`;
+
+exports[`MultiKeyQueue keys workflow 1`] = `"Key already exists"`;

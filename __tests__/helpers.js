@@ -34,9 +34,6 @@ const assertWithNTrickyValues = (fn, n, assert, args = []) =>
       )
     : assert(fn(args));
 
-const extractNMapKeys = (maps) =>
-  maps.flatMap((storage) => [...storage.entries()].map(({ key }) => key));
-
 const expectResult = (result, removed, added) => {
   if (removed !== void 0) {
     expect([...result.removed]).toEqual([...removed]);
@@ -146,6 +143,11 @@ const createBasicStorageTests = (
   });
 };
 
+const getStorageKey = (storage) =>
+  [...storage.parentPaths]
+    .map(({ key }) => key)
+    .find((key) => key !== NO_VALUE);
+
 const memoryOverflow = (strategy, config, keygen) => {
   return () => {
     const fn = memoize((a, b, c) => Array(1e6).fill(Math.random()), {
@@ -232,9 +234,9 @@ class Destroyable {
 module.exports = {
   Destroyable,
   FALSY_VALUES,
-  TEST_VALUES: TEST_VALUES,
-  extractNMapKeys,
+  TEST_VALUES,
   expectResult,
+  getStorageKey,
   memoryOverflow,
   memoryOverflowTests,
   assertWithTrickyValues,

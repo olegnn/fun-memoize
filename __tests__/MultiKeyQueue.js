@@ -32,10 +32,26 @@ describe("MultiKeyQueue", () => {
       expect(item).toEqual(key);
     }
 
-    queue = new MultiKeyQueue([new SingleKeyQueue([1, 2, 3])]);
+    inner = new MultiKeyQueue([new Single(1), new Single(2), new Single(3)]);
+    queue = new MultiKeyQueue([inner]);
+    expect(() => queue.pushFront(new Single(1))).toThrowErrorMatchingSnapshot();
+  });
+
+  it("keys workflow", () => {
+    const queue = new MultiKeyQueue([
+      new SingleKeyQueue([1, 2, 3]),
+      new SingleKeyQueue([5]),
+    ]);
     expect(() =>
       queue.addKeyFront(1, queue.get(queue.peekKeyFront()))
     ).toThrowErrorMatchingSnapshot();
+    queue.addKeyFront(0, queue.peekItemFront());
+    expect([...queue.peekFront().valuesFront()]).toEqual([0, 1, 2, 3]);
+    queue.addKeyBack(6, queue.peekItemBack());
+    expect([...queue.peekBack().valuesFront()]).toEqual([5, 6]);
+
+    expect(new MultiKeyQueue().takeKeyBack()).toBe(NO_VALUE);
+    expect(new MultiKeyQueue().takeKeyFront()).toBe(NO_VALUE);
   });
 
   it("basic workflow back", () => {
@@ -67,10 +83,9 @@ describe("MultiKeyQueue", () => {
       expect(item).toEqual(key);
     }
 
-    queue = new MultiKeyQueue([new SingleKeyQueue([1, 2, 3])]);
-    expect(() =>
-      queue.addKeyBack(1, queue.get(queue.peekKeyBack()))
-    ).toThrowErrorMatchingSnapshot();
+    inner = new MultiKeyQueue([new Single(1), new Single(2), new Single(3)]);
+    queue = new MultiKeyQueue([inner]);
+    expect(() => queue.pushBack(new Single(1))).toThrowErrorMatchingSnapshot();
   });
 
   it("assoc/dissoc", () => {
