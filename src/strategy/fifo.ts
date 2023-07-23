@@ -26,22 +26,22 @@ export class FIFO<V> extends CacheStrategy<V> {
 
   /**
    * Returns `true` if given item exists in the queue.
-   * @param node
+   * @param value
    *
    */
-  has(node: V): boolean {
-    return this.queue.has(node);
+  has(value: V): boolean {
+    return this.queue.has(value);
   }
 
   /**
    * Removes supplied item from the queue.
-   * @param node
+   * @param value
    *
    */
-  drop(node: V): boolean {
-    const has = this.queue.has(node);
+  drop(value: V): boolean {
+    const has = this.queue.has(value);
     if (has) {
-      this.queue.drop(node);
+      this.queue.drop(value);
     }
 
     return has;

@@ -5,9 +5,9 @@ const { TEST_VALUES, createBasicStorageTests } = require("./helpers");
 const keys = [
   1,
   "234",
-  13123123,
+  12313123,
   12.23123,
-  12.22,
+  12.23,
   123131231,
   123131231n,
   12313123123123123n,

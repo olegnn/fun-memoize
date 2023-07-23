@@ -26,20 +26,20 @@ export class LRU<V> extends CacheStrategy<V> {
 
   /**
    * Returns `true` if given item exists in the queue.
-   * @param node
+   * @param value
    *
    */
-  has(node: V): boolean {
-    return this.queue.has(node);
+  has(value: V): boolean {
+    return this.queue.has(value);
   }
 
   /**
    * Removes supplied item from the queue.
-   * @param node
+   * @param value
    *
    */
-  drop(node: V): boolean {
-    return this.queue.drop(node) !== NO_VALUE;
+  drop(value: V): boolean {
+    return this.queue.drop(value) !== NO_VALUE;
   }
 
   /**

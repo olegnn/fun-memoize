@@ -204,12 +204,12 @@ export function zip<L, R>(
 
 /**
  * Creates an iterable that endlessly repeats supplied iterable.
- * @param iter
+ * @param iterable
  */
-export function cycle<V>(iter: Iterable<V>): Iterable<V> {
+export function cycle<V>(iterable: Iterable<V>): Iterable<V> {
   return {
     [Symbol.iterator]() {
-      let lastIter = iter[Symbol.iterator]();
+      let lastIter = iterable[Symbol.iterator]();
 
       return {
         next() {
@@ -217,7 +217,7 @@ export function cycle<V>(iter: Iterable<V>): Iterable<V> {
             const item = lastIter.next();
 
             if (item.done) {
-              lastIter = iter[Symbol.iterator]();
+              lastIter = iterable[Symbol.iterator]();
             } else {
               return item;
             }

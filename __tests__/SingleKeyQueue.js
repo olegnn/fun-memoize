@@ -29,18 +29,37 @@ describe("SingleKeyQueue", () => {
     queue = new SingleKeyQueue(keys);
     for (const key of keys) {
       const peek = queue.peekFront();
+      const peekItem = queue.peekItemFront();
+      const peekItemValue = peekItem.value.peekFront();
+      expect(queue.contains(peekItem)).toBe(true);
       const item = queue.takeFront();
+      expect(queue.contains(peekItem)).toBe(false);
       expect(item).toEqual(key);
       expect(item).toEqual(peek);
+      expect(item).toEqual(peekItemValue);
     }
     expect(queue.isEmpty()).toBe(true);
 
     queue = new SingleKeyQueue([...keys].reverse());
     for (const key of keys) {
       const peek = queue.peekBack();
+      const peekItem = queue.peekItemBack();
+      const peekItemValue = peekItem.value.peekBack();
+      expect(queue.contains(peekItem)).toBe(true);
       const item = queue.takeBack();
+      expect(queue.contains(peekItem)).toBe(false);
       expect(item).toEqual(key);
       expect(item).toEqual(peek);
+      expect(item).toEqual(peekItemValue);
+    }
+    expect(queue.isEmpty()).toBe(true);
+
+    queue = new SingleKeyQueue([...keys].reverse());
+    for (const key of keys) {
+      expect(queue.has(key)).toBe(true);
+      const item = queue.drop(key);
+      expect(queue.has(key)).toBe(false);
+      expect(item).toEqual(key);
     }
     expect(queue.isEmpty()).toBe(true);
 

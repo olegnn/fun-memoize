@@ -1,5 +1,4 @@
 import { OrderedCollection } from "./types";
-import { equals } from "../value";
 import { EMPTY_ITERABLE, ITER_DONE_VALUE, forEach } from "../iterables";
 import { Destroyable } from "../utils";
 

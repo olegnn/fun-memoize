@@ -54,7 +54,7 @@ export abstract class Storage<K, V>
   }
 
   /**
-   * Returns `true` if supplied is weak, and thus won't be stored directly.
+   * Returns `true` if supplied key is weak, and thus won't be stored directly.
    * @param key
    */
   isWeak(_key: K): boolean {

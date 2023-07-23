@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Root input validation 1`] = `"5 is too small, expected 6 at least"`;
+exports[`Root input validation 1`] = `"\`totalStoragesLimit\`'s 5 is too small, expected 6 at least"`;
 
 exports[`Root input validation 2`] = `"\`totalLeavesLimit\` is invalid: 1.3"`;
 

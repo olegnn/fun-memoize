@@ -2,7 +2,7 @@ const { withDestroyable } = require("../build/base/CacheStrategy");
 const { LRU } = require("../build/strategy/lru");
 const {
   Destroyable,
-  extractNMapKeys,
+  getStorageKey,
   expectResult,
   memoryOverflowTests,
 } = require("./helpers");
@@ -95,10 +95,7 @@ describe("Least recently used:", () => {
       strategy: LRU,
       totalLeavesLimit: 2,
       onRemoveStorage: (storage) => {
-        const key = [...storage.parentPaths]
-          .map(({ key }) => key)
-          .find((key) => key !== NO_VALUE);
-        removed.push(key);
+        removed.push(getStorageKey(storage));
       },
       onRemoveLeaf: (key) => {
         removed.push(key);
@@ -120,7 +117,7 @@ describe("Least recently used:", () => {
   });
 
   it("memoization: `totalLeavesLimit`", () => {
-    const fn = memoize((_a, _b) => Math.random(), {
+    const fn = memoize((_a, _b, _c) => Math.random(), {
       strategy: LRU,
       totalLeavesLimit: 10,
       onRemoveLeaf: (key) => {
@@ -129,7 +126,11 @@ describe("Least recently used:", () => {
     });
     const removed = [];
 
-    const args = Array.from({ length: 100 }, (_, i) => [String(i), i]);
+    const args = Array.from({ length: 100 }, (_, i) => [
+      `root-${i}`,
+      String(i),
+      i,
+    ]);
 
     for (let i = 0; i < 10; i++) {
       fn(...args[i]);
@@ -151,39 +152,43 @@ describe("Least recently used:", () => {
   });
 
   it("memoization: `totalStoragesLimit`", () => {
-    const fn = memoize((_a, _b) => Math.random(), {
+    const fn = memoize((_a, _b, _c) => Math.random(), {
       strategy: LRU,
       totalStoragesLimit: 10,
       checkLast: false,
       onRemoveStorage: (storage) => {
-        removed.push(storage);
+        removed.push(getStorageKey(storage));
       },
     });
     const removed = [];
 
-    const args = Array.from({ length: 100 }, (_, i) => [String(i), i]);
+    const args = Array.from({ length: 100 }, (_, i) => [
+      `root-${i}`,
+      String(i),
+      i,
+    ]);
 
     for (let i = 0; i < 10; i++) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toMatchSnapshot();
+    expect(removed).toMatchSnapshot();
 
     for (let i = 10; i > -1; --i) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toMatchSnapshot();
+    expect(removed).toMatchSnapshot();
 
     for (let i = 5; i < 15; i++) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toMatchSnapshot();
+    expect(removed).toMatchSnapshot();
   });
 
   it("memoization: `leavesPerStorageLimit`", () => {
-    const fn = memoize((_a, _b) => Math.random(), {
+    const fn = memoize((_a, _b, _c) => Math.random(), {
       strategy: LRU,
       leavesPerStorageLimit: 10,
       onRemoveLeaf: (key) => {

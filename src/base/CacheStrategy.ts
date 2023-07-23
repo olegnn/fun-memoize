@@ -50,7 +50,7 @@ export abstract class CacheStrategy<V>
 
   /**
    * Returns `true` if given item exists in the queue.
-   * @param node
+   * @param value
    *
    */
   abstract has(value: V): boolean;

@@ -1,4 +1,4 @@
-import { EMPTY_ITERABLE, chain, forEach, map } from "./iterables";
+import { EMPTY_ITERABLE, chain, forEach } from "./iterables";
 import { AbsentValue, NO_VALUE } from "./value";
 
 /**

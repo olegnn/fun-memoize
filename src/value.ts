@@ -1,5 +1,5 @@
 /** Represents an absent value */
-export const NO_VALUE = {};
+export const NO_VALUE: symbol = Symbol.for("@@fun-memoize@@/NO_VALUE");
 
 /** Checks given values to be equal according to the `Same-value-zero` equality algorithm */
 export const equals = <V>(v1: V, v2: V): boolean =>

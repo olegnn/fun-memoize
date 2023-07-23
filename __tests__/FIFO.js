@@ -3,8 +3,8 @@ const { FIFO } = require("../build/strategy/fifo");
 const { NO_VALUE } = require("../build/value");
 const {
   Destroyable,
-  extractNMapKeys,
   expectResult,
+  getStorageKey,
   memoryOverflowTests,
 } = require("./helpers");
 const { default: memoize } = require("../build/index");
@@ -44,7 +44,7 @@ describe("First in first out:", () => {
       expect(fifo.isFull()).toBe(false);
     }
 
-    expect(removed).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+    expect(removed).toMatchSnapshot();
   });
 
   it("FIFO", () => {
@@ -95,10 +95,7 @@ describe("First in first out:", () => {
       strategy: FIFO,
       totalLeavesLimit: 2,
       onRemoveStorage: (storage) => {
-        const key = [...storage.parentPaths]
-          .map(({ key }) => key)
-          .find((key) => key !== NO_VALUE);
-        removed.push(key);
+        removed.push(getStorageKey(storage));
       },
       onRemoveLeaf: (key) => {
         removed.push(key);
@@ -120,7 +117,7 @@ describe("First in first out:", () => {
   });
 
   it("memoization: `totalLeavesLimit`", () => {
-    const fn = memoize((_a, _b) => Math.random(), {
+    const fn = memoize((_a, _b, _c) => Math.random(), {
       strategy: FIFO,
       totalLeavesLimit: 10,
       onRemoveLeaf: (key) => {
@@ -129,7 +126,11 @@ describe("First in first out:", () => {
     });
     const removed = [];
 
-    const args = Array.from({ length: 100 }, (_, i) => [String(i), i]);
+    const args = Array.from({ length: 100 }, (_, i) => [
+      `root-${i}`,
+      String(i),
+      i,
+    ]);
 
     for (let i = 0; i < 10; i++) {
       fn(...args[i]);
@@ -141,7 +142,7 @@ describe("First in first out:", () => {
       fn(...args[i]);
     }
 
-    expect(removed).toEqual([0, 1]);
+    expect(removed).toMatchSnapshot();
 
     for (let i = 5; i < 15; i++) {
       fn(...args[i]);
@@ -151,39 +152,43 @@ describe("First in first out:", () => {
   });
 
   it("memoization: `totalStoragesLimit`", () => {
-    const fn = memoize((_a, _b) => Math.random(), {
+    const fn = memoize((_a, _b, _c) => Math.random(), {
       strategy: FIFO,
       totalStoragesLimit: 10,
       checkLast: false,
       onRemoveStorage: (storage) => {
-        removed.push(storage);
+        removed.push(getStorageKey(storage));
       },
     });
     const removed = [];
 
-    const args = Array.from({ length: 100 }, (_, i) => [String(i), i]);
+    const args = Array.from({ length: 100 }, (_, i) => [
+      `root-${i}`,
+      String(i),
+      i,
+    ]);
 
     for (let i = 0; i < 10; i++) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toMatchSnapshot();
+    expect(removed).toMatchSnapshot();
 
     for (let i = 10; i > -1; --i) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toMatchSnapshot();
+    expect(removed).toMatchSnapshot();
 
     for (let i = 5; i < 15; i++) {
       fn(...args[i]);
     }
 
-    expect(extractNMapKeys(removed)).toMatchSnapshot();
+    expect(removed).toMatchSnapshot();
   });
 
   it("memoization: `leavesPerStorageLimit`", () => {
-    const fn = memoize((_a, _b) => Math.random(), {
+    const fn = memoize((_a, _b, _c) => Math.random(), {
       strategy: FIFO,
       leavesPerStorageLimit: 10,
       onRemoveLeaf: (key) => {
@@ -208,7 +213,7 @@ describe("First in first out:", () => {
       fn(...args[i]);
     }
 
-    expect(removed).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(removed).toMatchSnapshot();
   });
 
   memoryOverflowTests(FIFO);

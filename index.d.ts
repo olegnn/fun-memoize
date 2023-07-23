@@ -1,5 +1,5 @@
 /** Represents an absent value */
-declare const NO_VALUE: {};
+declare const NO_VALUE: symbol;
 /** Absent value placeholder */
 type AbsentValue = typeof NO_VALUE;
 
@@ -172,7 +172,7 @@ declare abstract class CacheStrategy<V>
   abstract peek(): V | AbsentValue;
   /**
    * Returns `true` if given item exists in the queue.
-   * @param node
+   * @param value
    *
    */
   abstract has(value: V): boolean;
@@ -227,7 +227,7 @@ declare abstract class Storage<K, V>
    */
   destroy(): void;
   /**
-   * Returns `true` if supplied is weak, and thus won't be stored directly.
+   * Returns `true` if supplied key is weak, and thus won't be stored directly.
    * @param key
    */
   isWeak(_key: K): boolean;
@@ -307,7 +307,7 @@ declare class LeafStorage<K, V> extends Storage<K, V> {
     storage: Storage<K, V>,
     strategy: CacheStrategy<K>,
     params: LeafStorageParams<K, V>,
-    parentPaths?: Iterable<ParentPath<K>>
+    parentPaths?: Iterable<ParentPath<K | LeafStorage<K, V>>>
   );
   /**
    * Returns amount of keys (references) stored in a map.
@@ -993,15 +993,15 @@ declare class Single<V> extends IndexedOrderedCollectionWithOrderedKeys<
   get(value: V): V | AbsentValue;
   keysFront(): Iterable<V>;
   keysBack(): Iterable<V>;
-  takeFront(): {} | V;
-  takeBack(): {} | V;
+  takeFront(): symbol | V;
+  takeBack(): symbol | V;
   insertAfter(_item: V, _value: V): V | AbsentValue;
   insertBefore(_item: V, _value: V): V | AbsentValue;
   contains(item: V): boolean;
   has(value: V): boolean;
   drop(value: V): V | AbsentValue;
-  peekFront(): {} | V;
-  peekBack(): {} | V;
+  peekFront(): symbol | V;
+  peekBack(): symbol | V;
   moveFront(item: V): boolean;
   moveBack(item: V): boolean;
   remove(item: V): boolean;
@@ -1020,6 +1020,18 @@ declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
 > {
   inner: MultiKeyQueue<V, Single<V>>;
   constructor(values?: Iterable<V>);
+  /**
+   * Pushes an item to the end of the queue.
+   * @param value
+   *
+   */
+  pushBack(value: V): ListNode<Single<V>> | AbsentValue;
+  /**
+   * Pushes an item to the beginning of the queue.
+   * @param value
+   *
+   */
+  pushFront(value: V): ListNode<Single<V>> | AbsentValue;
   /**
    * Returns amount of keys (references) stored in a map.
    *
@@ -1135,12 +1147,12 @@ declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    * Peeks an item from the beginning of the collection.
    * Returns either item or `NO_VALUE` if queue is empty.
    */
-  peekItemFront(): {} | ListNode<Single<V>>;
+  peekItemFront(): AbsentValue | ListNode<Single<V>>;
   /**
    * Peeks an item from the end of the collection.
    * Returns either item or `NO_VALUE` if queue is empty.
    */
-  peekItemBack(): {} | ListNode<Single<V>>;
+  peekItemBack(): AbsentValue | ListNode<Single<V>>;
   /**
    * Peeks a key of the item from the beginning of the queue.
    * Returns either key or `NO_VALUE` if queue is empty.
@@ -1185,18 +1197,6 @@ declare class SingleKeyQueue<V> extends IndexedOrderedCollectionWithOrderedKeys<
    *
    */
   keysBack(): Iterable<V>;
-  /**
-   * Pushes an item to the end of the queue.
-   * @param value
-   *
-   */
-  pushBack(value: V): ListNode<Single<V>> | AbsentValue;
-  /**
-   * Pushes an item to the beginning of the queue.
-   * @param value
-   *
-   */
-  pushFront(value: V): ListNode<Single<V>> | AbsentValue;
 }
 
 /**
@@ -1212,16 +1212,16 @@ declare class LRU<V> extends CacheStrategy<V> {
   len(): number;
   /**
    * Returns `true` if given item exists in the queue.
-   * @param node
+   * @param value
    *
    */
-  has(node: V): boolean;
+  has(value: V): boolean;
   /**
    * Removes supplied item from the queue.
-   * @param node
+   * @param value
    *
    */
-  drop(node: V): boolean;
+  drop(value: V): boolean;
   /**
    * Records read access of the supplied item.
    * @param value
@@ -1314,16 +1314,16 @@ declare class FIFO<V> extends CacheStrategy<V> {
   len(): number;
   /**
    * Returns `true` if given item exists in the queue.
-   * @param node
+   * @param value
    *
    */
-  has(node: V): boolean;
+  has(value: V): boolean;
   /**
    * Removes supplied item from the queue.
-   * @param node
+   * @param value
    *
    */
-  drop(node: V): boolean;
+  drop(value: V): boolean;
   /**
    * Records read access of the supplied item.
    * @param value

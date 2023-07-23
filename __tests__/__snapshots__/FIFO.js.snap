@@ -37,6 +37,24 @@ exports[`First in first out: FIFO 1`] = `
 
 exports[`First in first out: Zero cap 1`] = `"Capacity can't be equal to zero"`;
 
+exports[`First in first out: basic workflow 1`] = `
+[
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+]
+`;
+
+exports[`First in first out: memoization: \`leavesPerStorageLimit\` 1`] = `[]`;
+
 exports[`First in first out: memoization: \`totalLeavesLimit = 2\` 1`] = `[]`;
 
 exports[`First in first out: memoization: \`totalLeavesLimit = 2\` 2`] = `[]`;
@@ -185,30 +203,112 @@ exports[`First in first out: memoization: \`totalLeavesLimit = 2\` 10`] = `
 ]
 `;
 
-exports[`First in first out: memoization: \`totalStoragesLimit\` 1`] = `
+exports[`First in first out: memoization: \`totalLeavesLimit\` 1`] = `
 [
   0,
+  1,
+]
+`;
+
+exports[`First in first out: memoization: \`totalStoragesLimit\` 1`] = `
+[
+  "root-0",
+  "0",
+  "root-1",
+  "1",
+  "root-2",
+  "2",
+  "root-3",
+  "3",
+  "root-4",
+  "4",
+  "root-5",
+  "5",
 ]
 `;
 
 exports[`First in first out: memoization: \`totalStoragesLimit\` 2`] = `
 [
-  0,
-  1,
-  2,
-  3,
+  "root-0",
+  "0",
+  "root-1",
+  "1",
+  "root-2",
+  "2",
+  "root-3",
+  "3",
+  "root-4",
+  "4",
+  "root-5",
+  "5",
+  "root-6",
+  "6",
+  "root-7",
+  "7",
+  "root-8",
+  "8",
+  "root-9",
+  "9",
+  "root-10",
+  "10",
+  "root-6",
+  "6",
+  "root-5",
+  "5",
+  "root-4",
+  "4",
 ]
 `;
 
 exports[`First in first out: memoization: \`totalStoragesLimit\` 3`] = `
 [
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
+  "root-0",
+  "0",
+  "root-1",
+  "1",
+  "root-2",
+  "2",
+  "root-3",
+  "3",
+  "root-4",
+  "4",
+  "root-5",
+  "5",
+  "root-6",
+  "6",
+  "root-7",
+  "7",
+  "root-8",
+  "8",
+  "root-9",
+  "9",
+  "root-10",
+  "10",
+  "root-6",
+  "6",
+  "root-5",
+  "5",
+  "root-4",
+  "4",
+  "root-3",
+  "3",
+  "root-2",
+  "2",
+  "root-1",
+  "1",
+  "root-0",
+  "0",
+  "root-5",
+  "5",
+  "root-6",
+  "6",
+  "root-7",
+  "7",
+  "root-8",
+  "8",
+  "root-9",
+  "9",
+  "root-10",
+  "10",
 ]
 `;

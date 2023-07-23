@@ -5,7 +5,7 @@ import {
 } from "../base/CacheStrategy";
 import { EMPTY_ITERABLE } from "../iterables";
 import { LeafStorage, LeafStorageParams } from "./LeafStorage";
-import { Storage, StorageParams } from "../base/Storage";
+import { Storage, StorageClass, StorageParams } from "../base/Storage";
 import {
   SafeMapStorage,
   UnifiedStorage,
@@ -28,7 +28,7 @@ export type NestedStorage<K, V> =
  */
 type NestedStorageClass<K, V> = new (
   params: StorageParams<K, V>,
-  parents: Iterable<ParentPath<K>>
+  parents: Iterable<ParentPath<K | NestedStorage<K, V>>>
 ) => NestedStorage<K, V>;
 
 /**
@@ -98,7 +98,9 @@ const ensureLimitIsValid = (name: string, value: number, min: number) => {
     throw new Error(`\`${name}\` is invalid: ${value}`);
   }
   if (value < min) {
-    throw new Error(`${value} is too small, expected ${min} at least`);
+    throw new Error(
+      `\`${name}\`'s ${value} is too small, expected ${min} at least`
+    );
   }
 };
 
@@ -124,9 +126,19 @@ type LeafCacheStrategyClass<K, V> = CacheStrategyClass<LeafStorage<K, V>>;
 type StorageCacheStrategyClass<K, V> = CacheStrategyClass<NestedStorage<K, V>>;
 
 /**
+ * Params with cache depth.
+ */
+type ParamsWithDepth<K, V> = Params<K, V> & {
+  /**
+   * Cache depth.
+   */
+  depth: number;
+};
+
+/**
  * Root storage context.
  */
-export class StorageContext<K, V> {
+export class Context<K, V> {
   /**
    * Strategy containing all storage nodes.
    */
@@ -147,7 +159,7 @@ export class StorageContext<K, V> {
   /**
    * Storage class to be used for cached values.
    */
-  storageClass: NestedStorageClass<K, V>;
+  storageClass: StorageClass<K, V>;
   /**
    * Strategy class used for leaf values.
    */
@@ -166,12 +178,7 @@ export class StorageContext<K, V> {
     onRemoveStorage = noop,
     onCreateLeaf = noop,
     onRemoveLeaf = noop,
-  }: Params<K, V> & {
-    /**
-     * Cache depth.
-     */
-    depth: number;
-  }) {
+  }: ParamsWithDepth<K, V>) {
     if (!Number.isSafeInteger(depth) || depth <= 0) {
       throw new TypeError(
         `Invalid depth, an expected natural number which is a safe integer`
@@ -219,8 +226,9 @@ export class StorageContext<K, V> {
       totalLeavesLimit,
       new (withDestroyable(leafStrategyClass))(totalLeafStoragesLimit)
     );
-    this.storageClass =
-      useWeakStorage || useObjectStorage ? UnifiedStorage : SafeMapStorage;
+    this.storageClass = (
+      useWeakStorage || useObjectStorage ? UnifiedStorage : SafeMapStorage
+    ) as StorageClass<K, V>;
     this.leafStrategyClass = leafStrategyClass as CacheStrategyClass<K>;
     this.leavesPerStorageLimit = leavesPerStorageLimit;
     this.params = {
@@ -238,7 +246,7 @@ export class StorageContext<K, V> {
    * @param root
    */
   createStorage(
-    parentPaths: Iterable<ParentPath<K>> = EMPTY_ITERABLE
+    parentPaths: Iterable<ParentPath<K | NestedStorage<K, V>>> = EMPTY_ITERABLE
   ): NestedStorage<K, V> {
     return new this.storageClass(this.params, parentPaths);
   }
@@ -248,7 +256,7 @@ export class StorageContext<K, V> {
    * @param root
    */
   createLeafStorage(
-    parentPaths: Iterable<ParentPath<K>> = EMPTY_ITERABLE
+    parentPaths: Iterable<ParentPath<K | LeafStorage<K, V>>> = EMPTY_ITERABLE
   ): LeafStorage<K, V> {
     return new LeafStorage(
       this.createStorage() as Storage<K, V>,
