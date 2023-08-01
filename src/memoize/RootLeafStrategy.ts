@@ -5,7 +5,7 @@ import { AbsentValue, NO_VALUE } from "../value";
 import { LeafStorage } from "./LeafStorage";
 
 /**
- * Cache strategy for leaf values.
+ * Root cache strategy for leaf values.
  */
 export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
   _leafStorageStrategy: CacheStrategy<LeafStorage<K, V>>;

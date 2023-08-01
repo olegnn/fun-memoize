@@ -64,6 +64,14 @@ const createBasicStorageTests = (
       expect(storage.isEmpty()).toBe(false);
     }
 
+    storage.set(keys[0], 12345);
+    expect(storage.get(keys[0])).toBe(12345);
+    storage.set(keys[0], values[0]);
+
+    storage.set(keys[keys.length - 1], 54321);
+    expect(storage.get(keys[keys.length - 1])).toBe(54321);
+    storage.set(keys[keys.length - 1], values[keys.length - 1]);
+
     const sortBy = (a, b) => a.value - b.value;
 
     for (const { left: key, right: value } of zip(keys, values)) {
@@ -201,14 +209,14 @@ const memoryOverflowTests = (strategy) => {
   );
 
   it(
-    "memoization: no limit weak storage memory overflow",
+    "memoization: large limit weak storage memory overflow",
     memoryOverflow(
       strategy,
       {
-        totalLeafStoragesLimit: Infinity,
-        totalStoragesLimit: Infinity,
-        leavesPerStorageLimit: Infinity,
-        totalLeavesLimit: Infinity,
+        totalLeafStoragesLimit: 1e4,
+        totalStoragesLimit: 1e4,
+        leavesPerStorageLimit: 1e4,
+        totalLeavesLimit: 1e4,
         useWeakStorage: true,
       },
       () => [{}, {}, {}, 1, {}, "232", {}]

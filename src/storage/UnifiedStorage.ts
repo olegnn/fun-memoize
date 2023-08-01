@@ -27,9 +27,9 @@ export class UnifiedStorage<
 
   constructor(
     params?: UnifiedStorageParams<K, V>,
-    rootPath?: Iterable<ParentPath<K>>
+    parentPaths?: Iterable<ParentPath<K | Storage<K, V>>>
   ) {
-    super(params, rootPath);
+    super(params, parentPaths);
 
     const isMapImplemented = mapImplemented();
 
