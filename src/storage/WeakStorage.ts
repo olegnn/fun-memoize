@@ -15,9 +15,9 @@ export class WeakStorage<K extends NonPrimitive, V> extends Storage<K, V> {
 
   constructor(
     params?: StorageParams<K, V>,
-    rootPath?: Iterable<ParentPath<K>>
+    parentPaths?: Iterable<ParentPath<K | Storage<K, V>>>
   ) {
-    super(params, rootPath);
+    super(params, parentPaths);
     this.weakMap = new WeakMap<NonPrimitive, V>();
     this.addedEntries = 0;
   }

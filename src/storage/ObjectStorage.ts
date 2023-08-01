@@ -15,9 +15,9 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
 
   constructor(
     params?: StorageParams<K, V>,
-    rootPath?: Iterable<ParentPath<K>>
+    parentPaths?: Iterable<ParentPath<K | Storage<K, V>>>
   ) {
-    super(params, rootPath);
+    super(params, parentPaths);
     this.length = 0;
     this.map = Object.create(null);
   }
@@ -86,8 +86,8 @@ export class ObjectStorage<K extends Primitive, V> extends Storage<K, V> {
 
     if (!has) {
       this.length++;
-      this.map[objKey] = value;
     }
+    this.map[objKey] = value;
   }
 
   /**
