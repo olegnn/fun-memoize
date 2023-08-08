@@ -10,7 +10,7 @@ import { empty } from "../iterables";
  * Weak storage for values with non-primitive keys.
  */
 export class WeakStorage<K extends NonPrimitive, V> extends Storage<K, V> {
-  weakMap: WeakMap<NonPrimitive, V>;
+  weakMap: WeakMap<K, V>;
   addedEntries: number;
 
   constructor(

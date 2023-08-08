@@ -30,9 +30,11 @@ export function once<V>(value: V): Iterable<V> {
 }
 
 /**
- * Creates an iterable which emits supplied arguments
+ * Creates an iterable which emits supplied arguments.
  */
 export function values<V>(...args: V[]): Iterable<V> {
+  if (args.length === 0) return EMPTY_ITERABLE;
+
   return {
     [Symbol.iterator]() {
       let idx = 0;
@@ -71,6 +73,8 @@ export function map<V, R>(
   fn: (item: V) => R,
   iterable: Iterable<V>
 ): Iterable<R> {
+  if (iterable === EMPTY_ITERABLE) return EMPTY_ITERABLE;
+
   return {
     [Symbol.iterator]() {
       const iter = iterable[Symbol.iterator]();
@@ -95,6 +99,8 @@ export function flatMap<V, R>(
   map: (item: V) => Iterable<R>,
   iterable: Iterable<V>
 ): Iterable<R> {
+  if (iterable === EMPTY_ITERABLE) return EMPTY_ITERABLE;
+
   return {
     [Symbol.iterator]() {
       const rootIter = iterable[Symbol.iterator]();
@@ -180,6 +186,9 @@ export function zip<L, R>(
   leftIterable: Iterable<L>,
   rightIterable: Iterable<R>
 ): Iterable<{ left: L; right: R }> {
+  if (leftIterable === EMPTY_ITERABLE || rightIterable === EMPTY_ITERABLE)
+    return EMPTY_ITERABLE;
+
   return {
     [Symbol.iterator]() {
       let leftIter = leftIterable[Symbol.iterator]();
@@ -207,6 +216,8 @@ export function zip<L, R>(
  * @param iterable
  */
 export function cycle<V>(iterable: Iterable<V>): Iterable<V> {
+  if (iterable === EMPTY_ITERABLE) return EMPTY_ITERABLE;
+
   return {
     [Symbol.iterator]() {
       let lastIter = iterable[Symbol.iterator]();

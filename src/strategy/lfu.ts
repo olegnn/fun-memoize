@@ -30,32 +30,28 @@ export class LFU<V> extends CacheStrategy<V> {
    *
    */
   write(value: V): Result<V> {
-    if (!this.has(value)) {
-      const res = this.reservePlace();
-      const head = this.queue.peekItemFront();
-
-      if (head !== NO_VALUE) {
-        const isFirstLevel =
-          (head as ListNode<LevelEntry<V>>).value.level === 1;
-
-        if (isFirstLevel) {
-          const addedHead = this.queue.addKeyBack(
-            value,
-            head as ListNode<LevelEntry<V>>
-          );
-          if (!addedHead) {
-            throw new Error(`\`LFU\`: failed to modify cache head`);
-          }
-
-          return res.chain(Result.added(once(value)));
-        }
-      }
-      const pushed = this.queue.pushFront(new LevelEntry(1, value));
-
-      return res.chain(Result.added(once(value)));
-    } else {
+    if (this.has(value)) {
       return this.read(value);
     }
+
+    const res = this.reservePlace();
+    const maybeNoValueHead = this.queue.peekItemFront();
+
+    if (maybeNoValueHead !== NO_VALUE) {
+      const head = maybeNoValueHead as ListNode<LevelEntry<V>>;
+
+      if (head.value.level === 1) {
+        const added = this.queue.addKeyBack(value, head);
+        if (!added) {
+          throw new Error(`\`LFU\`: failed to modify cache head`);
+        }
+
+        return res.chain(Result.added(once(value)));
+      }
+    }
+    this.queue.pushFront(new LevelEntry(1, value));
+
+    return res.chain(Result.added(once(value)));
   }
 
   /**
@@ -72,19 +68,17 @@ export class LFU<V> extends CacheStrategy<V> {
     const listNode = maybeNoValueListNode as ListNode<LevelEntry<V>>;
     const { next } = listNode;
     if (!this.queue.dropKey(value)) {
-      throw new Error(
-        `\`LFU\`: failed to drop a key in the current cache level`
-      );
+      throw new Error("`LFU`: failed to drop a key in the current cache level");
     }
 
     const newLevel = listNode.value.level + 1;
 
-    if (next) {
+    if (next != null) {
       if (next.value.level === newLevel) {
         const added = this.queue.addKeyBack(value, next);
         if (!added) {
           throw new Error(
-            `\`LFU\`: failed to move cache value to the next cache level`
+            "`LFU`: failed to move cache value to the next cache level"
           );
         }
       } else {
@@ -93,7 +87,7 @@ export class LFU<V> extends CacheStrategy<V> {
           new LevelEntry(newLevel, value)
         );
         if (inserted === NO_VALUE) {
-          throw new Error(`\`LFU\`: failed to insert a new level of cache`);
+          throw new Error("`LFU`: failed to insert a new level of cache");
         }
       }
     } else {

@@ -39,12 +39,7 @@ export class FIFO<V> extends CacheStrategy<V> {
    *
    */
   drop(value: V): boolean {
-    const has = this.queue.has(value);
-    if (has) {
-      this.queue.drop(value);
-    }
-
-    return has;
+    return this.queue.drop(value) !== NO_VALUE;
   }
 
   /**
@@ -67,19 +62,19 @@ export class FIFO<V> extends CacheStrategy<V> {
 
       const pushed = this.queue.pushBack(value);
       if (pushed === NO_VALUE) {
-        throw new Error(`\`FIFO\`: failed to push a new cache entry`);
+        throw new Error("`FIFO`: failed to push a new cache entry");
       }
 
       return res.chain(Result.added(once(value)));
     } else {
       const item = this.queue.get(value);
       if (item === NO_VALUE) {
-        throw new Error(`\`FIFO\`: cache entry doesn't exist`);
+        throw new Error("`FIFO`: cache entry doesn't exist");
       }
 
       const moved = this.queue.moveBack(item as ListNode<Single<V>>);
       if (!moved) {
-        throw new Error(`\`FIFO\`: failed to move the cache entry`);
+        throw new Error("`FIFO`: failed to move the cache entry");
       }
 
       return Result.empty();

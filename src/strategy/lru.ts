@@ -55,7 +55,7 @@ export class LRU<V> extends CacheStrategy<V> {
 
     const moved = this.queue.moveBack(item as ListNode<Single<V>>);
     if (!moved) {
-      throw new Error(`\`LRU\`: failed to move the cache entry`);
+      throw new Error("`LRU`: failed to move the cache entry");
     }
 
     return Result.empty();
@@ -67,17 +67,17 @@ export class LRU<V> extends CacheStrategy<V> {
    *
    */
   write(value: V): Result<V> {
-    if (!this.has(value)) {
-      const res = this.reservePlace();
-      const pushed = this.queue.pushBack(value);
-      if (pushed === NO_VALUE) {
-        throw new Error(`\`LRU\`: failed to push a new cache entry`);
-      }
-
-      return res.chain(Result.added(once(value)));
-    } else {
+    if (this.has(value)) {
       return this.read(value);
     }
+
+    const res = this.reservePlace();
+    const pushed = this.queue.pushBack(value);
+    if (pushed === NO_VALUE) {
+      throw new Error("`LRU`: failed to push a new cache entry");
+    }
+
+    return res.chain(Result.added(once(value)));
   }
 
   /**
