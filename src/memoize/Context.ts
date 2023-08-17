@@ -24,14 +24,6 @@ export type NestedStorage<K, V> =
   | Storage<K, NestedStorage<K, V> | LeafStorage<K, V> | V>;
 
 /**
- * Storage class describing storage that may have child storage(s).
- */
-type NestedStorageClass<K, V> = new (
-  params: StorageParams<K, V>,
-  parents: Iterable<ParentPath<K | NestedStorage<K, V>>>
-) => NestedStorage<K, V>;
-
-/**
  * Params for the storage context.
  */
 export interface Params<K, V>
@@ -95,11 +87,11 @@ const limitIsValid = (limit: number) =>
  */
 const ensureLimitIsValid = (name: string, value: number, min: number) => {
   if (!limitIsValid(value)) {
-    throw new Error(`\`${name}\` is invalid: ${value}`);
+    throw new Error(`\`${name}\` is invalid: \`${value}\``);
   }
   if (value < min) {
     throw new Error(
-      `\`${name}\`'s ${value} is too small, expected ${min} at least`
+      `\`${name}\`'s value = \`${value}\` is too small, expected \`${min}\` at least`
     );
   }
 };

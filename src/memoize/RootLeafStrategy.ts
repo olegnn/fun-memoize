@@ -8,25 +8,23 @@ import { LeafStorage } from "./LeafStorage";
  * Root cache strategy for leaf values.
  */
 export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
-  _leafStorageStrategy: CacheStrategy<LeafStorage<K, V>>;
-  _leaves: number;
+  leafStorageStrategy: CacheStrategy<LeafStorage<K, V>>;
+  leaves: number;
 
   constructor(
     leafCapacity: number,
     strategy: CacheStrategy<LeafStorage<K, V>>
   ) {
     super(leafCapacity);
-    this._leafStorageStrategy = strategy;
-    this._leaves = 0;
+    this.leafStorageStrategy = strategy;
+    this.leaves = 0;
   }
 
   /**
    * Records a read access of the supplied value.
    */
   read(value: LeafStorage<K, V>): Result<LeafStorage<K, V>> {
-    return this.handleInnerStrategyResult(
-      this._leafStorageStrategy.read(value)
-    );
+    return this.handleInnerStrategyResult(this.leafStorageStrategy.read(value));
   }
 
   /**
@@ -36,10 +34,10 @@ export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
     const res = !this.has(value)
       ? this.reservePlace()
       : (Result.empty() as Result<LeafStorage<K, V>>);
-    this._leaves++;
+    this.leaves++;
 
     return res.chain(
-      this.handleInnerStrategyResult(this._leafStorageStrategy.write(value))
+      this.handleInnerStrategyResult(this.leafStorageStrategy.write(value))
     );
   }
 
@@ -47,9 +45,9 @@ export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
    * Removes supplied value from the cache.
    */
   drop(value: LeafStorage<K, V>): boolean {
-    const dropped = this._leafStorageStrategy.drop(value);
+    const dropped = this.leafStorageStrategy.drop(value);
     if (dropped) {
-      this._leaves -= (value as LeafStorage<K, V>).len();
+      this.leaves -= value.len();
     }
 
     return dropped;
@@ -59,21 +57,21 @@ export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
    * Returns underlying amount of tracked cache entries.
    */
   len(): number {
-    return this._leaves;
+    return this.leaves;
   }
 
   /**
    * Returns `true` if supplied node exists in cache.
    */
   has(node: LeafStorage<K, V>) {
-    return this._leafStorageStrategy.has(node);
+    return this.leafStorageStrategy.has(node);
   }
 
   /**
    * Peeks an item from the beginning of the queue.
    */
   peek() {
-    return this._leafStorageStrategy.peek();
+    return this.leafStorageStrategy.peek();
   }
 
   /**
@@ -87,7 +85,7 @@ export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
       const storage = maybeStorage as LeafStorage<K, V>;
       const removed = storage.take();
       if (removed !== NO_VALUE) {
-        this._leaves--;
+        this.leaves--;
       }
 
       if (storage.isEmpty()) {
@@ -104,7 +102,7 @@ export class RootLeafStrategy<K, V> extends CacheStrategy<LeafStorage<K, V>> {
    * Handles a result produced by calling one of the inner strategy methods.
    */
   private handleInnerStrategyResult(result: Result<LeafStorage<K, V>>) {
-    forEach((removed) => (this._leaves -= removed.len()), result.removed);
+    forEach((removed) => (this.leaves -= removed.len()), result.removed);
 
     return result;
   }
