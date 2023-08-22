@@ -291,9 +291,9 @@ interface StorageParams<K, V> {
  */
 interface LeafStorageParams<K, V> extends StorageParams<K, V> {
   /** Callback to be called on the leaf creation */
-  onCreateLeaf?: (leafStorage: K) => void;
+  onCreateLeaf?: (leafKey: K) => void;
   /** Callback to be called on the leaf removal */
-  onRemoveLeaf?: (leafStorage: K) => void;
+  onRemoveLeaf?: (leafKey: K) => void;
 }
 /**
  * Stores leaf key -> value pairs.

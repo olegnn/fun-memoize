@@ -257,7 +257,13 @@ export class Root<K, V> {
       return result as V;
     }
 
-    result = calculate.apply(null, path);
+    try {
+      result = calculate.apply(null, path);
+    } catch (err) {
+      this.last.reset();
+
+      throw err;
+    }
     this.setPath(path, result as V, ptr);
     this.last.update(path, result as V);
     this.writeCache();
