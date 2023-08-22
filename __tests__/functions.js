@@ -105,8 +105,7 @@ describe("Basic function memoize tests", () => {
           }/${storageStrategyClass.name}`;
 
           test(name, () => {
-            const f = (a, b, c, d, e) =>
-              Math.max(...[a, b, c, d, e].map((v) => (v && v.length) || 0));
+            const f = (a, b, c, d, e) => `${a}-${b}-${c}-${d}-${e}`;
             const func = createFunctionForTests(f);
 
             const memoized = memoize(func, {
@@ -121,10 +120,12 @@ describe("Basic function memoize tests", () => {
               [[], { length: 2e2 }, [], {}, null],
               [() => {}, { length: 1 }, [1111], {}, null],
             ];
-            for (let i = 1e2; i--; )
+
+            for (let i = 1e2; i--; ) {
               expect(testArgs.map((arr) => memoized(...arr))).toEqual(
                 testArgs.map((arr) => f(...arr))
               );
+            }
           });
         }
 });
